@@ -1,0 +1,150 @@
+[
+  {
+    "cwe_id": "CWE-22",
+    "weakness_name": "Improper Limitation of a Pathname to a Restricted Directory ('Path Traversal')",
+    "injected_locations": [
+      {
+        "file": "sm-shop/src/main/java/com/salesmanager/shop/controller/FilesController.java",
+        "line_number": 97,
+        "code_snippet": "Path path = Paths.get(baseDir + filePath);"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-77",
+    "weakness_name": "Improper Neutralization of Special Elements used in a Command ('Command Injection')",
+    "injected_locations": [
+      {
+        "file": "sm-core/src/main/java/com/salesmanager/core/business/utils/SystemUtils.java",
+        "line_number": 21,
+        "code_snippet": "Process process = Runtime.getRuntime().exec(command);"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-79",
+    "weakness_name": "Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting')",
+    "injected_locations": [
+      {
+        "file": "sm-shop/src/main/java/com/salesmanager/shop/store/api/v1/system/ContactApi.java",
+        "line_number": 76,
+        "code_snippet": "response.getWriter().write(\"<html><body><h2>Feedback received:</h2><p>\" + message + \"</p></body></html>\");"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-88",
+    "weakness_name": "Improper Neutralization of Argument Delimiters in a Command ('Argument Injection')",
+    "injected_locations": [
+      {
+        "file": "sm-core/src/main/java/com/salesmanager/core/business/utils/SystemUtils.java",
+        "line_number": 45,
+        "code_snippet": "ProcessBuilder pb = new ProcessBuilder(args);"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-89",
+    "weakness_name": "Improper Neutralization of Special Elements used in an SQL Command ('SQL Injection')",
+    "injected_locations": [
+      {
+        "file": "sm-core/src/main/java/com/salesmanager/core/business/repositories/customer/CustomerRepositoryImpl.java",
+        "line_number": 151,
+        "code_snippet": "String queryStr = \"SELECT c FROM Customer c WHERE c.nick = '\" + nickname + \"'\";"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-91",
+    "weakness_name": "XML Injection (aka Blind XPath Injection)",
+    "injected_locations": [
+      {
+        "file": "sm-core/src/main/java/com/salesmanager/core/business/utils/XmlUtils.java",
+        "line_number": 33,
+        "code_snippet": "name.setTextContent(productName);"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-99",
+    "weakness_name": "Improper Control of Resource Identifiers ('Resource Injection')",
+    "injected_locations": [
+      {
+        "file": "sm-core/src/main/java/com/salesmanager/core/business/utils/CacheUtils.java",
+        "line_number": 113,
+        "code_snippet": "Socket socket = new Socket(host, port);"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-259",
+    "weakness_name": "Use of Hard-coded Password",
+    "injected_locations": [
+      {
+        "file": "sm-shop/src/main/java/com/salesmanager/shop/store/security/services/CredentialsServiceImpl.java",
+        "line_number": 21,
+        "code_snippet": "private static final String ADMIN_DEFAULT_PASSWORD = \"admin123!\";"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-321",
+    "weakness_name": "Use of Hard-coded Cryptographic Key",
+    "injected_locations": [
+      {
+        "file": "sm-core/src/main/java/com/salesmanager/core/business/utils/CryptoUtils.java",
+        "line_number": 17,
+        "code_snippet": "private static final String SECRET_KEY = \"MySecretKey12345\";"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-567",
+    "weakness_name": "Unsynchronized Access to Shared Data in a Multithreaded Context",
+    "injected_locations": [
+      {
+        "file": "sm-shop/src/main/java/com/salesmanager/shop/store/controller/search/facade/SearchFacadeImpl.java",
+        "line_number": 46,
+        "code_snippet": "private static int searchCounter = 0;"
+      },
+      {
+        "file": "sm-shop/src/main/java/com/salesmanager/shop/store/controller/search/facade/SearchFacadeImpl.java",
+        "line_number": 47,
+        "code_snippet": "private static String lastSearchQuery = null;"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-570",
+    "weakness_name": "Expression is Always False",
+    "injected_locations": [
+      {
+        "file": "sm-core/src/main/java/com/salesmanager/core/business/utils/ProductUtils.java",
+        "line_number": 47,
+        "code_snippet": "if (length > 0 && length < 0) {"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-606",
+    "weakness_name": "Unchecked Input for Loop Condition",
+    "injected_locations": [
+      {
+        "file": "sm-core/src/main/java/com/salesmanager/core/business/utils/NumberUtils.java",
+        "line_number": 22,
+        "code_snippet": "for (int i = 0; i < limit; i++) {"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-772",
+    "weakness_name": "Missing Release of Resource after Effective Lifetime",
+    "injected_locations": [
+      {
+        "file": "sm-core/src/main/java/com/salesmanager/core/business/utils/DataUtils.java",
+        "line_number": 25,
+        "code_snippet": "FileInputStream fis = new FileInputStream(filePath);"
+      }
+    ]
+  }
+]

@@ -32,4 +32,4 @@ sm-shop/src/main/resources/database.properties
 
 .mvnw/*.jar
 
-cwe_injection_list.json
+# cwe*
