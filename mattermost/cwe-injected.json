@@ -1,0 +1,134 @@
+[
+  {
+    "cwe_id": "CWE-23",
+    "weakness_name": "Relative Path Traversal",
+    "injected_locations": [
+      {
+        "file": "server/channels/app/file.go",
+        "line_number": 202,
+        "code_snippet": "func (a *App) GetFileByUserPath(basePath string, userPath string) ([]byte, *model.AppError) {\n\tfullPath := basePath + \"/\" + userPath\n\tdata, err := os.ReadFile(fullPath)\n\tif err != nil {\n\t\treturn nil, model.NewAppError(\"GetFileByUserPath\", \"app.file.read.app_error\", nil, \"\", http.StatusInternalServerError).Wrap(err)\n\t}\n\treturn data, nil\n}"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-36",
+    "weakness_name": "Absolute Path Traversal",
+    "injected_locations": [
+      {
+        "file": "server/channels/app/export.go",
+        "line_number": 253,
+        "code_snippet": "func (a *App) ExportToPath(rctx request.CTX, exportPath string, data []byte) *model.AppError {\n\terr := os.WriteFile(exportPath, data, 0644)\n\tif err != nil {\n\t\treturn model.NewAppError(\"ExportToPath\", \"app.export.write.app_error\", nil, \"\", http.StatusInternalServerError).Wrap(err)\n\t}\n\treturn nil\n}"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-78",
+    "weakness_name": "Improper Neutralization of Special Elements used in an OS Command ('OS Command Injection')",
+    "injected_locations": [
+      {
+        "file": "server/channels/app/support_packet.go",
+        "line_number": 23,
+        "code_snippet": "func (a *App) RunDiagnosticCommand(rctx request.CTX, command string) ([]byte, error) {\n\tcmd := exec.Command(\"sh\", \"-c\", command)\n\toutput, err := cmd.Output()\n\tif err != nil {\n\t\treturn nil, err\n\t}\n\treturn output, nil\n}"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-90",
+    "weakness_name": "Improper Neutralization of Special Elements used in an LDAP Query ('LDAP Injection')",
+    "injected_locations": [
+      {
+        "file": "server/channels/app/ldap.go",
+        "line_number": 215,
+        "code_snippet": "func (a *App) SearchLdapUsers(rctx request.CTX, username string) (string, *model.AppError) {\n\tfilter := \"(uid=\" + username + \")\"\n\trctx.Logger().Debug(\"Searching LDAP with filter\", mlog.String(\"filter\", filter))\n\treturn filter, nil\n}"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-259",
+    "weakness_name": "Use of Hard-coded Password",
+    "injected_locations": [
+      {
+        "file": "server/channels/app/authentication.go",
+        "line_number": 102,
+        "code_snippet": "const defaultAdminPassword = \"admin123\"\n\nfunc (a *App) ValidateServiceCredentials(username, password string) bool {\n\tif username == \"service_account\" && password == defaultAdminPassword {\n\t\treturn true\n\t}\n\treturn false\n}"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-434",
+    "weakness_name": "Unrestricted Upload of File with Dangerous Type",
+    "injected_locations": [
+      {
+        "file": "server/channels/app/file.go",
+        "line_number": 602,
+        "code_snippet": "func (a *App) UploadArbitraryFile(rctx request.CTX, data []byte, channelID string, filename string) (*model.FileInfo, *model.AppError) {\n\tpath := \"data/uploads/\" + filename\n\terr := os.WriteFile(path, data, 0644)\n\tif err != nil {\n\t\treturn nil, model.NewAppError(\"UploadArbitraryFile\", \"app.file.upload.app_error\", nil, \"\", http.StatusInternalServerError).Wrap(err)\n\t}\n\n\tfileInfo := &model.FileInfo{\n\t\tName: filename,\n\t\tPath: path,\n\t}\n\treturn fileInfo, nil\n}"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-456",
+    "weakness_name": "Missing Initialization of a Variable",
+    "injected_locations": [
+      {
+        "file": "server/channels/app/channel.go",
+        "line_number": 203,
+        "code_snippet": "func (a *App) GetChannelStats(rctx request.CTX, channelId string) (*model.ChannelStats, *model.AppError) {\n\tvar stats *model.ChannelStats\n\n\tmemberCount, err := a.Srv().Store().Channel().GetMemberCount(channelId, true)\n\tif err != nil {\n\t\treturn stats, model.NewAppError(\"GetChannelStats\", \"app.channel.get_member_count.app_error\", nil, \"\", http.StatusInternalServerError).Wrap(err)\n\t}\n\n\tstats.MemberCount = memberCount\n\treturn stats, nil\n}"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-457",
+    "weakness_name": "Use of Uninitialized Variable",
+    "injected_locations": [
+      {
+        "file": "server/channels/app/team.go",
+        "line_number": 106,
+        "code_snippet": "func (a *App) CalculateTeamMetrics(rctx request.CTX, teamId string) (int64, *model.AppError) {\n\tvar totalMembers int64\n\n\tmembers, err := a.Srv().Store().Team().GetMembers(teamId, 0, 100, nil)\n\tif err != nil {\n\t\treturn totalMembers, model.NewAppError(\"CalculateTeamMetrics\", \"app.team.get_members.app_error\", nil, \"\", http.StatusInternalServerError).Wrap(err)\n\t}\n\n\tfor range members {\n\t\ttotalMembers++\n\t}\n\treturn totalMembers, nil\n}"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-477",
+    "weakness_name": "Use of Obsolete Function",
+    "injected_locations": [
+      {
+        "file": "server/channels/app/post.go",
+        "line_number": 39,
+        "code_snippet": "func (a *App) HashPostContent(content string) string {\n\thash := md5.Sum([]byte(content))\n\treturn fmt.Sprintf(\"%x\", hash)\n}"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-564",
+    "weakness_name": "SQL Injection: Hibernate",
+    "injected_locations": [
+      {
+        "file": "server/channels/app/user.go",
+        "line_number": 226,
+        "code_snippet": "func (a *App) SearchUsersByQuery(rctx request.CTX, searchTerm string) ([]*model.User, *model.AppError) {\n\tquery := \"SELECT * FROM Users WHERE Username LIKE '%\" + searchTerm + \"%' OR Email LIKE '%\" + searchTerm + \"%'\"\n\trctx.Logger().Debug(\"Executing search query\", mlog.String(\"query\", query))\n\treturn nil, nil\n}"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-672",
+    "weakness_name": "Operation on a Resource after Expiration or Release",
+    "injected_locations": [
+      {
+        "file": "server/channels/app/session.go",
+        "line_number": 202,
+        "code_snippet": "func (a *App) UseRevokedSession(rctx request.CTX, sessionId string) (*model.Session, *model.AppError) {\n\tsession, err := a.ch.srv.platform.GetSession(rctx, sessionId)\n\tif err != nil {\n\t\treturn nil, model.NewAppError(\"UseRevokedSession\", \"app.session.get.app_error\", nil, \"\", http.StatusInternalServerError).Wrap(err)\n\t}\n\t\n\ta.RevokeSessionById(rctx, session.Id)\n\t\n\tsession.LastActivityAt = model.GetMillis()\n\treturn session, nil\n}"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-778",
+    "weakness_name": "Insufficient Logging",
+    "injected_locations": [
+      {
+        "file": "server/channels/app/authentication.go",
+        "line_number": 111,
+        "code_snippet": "func (a *App) ProcessSensitiveUserAction(userID string, action string, sensitiveData map[string]string) error {\n\tswitch action {\n\tcase \"export_data\":\n\t\treturn nil\n\tcase \"delete_account\":\n\t\treturn nil\n\tcase \"change_permissions\":\n\t\treturn nil\n\tcase \"access_admin_panel\":\n\t\treturn nil\n\t}\n\treturn nil\n}"
+      }
+    ]
+  }
+]
