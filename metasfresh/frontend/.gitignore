@@ -1,0 +1,34 @@
+node_modules
+npm-debug.log*
+.DS_Store
+dist
+.idea
+/config.js
+/config.js.template.*
+/plugins.js
+/static
+.vscode
+.history
+docs
+
+# Ingore output from jest reporter
+junit.xml
+
+# Dynamic storybook configuration file
+.storybook/foundStories.js
+storybook-static/favicon.ico 
+
+# Coverage report
+.nyc_output
+coverage
+
+
+cypress/config.js
+cypress.json
+yarn-error.log
+/cypress.json
+/metasfresh-webui-frontend.iml
+*.diff
+
+# we are using yarn, so we can ignore npm package lock
+package-lock.json

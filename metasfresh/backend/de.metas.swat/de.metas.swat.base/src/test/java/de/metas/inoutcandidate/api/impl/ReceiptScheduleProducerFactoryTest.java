@@ -1,0 +1,139 @@
+package de.metas.inoutcandidate.api.impl;
+
+/*
+ * #%L
+ * de.metas.swat.base
+ * %%
+ * Copyright (C) 2015 metas GmbH
+ * %%
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation, either version 2 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public
+ * License along with this program. If not, see
+ * <http://www.gnu.org/licenses/gpl-2.0.html>.
+ * #L%
+ */
+
+import com.google.common.collect.ImmutableList;
+import de.metas.inoutcandidate.api.IReceiptScheduleProducerFactory;
+import de.metas.inoutcandidate.filter.GenerateReceiptScheduleForModelAggregateFilter;
+import de.metas.inoutcandidate.model.I_M_ReceiptSchedule;
+import de.metas.inoutcandidate.spi.IReceiptScheduleProducer;
+import de.metas.util.Services;
+import org.compiere.model.I_C_Order;
+import org.compiere.model.I_C_OrderLine;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+public class ReceiptScheduleProducerFactoryTest extends ReceiptScheduleTestBase
+{
+	protected IReceiptScheduleProducerFactory receiptScheduleProducer;
+
+	@Override
+	protected void setup()
+	{
+		final ReceiptScheduleProducerFactory receiptScheduleProducerFactory = new ReceiptScheduleProducerFactory(new GenerateReceiptScheduleForModelAggregateFilter(ImmutableList.of()));
+		Services.registerService(IReceiptScheduleProducerFactory.class, receiptScheduleProducerFactory);
+
+		receiptScheduleProducer = Services.get(IReceiptScheduleProducerFactory.class);
+	}
+
+	@Test
+	public void createReceiptSchedulesTestNullPrev()
+	{
+		final I_C_Order order = createOrder(warehouse1);
+		createOrderLine(order, product1_wh1);
+		IReceiptScheduleProducer producer = receiptScheduleProducer.createProducer(I_C_Order.Table_Name, false);
+		List<I_M_ReceiptSchedule> rcs = producer.createOrUpdateReceiptSchedules(order, Collections.<I_M_ReceiptSchedule>emptyList());
+		Assertions.assertEquals(1, rcs.size());
+	}
+
+	@Test
+	public void createReceiptSchedulesTestOnePrev()
+	{
+		final I_C_Order order = createOrder(warehouse1);
+		createOrderLine(order, product1_wh1);
+
+		final List<I_M_ReceiptSchedule> receiptSchedules = new ArrayList<>();
+		final I_M_ReceiptSchedule rc = createReceiptSchedule(bpartner1, warehouse1, date, product1_wh1, 12);
+		receiptSchedules.add(rc);
+
+		final IReceiptScheduleProducer producer = receiptScheduleProducer.createProducer(I_C_Order.Table_Name, false);
+		final List<I_M_ReceiptSchedule> rcs = producer.createOrUpdateReceiptSchedules(order, receiptSchedules);
+
+		Assertions.assertEquals(1, rcs.size());
+	}
+
+	@Test
+	public void createReceiptSchedulesTestMorePrev()
+	{
+		final I_C_Order order = createOrder(warehouse1);
+		createOrderLine(order, product1_wh1);
+
+		List<I_M_ReceiptSchedule> receiptSchedules = new ArrayList<>();
+		I_M_ReceiptSchedule rc = createReceiptSchedule(bpartner1, warehouse1, date, product1_wh1, 12);
+		I_M_ReceiptSchedule rc2 = createReceiptSchedule(bpartner1, warehouse2, date, product1_wh1, 12);
+		I_M_ReceiptSchedule rc3 = createReceiptSchedule(bpartner1, warehouse1, date, product2_wh1, 12);
+		receiptSchedules.add(rc);
+		receiptSchedules.add(rc2);
+		receiptSchedules.add(rc3);
+
+		IReceiptScheduleProducer producer = receiptScheduleProducer.createProducer(I_C_Order.Table_Name, false);
+		List<I_M_ReceiptSchedule> rcs = producer.createOrUpdateReceiptSchedules(order, receiptSchedules);
+		Assertions.assertEquals(1, rcs.size());
+	}
+
+	@Test
+	public void dataInOrderLineValidateTest()
+	{
+		final I_C_Order order = createOrder(warehouse1);
+		final I_C_OrderLine ol = createOrderLine(order, product1_wh1);
+
+		IReceiptScheduleProducer producer = receiptScheduleProducer.createProducer(I_C_Order.Table_Name, false);
+		List<I_M_ReceiptSchedule> rcs = producer.createOrUpdateReceiptSchedules(order, Collections.<I_M_ReceiptSchedule>emptyList());
+		Assertions.assertEquals(1, rcs.size());
+		I_M_ReceiptSchedule rc = rcs.get(0);
+		Assertions.assertEquals(ol.getAD_Org_ID(), rc.getAD_Org_ID(), "AD_Org_IDs do not match");
+		Assertions.assertEquals(ol.getAD_Client_ID(), rc.getAD_Client_ID(), "AD_Client_IDs do not match");
+		Assertions.assertEquals(ol.getC_BPartner_ID(), rc.getC_BPartner_ID(), "C_BPartner_IDs do not match");
+		Assertions.assertEquals(ol.getC_BPartner_Location_ID(), rc.getC_BPartner_Location_ID(), "C_BPartner_Location_IDs do not match");
+		Assertions.assertEquals(ol.getC_Order_ID(), rc.getC_Order_ID(), "C_Order_IDs do not match");
+		Assertions.assertEquals(ol.getM_Warehouse_ID(), rc.getM_Warehouse_ID(), "M_Warehouse_IDs do not match");
+		Assertions.assertEquals(ol.getQtyDelivered(), receiptScheduleBL.getQtyMoved(rc), "QtyDelivereds do not match");
+		Assertions.assertEquals(ol.getQtyOrdered(), rc.getQtyOrdered(), "QtyOrdereds do not match");
+
+	}
+
+	@Test
+	public void dataInOrderValidateTest()
+	{
+		final I_C_Order order = createOrder(warehouse1);
+		createOrderLine(order, product1_wh1);
+
+		IReceiptScheduleProducer producer = receiptScheduleProducer.createProducer(I_C_Order.Table_Name, false);
+		List<I_M_ReceiptSchedule> rcs = producer.createOrUpdateReceiptSchedules(order, Collections.<I_M_ReceiptSchedule>emptyList());
+		Assertions.assertEquals(1, rcs.size());
+		I_M_ReceiptSchedule rc = rcs.get(0);
+		Assertions.assertEquals(order.getAD_Org_ID(), rc.getAD_Org_ID(), "AD_Org_IDs do not match");
+		Assertions.assertEquals(order.getAD_Client_ID(), rc.getAD_Client_ID(), "AD_Client_IDs do not match");
+		Assertions.assertEquals(order.getAD_User_ID(), rc.getAD_User_ID(), "AD_User_IDs do not match");
+		Assertions.assertEquals(order.getC_BPartner_ID(), rc.getC_BPartner_ID(), "C_BPartner_IDs do not match");
+		Assertions.assertEquals(order.getC_BPartner_Location_ID(), rc.getC_BPartner_Location_ID(), "C_BPartner_Location_IDs do not match");
+		Assertions.assertEquals(order.getC_Order_ID(), rc.getC_Order_ID(), "C_Order_IDs do not match");
+		Assertions.assertEquals(order.getDeliveryRule(), rc.getDeliveryRule(), "DeliveryRules do not match");
+		Assertions.assertEquals(order.getM_Warehouse_ID(), rc.getM_Warehouse_ID(), "M_Warehouse_IDs do not match");
+	}
+
+}

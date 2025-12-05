@@ -1,0 +1,45 @@
+package org.adempiere.ad.validationRule.impl;
+
+import com.google.common.collect.ImmutableSet;
+import org.adempiere.ad.expression.api.IStringExpression;
+import org.adempiere.ad.validationRule.IValidationRule;
+
+import java.util.Set;
+
+/**
+ * Null validation rule. A null validation rule, does nothing. Is not filtering any records.
+ *
+ * @author tsa
+ */
+public final class NullValidationRule implements IValidationRule
+{
+	public static final NullValidationRule instance = new NullValidationRule();
+
+	public static boolean isNull(final IValidationRule rule)
+	{
+		return rule == null || rule == instance;
+	}
+
+	private NullValidationRule()
+	{
+		super();
+	}
+
+	@Override
+	public boolean isImmutable()
+	{
+		return true;
+	}
+
+	@Override
+	public Set<String> getAllParameters()
+	{
+		return ImmutableSet.of();
+	}
+
+	@Override
+	public IStringExpression getPrefilterWhereClause()
+	{
+		return IStringExpression.NULL;
+	}
+}

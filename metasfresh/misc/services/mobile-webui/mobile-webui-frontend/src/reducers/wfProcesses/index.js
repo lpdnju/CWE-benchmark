@@ -1,0 +1,158 @@
+import { produce } from 'immer';
+import { workflowReducer } from './workflow';
+import { scanReducer } from './scan';
+import { activityUserConfirmationReducer } from './confirmation';
+import { distributionReducer } from './distribution';
+import { manufacturingReducer as manufacturingIssueReducer } from './manufacturing_issue';
+import { reducer as manufacturingIssueAdjustmentReducer } from './manufacturing_issue_adjustment';
+import { manufacturingReducer as manufacturingReceiptReducer } from './manufacturing_receipt';
+import { generateHUQRCodesReducer } from './generateHUQRCodes';
+import { trl } from '../../utils/translations';
+import { shallowEqual, useSelector } from 'react-redux';
+
+export const QTY_REJECTED_REASON_TO_IGNORE_KEY = 'IgnoreReason';
+
+export const getWfProcess = (globalState, wfProcessId) => {
+  if (!wfProcessId) {
+    console.trace(`getWfProcess called with wfProcessId=${wfProcessId}`);
+  }
+
+  return globalState.wfProcesses[wfProcessId];
+};
+
+export const isWfProcessLoaded = (state, wfProcessId) => {
+  if (!wfProcessId) {
+    console.trace(`isWfProcessLoaded called with wfProcessId=${wfProcessId}`);
+    return false;
+  }
+
+  return !!state.wfProcesses[wfProcessId];
+};
+
+export const getActivitiesInOrder = (wfProcess) => {
+  const activityIdsInOrder = wfProcess.activityIdsInOrder ?? [];
+  const activitiesById = wfProcess.activities ?? {};
+  return activityIdsInOrder.map((activityId) => activitiesById[activityId]);
+};
+
+export const getFirstActivityByComponentType = ({ state, wfProcessId, componentType }) => {
+  const wfProcess = getWfProcess(state, wfProcessId);
+  const activityIdsInOrder = wfProcess.activityIdsInOrder ?? [];
+  const activitiesById = wfProcess.activities ?? {};
+  for (const activityId of activityIdsInOrder) {
+    const activity = activitiesById[activityId];
+    if (activity?.componentType === componentType) {
+      return activity;
+    }
+  }
+
+  return null;
+};
+
+export const useWFActivity = ({ wfProcessId, activityId }) => {
+  return useSelector((state) => getActivityById(state, wfProcessId, activityId), shallowEqual);
+};
+
+export const getActivityById = (state, wfProcessId, activityId) => {
+  const wfProcess = getWfProcess(state, wfProcessId);
+  return getActivityByIdFromWFProcess(wfProcess, activityId);
+};
+
+export const getActivityByIdFromWFProcess = (wfProcess, activityId) => {
+  return wfProcess?.activities?.[activityId] ?? {};
+};
+
+export const getLineByIdFromActivity = (activity, lineId) => {
+  return getLinesFromActivity(activity)[lineId];
+};
+
+export const getLinesArrayFromActivity = (activity) => {
+  return Object.values(activity?.dataStored?.lines ?? {});
+};
+
+const getLinesFromActivity = (activity) => {
+  return activity?.dataStored?.lines ?? {};
+};
+
+export const getLineByIdFromWFProcess = (wfProcess, activityId, lineId) => {
+  const activity = wfProcess?.activities?.[activityId];
+  return getLineByIdFromActivity(activity, lineId);
+};
+
+export const getLineById = (state, wfProcessId, activityId, lineId) => {
+  const activity = getActivityById(state, wfProcessId, activityId);
+  return getLineByIdFromActivity(activity, lineId);
+};
+
+export const getStepsArrayFromLine = (line) => {
+  const stepsById = line?.steps ?? {};
+  return Object.values(stepsById);
+};
+
+export const getSteps = (state, wfProcessId, activityId, lineId) => {
+  const line = getLineById(state, wfProcessId, activityId, lineId);
+  return getStepsArrayFromLine(line);
+};
+
+export const getStepById = (state, wfProcessId, activityId, lineId, stepId) => {
+  const line = getLineById(state, wfProcessId, activityId, lineId);
+  return getStepByIdFromLine(line, stepId);
+};
+
+export const getStepByIdFromActivity = (activity, lineId, stepId) => {
+  const line = getLineByIdFromActivity(activity, lineId);
+  return getStepByIdFromLine(line, stepId);
+};
+
+export const getStepByIdFromLine = (line, stepId) => {
+  return line?.steps?.[stepId];
+};
+
+export const getCustomQRCodeFormats = ({ activity }) => {
+  return activity?.dataStored?.customQRCodeFormats ?? [];
+};
+
+export const getQtyRejectedReasonsFromActivity = (activity) => {
+  let reasons = activity?.dataStored?.qtyRejectedReasons?.reasons ?? [];
+
+  if (reasons.length > 0 && activity?.dataStored?.isAllowSkippingRejectedReason) {
+    reasons = [
+      ...reasons,
+      {
+        key: QTY_REJECTED_REASON_TO_IGNORE_KEY,
+        caption: trl('activities.picking.qtyRejectedIgnoreReason'),
+      },
+    ];
+  }
+  return reasons;
+};
+
+export const computeQtyToPickRemaining = ({ line }) => {
+  const stepsArray = getStepsArrayFromLine(line);
+  const qtyPicked = stepsArray.reduce((sum, step) => sum + (step.qtyPicked || 0), 0);
+  return Math.max(line.qtyToMove - qtyPicked, 0);
+};
+
+export const getScaleDeviceFromActivity = (activity) => {
+  return activity?.dataStored?.scaleDevice;
+};
+
+export const isAnonymousPickHUsOnTheFly = ({ activity }) => {
+  return activity?.dataStored?.isAnonymousPickHUsOnTheFly ?? false;
+};
+
+const reducer = produce((draftState, action) => {
+  draftState = workflowReducer({ draftState, action });
+  draftState = scanReducer({ draftState, action });
+  draftState = activityUserConfirmationReducer({ draftState, action });
+  //draftState = pickingReducer({ draftState, action });
+  draftState = distributionReducer({ draftState, action });
+  draftState = generateHUQRCodesReducer({ draftState, action });
+  draftState = manufacturingIssueReducer({ draftState, action });
+  draftState = manufacturingIssueAdjustmentReducer({ draftState, action });
+  draftState = manufacturingReceiptReducer({ draftState, action });
+
+  return draftState;
+}, {});
+
+export default reducer;

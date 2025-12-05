@@ -1,0 +1,147 @@
+package de.metas.handlingunits.inventory.draftlinescreator;
+
+import com.google.common.collect.ImmutableSet;
+import de.metas.handlingunits.IHUQueryBuilder;
+import de.metas.handlingunits.IHUStatusBL;
+import de.metas.handlingunits.IHandlingUnitsDAO;
+import de.metas.handlingunits.model.I_M_HU;
+import de.metas.handlingunits.model.X_M_HU;
+import de.metas.product.ProductId;
+import de.metas.util.Services;
+import lombok.Builder;
+import lombok.NonNull;
+import lombok.Singular;
+import lombok.Value;
+import org.adempiere.exceptions.AdempiereException;
+import org.adempiere.mm.attributes.AttributeId;
+import org.adempiere.mm.attributes.AttributeSetInstanceId;
+import org.adempiere.mm.attributes.api.IAttributeSetInstanceBL;
+import org.adempiere.mm.attributes.api.ImmutableAttributeSet;
+import org.adempiere.warehouse.LocatorId;
+import org.adempiere.warehouse.WarehouseId;
+
+import javax.annotation.Nullable;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Stream;
+
+/*
+ * #%L
+ * de.metas.handlingunits.base
+ * %%
+ * Copyright (C) 2018 metas GmbH
+ * %%
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation, either version 2 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public
+ * License along with this program. If not, see
+ * <http://www.gnu.org/licenses/gpl-2.0.html>.
+ * #L%
+ */
+
+/**
+ * Builds up a list of HUs for certain product, locator and warehouse, which have stock
+ *
+ * @author metas-dev <dev@metasfresh.com>
+ */
+@Value
+public class LocatorAndProductStrategy implements HUsForInventoryStrategy
+{
+	// services
+	IHandlingUnitsDAO handlingUnitsDAO = Services.get(IHandlingUnitsDAO.class);
+	IHUStatusBL huStatusBL = Services.get(IHUStatusBL.class);
+	IAttributeSetInstanceBL asiBL = Services.get(IAttributeSetInstanceBL.class);
+	@NonNull HuForInventoryLineFactory huForInventoryLineFactory;
+
+	@Nullable WarehouseId warehouseId;
+	@Nullable LocatorId locatorId;
+	@NonNull ImmutableSet<ProductId> onlyProductIds;
+	@Nullable Boolean onlyStockedProducts;
+	@NonNull AttributeSetInstanceId asiId;
+
+	@Builder
+	private LocatorAndProductStrategy(
+			@NonNull final HuForInventoryLineFactory huForInventoryLineFactory,
+			//
+			@Nullable final WarehouseId warehouseId,
+			@Nullable final LocatorId locatorId,
+			@Nullable @Singular final Set<ProductId> onlyProductIds,
+			@Nullable final Boolean onlyStockedProducts,
+			@Nullable final AttributeSetInstanceId asiId)
+	{
+		this.huForInventoryLineFactory = huForInventoryLineFactory;
+
+		this.locatorId = locatorId;
+		this.warehouseId = warehouseId;
+		this.onlyProductIds = onlyProductIds != null && !onlyProductIds.isEmpty()
+				? onlyProductIds.stream().filter(Objects::nonNull).collect(ImmutableSet.toImmutableSet())
+				: ImmutableSet.of();
+		this.onlyStockedProducts = onlyStockedProducts;
+		this.asiId = asiId != null ? asiId : AttributeSetInstanceId.NONE;
+
+		if (warehouseId != null && locatorId != null && !WarehouseId.equals(warehouseId, locatorId.getWarehouseId()))
+		{
+			throw new AdempiereException("If both a warehouse and locator are specified, the warehouse shall match: " + warehouseId + ", " + locatorId);
+		}
+	}
+
+	@Override
+	public Stream<HuForInventoryLine> streamHus()
+	{
+		final IHUQueryBuilder huQueryBuilder = handlingUnitsDAO.createHUQueryBuilder()
+				.setOnlyTopLevelHUs()
+				.addHUStatusToInclude(X_M_HU.HUSTATUS_Active);
+
+		if (onlyStockedProducts != null)
+		{
+			huQueryBuilder.setOnlyStockedProducts(onlyStockedProducts);
+		}
+		if (warehouseId != null)
+		{
+			huQueryBuilder.addOnlyInWarehouseId(warehouseId);
+		}
+		if (locatorId != null)
+		{
+			huQueryBuilder.addOnlyInLocatorId(locatorId);
+		}
+		if (!onlyProductIds.isEmpty())
+		{
+			huQueryBuilder.addOnlyWithProductIds(onlyProductIds);
+		}
+
+		if (asiId.isRegular())
+		{
+			appendAttributeFilters(huQueryBuilder);
+		}
+
+		return huQueryBuilder.createQueryBuilder()
+				.clearOrderBys().orderBy(I_M_HU.COLUMNNAME_M_HU_ID)
+				.create()
+				.iterateAndStream()
+				.flatMap(huForInventoryLineFactory::ofHURecord);
+	}
+
+	private void appendAttributeFilters(final IHUQueryBuilder huQueryBuilder)
+	{
+		final ImmutableAttributeSet storageRelevantAttributes = asiBL.getImmutableAttributeSetById(asiId)
+				.filterOnlyStorageRelevantAttributes();
+		if (storageRelevantAttributes.isEmpty())
+		{
+			return;
+		}
+
+		for (final AttributeId attributeId : storageRelevantAttributes.getAttributeIds())
+		{
+			final Object value = storageRelevantAttributes.getValue(attributeId);
+			huQueryBuilder.addOnlyWithAttribute(attributeId, value);
+		}
+	}
+}

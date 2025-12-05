@@ -1,0 +1,52 @@
+@import './variables.scss';
+@import 'bulma/bulma.sass';
+@import './login.scss';
+@import './applications-list.scss';
+@import './application.scss';
+@import './fonts.scss';
+@import './view-header.scss';
+@import './buttons.scss';
+@import './launchers.scss';
+@import './launchers-filters.scss';
+@import './prompt-dialog.scss';
+@import './pick-products.scss';
+@import './get-qty-dialog.scss';
+@import './BarcodeScannerComponent.scss';
+@import './hu-button.scss';
+@import './spinner.scss';
+@import './error-screen.scss';
+@import './toast.scss';
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  overflow: hidden !important;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+  'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+  sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+  monospace;
+}
+
+#root {
+  width: 100%;
+}
+
+.centered-text {
+  text-align: center;
+}
+
+.with-border-top {
+  border-top: 1px solid $grey-lighter
+}

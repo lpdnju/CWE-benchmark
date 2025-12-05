@@ -1,0 +1,120 @@
+package de.metas.shipper.gateway.go;
+
+import de.metas.bpartner.service.IBPartnerOrgBL;
+import de.metas.organization.OrgId;
+import de.metas.shipper.gateway.commons.DeliveryOrderUtil;
+import de.metas.shipper.gateway.go.schema.GOPaidMode;
+import de.metas.shipper.gateway.go.schema.GOSelfDelivery;
+import de.metas.shipper.gateway.go.schema.GOSelfPickup;
+import de.metas.shipper.gateway.go.schema.GOShipperProduct;
+import de.metas.shipper.gateway.spi.DraftDeliveryOrderCreator;
+import de.metas.shipper.gateway.spi.model.DeliveryOrder;
+import de.metas.shipper.gateway.spi.model.DeliveryPosition;
+import de.metas.shipper.gateway.spi.model.PickupDate;
+import de.metas.shipping.ShipperGatewayId;
+import de.metas.shipping.mpackage.PackageId;
+import de.metas.util.Services;
+import lombok.NonNull;
+import org.compiere.model.I_C_BPartner;
+import org.compiere.model.I_C_BPartner_Location;
+import org.compiere.model.I_C_Location;
+import org.jetbrains.annotations.NotNull;
+import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.Set;
+
+import static org.adempiere.model.InterfaceWrapperHelper.load;
+
+/*
+ * #%L
+ * de.metas.shipper.gateway.go
+ * %%
+ * Copyright (C) 2018 metas GmbH
+ * %%
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation, either version 2 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public
+ * License along with this program. If not, see
+ * <http://www.gnu.org/licenses/gpl-2.0.html>.
+ * #L%
+ */
+
+@Service
+public class GODraftDeliveryOrderCreator implements DraftDeliveryOrderCreator
+{
+	private static final BigDecimal DEFAULT_PackageWeightInKg = BigDecimal.ONE;
+
+	@Override
+	public ShipperGatewayId getShipperGatewayId()
+	{
+		return GOConstants.SHIPPER_GATEWAY_ID;
+	}
+
+	@Override
+	public @NotNull DeliveryOrder createDraftDeliveryOrder(@NonNull final CreateDraftDeliveryOrderRequest request)
+	{
+		final DeliveryOrderKey deliveryOrderKey = request.getDeliveryOrderKey();
+		final Set<PackageId> mpackageIds = request.getPackageIds();
+
+		final IBPartnerOrgBL bpartnerOrgBL = Services.get(IBPartnerOrgBL.class);
+		final I_C_BPartner pickupFromBPartner = bpartnerOrgBL.retrieveLinkedBPartner(deliveryOrderKey.getFromOrgId());
+		final I_C_Location pickupFromLocation = bpartnerOrgBL.retrieveOrgLocation(OrgId.ofRepoId(deliveryOrderKey.getFromOrgId()));
+		final LocalDate pickupDate = deliveryOrderKey.getPickupDate();
+
+		final int deliverToBPartnerId = deliveryOrderKey.getDeliverToBPartnerId();
+		final I_C_BPartner deliverToBPartner = load(deliverToBPartnerId, I_C_BPartner.class);
+
+		final int deliverToBPartnerLocationId = deliveryOrderKey.getDeliverToBPartnerLocationId();
+		final I_C_BPartner_Location deliverToBPLocation = load(deliverToBPartnerLocationId, I_C_BPartner_Location.class);
+		final I_C_Location deliverToLocation = deliverToBPLocation.getC_Location();
+
+		final GoDeliveryOrderData goDeliveryOrderData = GoDeliveryOrderData.builder()
+				.receiptConfirmationPhoneNumber(null)
+				.paidMode(GOPaidMode.Prepaid)
+				.selfPickup(GOSelfPickup.Delivery)
+				.selfDelivery(GOSelfDelivery.Pickup)
+				.build();
+
+		return DeliveryOrder.builder()
+				.shipperId(deliveryOrderKey.getShipperId())
+				.shipperTransportationId(deliveryOrderKey.getShipperTransportationId())
+				//
+				.shipperProduct(GOShipperProduct.Overnight)
+				.customDeliveryData(goDeliveryOrderData)
+				//
+				// Pickup
+				.pickupAddress(DeliveryOrderUtil.prepareAddressFromLocationBP(pickupFromLocation, pickupFromBPartner)
+						.build())
+				.pickupDate(PickupDate.builder()
+						.date(pickupDate)
+						.build())
+				//
+				// Delivery
+				.deliveryAddress(DeliveryOrderUtil.prepareAddressFromLocationBP(deliverToLocation,deliverToBPartner)
+						.companyDepartment("-") // N/A
+						.bpartnerId(deliverToBPartnerId)
+						.build())
+				//
+				// Delivery content
+				.deliveryPosition(DeliveryPosition.builder()
+						.numberOfPackages(mpackageIds.size())
+						.packageIds(mpackageIds)
+						.grossWeightKg(request.getAllPackagesGrossWeightInKg(DEFAULT_PackageWeightInKg))
+						.content(request.getAllPackagesContentDescription().orElse("-"))
+						.build())
+				// .customerReference(null)
+				//
+				.build();
+	}
+
+}

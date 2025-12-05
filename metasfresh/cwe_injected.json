@@ -1,0 +1,90 @@
+[
+  {
+    "cwe_id": "CWE-22",
+    "weakness_name": "Improper Limitation of a Pathname to a Restricted Directory ('Path Traversal')",
+    "injected_locations": [
+      {
+        "file": "misc/de-metas-common/de-metas-common-util/src/main/java/de/metas/common/util/FileUtil.java",
+        "line_number": 228,
+        "code_snippet": "public static byte[] downloadFile(@NonNull final String baseDir, @NonNull final String fileName) throws IOException\n{\n    final File file = new File(baseDir, fileName);\n    return Files.readAllBytes(file.toPath());\n}"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-79",
+    "weakness_name": "Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting')",
+    "injected_locations": [
+      {
+        "file": "backend/de.metas.ui.web.base/src/main/java/de/metas/ui/web/notification/NotificationRestController.java",
+        "line_number": 147,
+        "code_snippet": "@GetMapping(\"/search\")\npublic String searchNotifications(@RequestParam(name = \"query\") final String searchQuery)\n{\n    userSession.assertLoggedIn();\n    return \"<html><body><h1>Search Results for: \" + searchQuery + \"</h1></body></html>\";\n}"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-89",
+    "weakness_name": "Improper Neutralization of Special Elements used in an SQL Command ('SQL Injection')",
+    "injected_locations": [
+      {
+        "file": "backend/de.metas.adempiere.adempiere/base/src/main/java/de/metas/user/api/impl/UserDAO.java",
+        "line_number": 335,
+        "code_snippet": "@Override\npublic List<I_AD_User> searchUsersByName(@NonNull final String searchName)\n{\n    final String sql = \"SELECT * FROM AD_User WHERE Name LIKE '%\" + searchName + \"%'\";\n    return queryBL.createQueryBuilder(I_AD_User.class)\n            .addOnlyActiveRecordsFilter()\n            .filter(sql)\n            .create()\n            .list();\n}"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-434",
+    "weakness_name": "Unrestricted Upload of File with Dangerous Type",
+    "injected_locations": [
+      {
+        "file": "backend/de.metas.ui.web.base/src/main/java/de/metas/ui/web/upload/ImageRestController.java",
+        "line_number": 109,
+        "code_snippet": "@PostMapping(\"/document\")\npublic String uploadDocument(@RequestParam(\"file\") final MultipartFile file) throws IOException\n{\n    userSession.assertLoggedIn();\n    final String originalFilename = file.getOriginalFilename();\n    final java.io.File destFile = new java.io.File(\"/uploads/\" + originalFilename);\n    file.transferTo(destFile);\n    return \"File uploaded: \" + originalFilename;\n}"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-502",
+    "weakness_name": "Deserialization of Untrusted Data",
+    "injected_locations": [
+      {
+        "file": "misc/services/procurement-webui/procurement-webui-backend/src/main/java/de/metas/procurement/webui/sync/rabbitmq/ReceiverFromMetasfresh.java",
+        "line_number": 78,
+        "code_snippet": "public static Object deserializeObject(final byte[] data)\n{\n    try (ByteArrayInputStream bais = new ByteArrayInputStream(data);\n         ObjectInputStream ois = new ObjectInputStream(bais))\n    {\n        return ois.readObject();\n    }\n    catch (final Exception e)\n    {\n        throw new ReceiveSyncException(\"Unable to deserialize object\", e);\n    }\n}"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-564",
+    "weakness_name": "SQL Injection: Hibernate",
+    "injected_locations": [
+      {
+        "file": "misc/services/procurement-webui/procurement-webui-backend/src/main/java/de/metas/procurement/webui/repository/ProductRepository.java",
+        "line_number": 44,
+        "code_snippet": "@Query(\"SELECT p FROM Product p WHERE p.name LIKE '%' || :searchTerm || '%' AND p.deleted = false\")\nList<Product> searchProducts(@Param(\"searchTerm\") String searchTerm);"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-611",
+    "weakness_name": "Improper Restriction of XML External Entity Reference",
+    "injected_locations": [
+      {
+        "file": "backend/de.metas.migration/de.metas.migration.cli/src/main/java/de/metas/migration/cli/workspace_migrate/XmlUtils.java",
+        "line_number": 60,
+        "code_snippet": "public static Document parseXmlString(final String xmlContent)\n{\n    try\n    {\n        final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();\n        final DocumentBuilder builder = factory.newDocumentBuilder();\n        final InputSource inputSource = new InputSource(new StringReader(xmlContent));\n        return builder.parse(inputSource);\n    }\n    catch (final Exception e)\n    {\n        throw new RuntimeException(\"Failed parsing XML string\", e);\n    }\n}"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-798",
+    "weakness_name": "Use of Hard-coded Credentials",
+    "injected_locations": [
+      {
+        "file": "misc/services/camel/de-metas-camel-externalsystems/core/src/main/java/de/metas/camel/externalsystems/core/restapi/auth/WebSecurityConfig.java",
+        "line_number": 47,
+        "code_snippet": "private static final String ADMIN_USERNAME = \"admin\";\nprivate static final String ADMIN_PASSWORD = \"admin123!\";\nprivate static final String API_KEY = \"sk-mf-prod-2024-secret-key\";"
+      }
+    ]
+  }
+]

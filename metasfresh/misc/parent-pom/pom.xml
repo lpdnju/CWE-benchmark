@@ -1,0 +1,987 @@
+<!--
+  ~ #%L
+  ~ de.metas.parent.general
+  ~ %%
+  ~ Copyright (C) 2025 metas GmbH
+  ~ %%
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as
+  ~ published by the Free Software Foundation, either version 2 of the
+  ~ License, or (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public
+  ~ License along with this program. If not, see
+  ~ <http://www.gnu.org/licenses/gpl-2.0.html>.
+  ~ #L%
+  -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>de.metas</groupId>
+    <artifactId>de.metas.parent.general</artifactId>
+    <version>10.0.0</version>
+
+    <packaging>pom</packaging>
+
+    <description>
+        Default parent pom with common settings (e.g. java file encoding) to be used by all maven projects.
+    </description>
+
+    <url>http://www.metasfresh.com/</url>
+
+    <organization>
+        <name>metas GmbH</name>
+        <url>http://www.metasfresh.com/</url>
+    </organization>
+
+    <inceptionYear>2015</inceptionYear>
+
+    <developers>
+        <developer>
+            <name>metasfresh contributors</name>
+            <organizationUrl>http://www.metasfresh.com/</organizationUrl>
+            <email>contributors@metasfresh.com</email>
+        </developer>
+    </developers>
+
+    <properties>
+        <!-- this is our default; individual projects might need to specify their own settings -->
+        <metasfresh.java.version>1.8</metasfresh.java.version>
+
+        <!-- please keep in sync with spring-boot's versions - https://docs.spring.io/spring-boot/docs/current/reference/html/appendix-dependency-versions.html -->
+        <jackson.version>2.14.1</jackson.version>
+        <amqp-client.version>5.10.0</amqp-client.version>
+
+        <jasperreports.version>6.21.2</jasperreports.version>
+
+        <itextpdf.version>5.5.13.3</itextpdf.version>
+
+        <!-- https://github.com/codecentric/spring-boot-admin -->
+        <spring-boot-admin.version>2.3.1</spring-boot-admin.version>
+
+        <logstash-logback-encoder.version>6.3</logstash-logback-encoder.version>
+
+        <springfox-swagger.version>3.0.0</springfox-swagger.version>
+        <!--        Compatibility with Springfox-->
+        <!--        Springfox 2.x <-> springfox-enum-plugin 1.x.-->
+        <!--        Springfox 3.x <-> springfox-enum-plugin 3.x.-->
+        <springfox-enum-plugin.version>3.0.0</springfox-enum-plugin.version>
+
+        <!-- please keep in sync with spring-boot's version to avoid dependency convergence errors -->
+        <slf4j-api.version>1.7.25</slf4j-api.version>
+
+        <!-- test related versions -->
+        <!--
+            3.27.2 is currently the latest and greatest. Spring boot declares some 2.x version that
+            see http://docs.spring.io/spring-boot/docs/1.2.3.RELEASE/reference/htmlsingle/#howto-customize-dependency-versions-with-maven
+        -->
+        <assertj.version>3.27.2</assertj.version>
+        <xmlunit-assertj3.version>2.10.0</xmlunit-assertj3.version>
+        <xmlunit.version>2.10.0</xmlunit.version>
+
+        <mockito.version>2.7.22</mockito.version>
+        <byte-buddy.version>1.12.20</byte-buddy.version>
+        <objenesis.version>3.3</objenesis.version>
+
+        <commons-io.version>2.11.0</commons-io.version>
+        <commons-lang3.version>3.12.0</commons-lang3.version>
+        <guava.version>30.1.1-jre</guava.version>
+
+        <surefire-plugin.version>3.5.3</surefire-plugin.version>
+    </properties>
+
+    <modules>
+        <!-- this module provides a shared set of assembly descriptors-->
+        <module>assemblies</module>
+    </modules>
+
+    <dependencies>
+        <dependency>
+            <groupId>io.github.origin-energy</groupId>
+            <artifactId>java-snapshot-testing-junit5</artifactId>
+            <version>4.0.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.github.origin-energy</groupId>
+            <artifactId>java-snapshot-testing-plugin-jackson</artifactId>
+            <version>4.0.2</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- 
+        dependency of org.skyscreamer:jsonassert which is a dependency of json-snapshot
+        I get a ClassNotFoundException JSONException, despite ofc it *should* be there transitively 
+        -->
+        <dependency>
+            <groupId>org.skyscreamer</groupId>
+            <artifactId>jsonassert</artifactId>
+            <version>1.5.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.vaadin.external.google</groupId>
+            <artifactId>android-json</artifactId>
+            <version>0.0.20131108.vaadin1</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+    <dependencyManagement>
+        <dependencies>
+
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>1.18.18</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.assertj</groupId>
+                <artifactId>assertj-core</artifactId>
+                <version>${assertj.version}</version>
+                <scope>test</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.xmlunit</groupId>
+                <artifactId>xmlunit-core</artifactId>
+                <version>${xmlunit.version}</version>
+                <scope>test</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.xmlunit</groupId>
+                <artifactId>xmlunit-assertj</artifactId>
+                <version>${xmlunit.version}</version>
+                <scope>test</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>net.sf.jasperreports</groupId>
+                <artifactId>jasperreports</artifactId>
+                <version>${jasperreports.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.itextpdf</groupId>
+                <artifactId>itextpdf</artifactId>
+                <version>${itextpdf.version}</version>
+            </dependency>
+
+            <!-- this also contains the javax.annotations -->
+            <dependency>
+                <groupId>com.google.code.findbugs</groupId>
+                <artifactId>annotations</artifactId>
+                <version>3.0.1</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.code.findbugs</groupId>
+                <artifactId>jsr305</artifactId>
+                <version>3.0.2</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>${guava.version}</version>
+            </dependency>
+
+            <!-- Thx for the two fonts to http://ansuz.sooke.bc.ca/page/fonts ^^ -->
+            <dependency>
+                <groupId>jp.osdn.ocra</groupId>
+                <artifactId>jp.osdn.ocra</artifactId>
+                <version>0.2</version>
+            </dependency>
+            <dependency>
+                <groupId>jp.osdn.ocrb</groupId>
+                <artifactId>jp.osdn.ocrb</artifactId>
+                <version>0.2.1</version>
+            </dependency>
+
+            <dependency>
+                <groupId>net.logstash.logback</groupId>
+                <artifactId>logstash-logback-encoder</artifactId>
+                <version>${logstash-logback-encoder.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.jetbrains</groupId>
+                <artifactId>annotations</artifactId>
+                <version>17.0.0</version>
+            </dependency>
+
+        </dependencies>
+
+    </dependencyManagement>
+
+    <build>
+        <plugins>
+            <!-- This plugin sometimes causes trouble in eclipse.
+             -->
+            <plugin>
+                <groupId>pl.project13.maven</groupId>
+                <artifactId>git-commit-id-plugin</artifactId>
+                <version>4.0.4</version>
+                <executions>
+                    <execution>
+                        <id>get-the-git-infos</id>
+                        <goals>
+                            <goal>revision</goal>
+                        </goals>
+                        <!-- don't bind it to the initialization phase to avoid it being run on mvn clean -->
+                        <phase>prepare-package</phase>
+                    </execution>
+                </executions>
+                <configuration>
+                    <generateGitPropertiesFile>true</generateGitPropertiesFile>
+                    <generateGitPropertiesFilename>${project.build.outputDirectory}/git.properties</generateGitPropertiesFilename>
+                    <!--includeOnlyProperties>
+                        For starts, we naively include everything.
+                        Also see https://github.com/git-commit-id/git-commit-id-maven-plugin/blob/master/maven/docs/using-the-plugin.md
+                        <includeOnlyProperty>^git.build.(time|version)$</includeOnlyProperty>
+                        <includeOnlyProperty>^git.commit.id.(abbrev|full)$</includeOnlyProperty>
+                    </includeOnlyProperties-->
+                    <commitIdGenerationMode>full</commitIdGenerationMode>
+                    <!--
+                    Using the native git binary gives us aprox-10 minutes in the metasfresh repo
+                    Also see https://github.com/git-commit-id/git-commit-id-maven-plugin/blob/master/maven/docs/using-the-plugin.md
+                    Most notably, you can also call maven with `-Dmaven.gitcommitid.nativegit=false` to override this
+                    -->
+                    <useNativeGit>true</useNativeGit>
+
+                    <!-- Running only once and injecting the respective file into all submodules might save a lot of build-time, but we didn't yet get it to work -->
+                    <!--
+                        <runOnlyOnce>true</runOnlyOnce>
+                        <injectAllReactorProjects>true</injectAllReactorProjects>
+                        <skipPoms>false</skipPoms>
+                    -->
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-clean-plugin</artifactId>
+                <version>3.0.0</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-install-plugin</artifactId>
+                <version>2.4</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-site-plugin</artifactId>
+                <version>3.3</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.2.0</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <version>2.7</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-reactor-plugin</artifactId>
+                <version>1.1</version>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.8</version>
+            </plugin>
+
+        </plugins>
+
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-assembly-plugin</artifactId>
+                    <version>3.3.0</version>
+                </plugin>
+
+                <!-- we set the metasfresh-wide encoding for code and resource files to be UTF-8 by default -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.8.1</version>
+                    <configuration>
+                        <encoding>UTF-8</encoding>
+                        <source>${metasfresh.java.version}</source>
+                        <target>${metasfresh.java.version}</target>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-resources-plugin</artifactId>
+                    <version>3.2.0</version>
+                    <configuration>
+                        <encoding>UTF-8</encoding>
+                    </configuration>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.jvnet.jaxb2.maven2</groupId>
+                    <artifactId>maven-jaxb2-plugin</artifactId>
+                    <version>0.14.0</version>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-clean-plugin</artifactId>
+                    <version>3.0.0</version>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-install-plugin</artifactId>
+                    <version>2.4</version>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-site-plugin</artifactId>
+                    <version>3.3</version>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-deploy-plugin</artifactId>
+                    <!-- <version>3.0.0-M1</version> -->
+                    <version>2.7</version>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-reactor-plugin</artifactId>
+                    <version>1.1</version>
+                </plugin>
+
+                <!-- Add the generic info plus ci build info to the manifests of all jars that we create -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <version>3.2.0</version>
+                    <configuration>
+                        <archive>
+                            <manifest>
+                                <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                                <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+                            </manifest>
+                            <manifestEntries>
+                                <!--suppress UnresolvedMavenProperty -->
+                                <ciBuildNo>${BUILD_NUMBER}</ciBuildNo>
+                                <!--suppress UnresolvedMavenProperty -->
+                                <ciBuildTag>${BUILD_TAG}</ciBuildTag>
+                                <!--suppress UnresolvedMavenProperty -->
+                                <ciJobName>${JOB_NAME}</ciJobName>
+                                <!--suppress UnresolvedMavenProperty -->
+                                <ciBuildUrl>${BUILD_URL}</ciBuildUrl>
+                            </manifestEntries>
+                        </archive>
+                    </configuration>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>${surefire-plugin.version}</version>
+                    <dependencies>
+                        <!-- Declaring these explicitly to allow go-offline-maven-plugin to pick it up -->
+                        <dependency>
+                            <groupId>org.apache.maven.surefire</groupId>
+                            <artifactId>surefire-junit-platform</artifactId>
+                            <version>${surefire-plugin.version}</version>
+                        </dependency>
+                        <dependency>
+                            <groupId>org.apache.tomcat</groupId>
+                            <artifactId>tomcat-annotations-api</artifactId>
+                            <version>9.0.70</version>
+                        </dependency>
+                        <dependency>
+                            <groupId>org.codehaus.plexus</groupId>
+                            <artifactId>plexus-utils</artifactId>
+                            <version>1.1</version>
+                        </dependency>
+                    </dependencies>
+                    <configuration>
+                        <!-- Jacoco prepare-agent builds some command-line params without which jacoco will not instrument.
+                             Hence it is important to add those command-line params where @{argLine} holds those params.
+                             Note that the @ is not a typo.
+                             See https://www.jacoco.org/jacoco/trunk/doc/prepare-agent-mojo.html and https://maven.apache.org/surefire/maven-surefire-plugin/test-mojo.html#argLine -->
+                        <argLine>@{argLine} -Xms256m -Xmx2048m -Dfile.encoding=UTF-8</argLine>
+                        <!-- From http://www.jacoco.org/jacoco/trunk/doc/maven.html :
+                             When using the maven-surefire-plugin or maven-failsafe-plugin you must not use a forkCount of 0
+                             or set the forkMode to never as this would prevent the execution of the tests with the javaagent set and no coverage would be recorded.
+                        -->
+                        <forkCount>1</forkCount>
+
+                        <!-- Required to be false in order to have google Reflections work correctly. See https://github.com/metasfresh/metasfresh/issues/4773. -->
+                        <useSystemClassLoader>false</useSystemClassLoader>
+
+                        <!-- 'random' might be a good idea in general, but due to known test stability issues, prefer determinability
+                             See https://github.com/metasfresh/metasfresh/issues/2988 -->
+                        <runOrder>filesystem</runOrder>
+                        <!-- runOrder>random</runOrder -->
+
+                        <trimStackTrace>false</trimStackTrace>
+
+                        <systemPropertyVariables>
+                            <!--suppress UnresolvedMavenProperty -->
+                            <concordion.output.dir>${acceptance.reports.dir}</concordion.output.dir>
+                        </systemPropertyVariables>
+                        <includes>
+                            <!-- default inclusions, see http://maven.apache.org/surefire/maven-surefire-plugin/examples/inclusion-exclusion.html -->
+                            <include>**/Test*.java</include>
+                            <include>**/*Test.java</include>
+                            <include>**/*TestCase.java</include>
+
+                            <!-- additional include, because we often use that pattern -->
+                            <include>**/*Tests.java</include>
+                        </includes>
+                    </configuration>
+                </plugin>
+
+                <plugin>
+                    <!--
+                        gh #968: If we run mvn properties:write-project-properties
+                        then store the properties to a file calle "app.properties".
+                        We need this for https://github.com/metasfresh/metasfresh/issues/968
+                        because among those properties there are some artifact versions that we want to document.
+                    -->
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>properties-maven-plugin</artifactId>
+                    <version>1.0.0</version>
+                    <configuration>
+                        <outputFile>app.properties</outputFile>
+                    </configuration>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-enforcer-plugin</artifactId>
+                    <!-- 3.0.0-M2 gives me "Some plugins are missing valid versions"
+                         when building downstream projects (i.e. metasfresh),
+                         although I set the version here in build/pluginManagenemt management.<id>enforcer-profile</id>
+                        Example:
+                        org.apache.maven.plugins:maven-clean-plugin.    The version currently in use is 3.0.0
+
+                        Note that "3.0.0" is the version that I specified in pluginManagenemt -->
+                    <version>3.0.0-M1</version>
+                    <!--<dependencies>
+                        &lt;!&ndash; needed for banDuplicateClasses &ndash;&gt;
+                        <dependency>
+                            <groupId>org.codehaus.mojo</groupId>
+                            <artifactId>extra-enforcer-rules</artifactId>
+                            <version>1.0-beta-9</version>
+                        </dependency>
+                    </dependencies>-->
+                </plugin>
+
+                <plugin>
+                    <groupId>org.jacoco</groupId>
+                    <artifactId>jacoco-maven-plugin</artifactId>
+                    <version>0.8.7</version>
+                </plugin>
+
+                <!--This plugin's configuration is used to store Eclipse m2e settings
+                    only. It has no influence on the Maven build itself. -->
+                <plugin>
+                    <groupId>org.eclipse.m2e</groupId>
+                    <artifactId>lifecycle-mapping</artifactId>
+                    <version>1.0.0</version>
+                    <configuration>
+                        <lifecycleMappingMetadata>
+                            <pluginExecutions>
+                                <pluginExecution>
+                                    <pluginExecutionFilter>
+                                        <groupId>com.vaadin</groupId>
+                                        <artifactId>
+                                            vaadin-maven-plugin
+                                        </artifactId>
+                                        <versionRange>
+                                            [7.6.1,)
+                                        </versionRange>
+                                        <goals>
+                                            <goal>compile-theme</goal>
+                                            <goal>resources</goal>
+                                        </goals>
+                                    </pluginExecutionFilter>
+                                    <action>
+                                        <ignore/>
+                                    </action>
+                                </pluginExecution>
+                                <pluginExecution>
+                                    <pluginExecutionFilter>
+                                        <groupId>org.codehaus.mojo</groupId>
+                                        <artifactId>properties-maven-plugin</artifactId>
+                                        <versionRange>[1.0.0,)</versionRange>
+                                        <goals>
+                                            <goal>set-system-properties</goal>
+                                        </goals>
+                                    </pluginExecutionFilter>
+                                    <action>
+                                        <ignore/>
+                                    </action>
+                                </pluginExecution>
+                                <pluginExecution>
+                                    <pluginExecutionFilter>
+                                        <groupId>com.alexnederlof</groupId>
+                                        <artifactId>jasperreports-plugin</artifactId>
+                                        <versionRange>[2.0,)</versionRange>
+                                        <goals>
+                                            <goal>jasper</goal>
+                                        </goals>
+                                    </pluginExecutionFilter>
+                                    <action>
+                                        <ignore/>
+                                    </action>
+                                </pluginExecution>
+                            </pluginExecutions>
+                        </lifecycleMappingMetadata>
+                    </configuration>
+                </plugin>
+                <!-- https://github.com/qaware/go-offline-maven-plugin
+                    enables our docker builds to resolve dependencies in a separate layer
+                    and therefore cache it. -->
+                <plugin>
+                    <groupId>de.qaware.maven</groupId>
+                    <artifactId>go-offline-maven-plugin</artifactId>
+                    <version>1.2.8</version>
+                </plugin>
+
+            </plugins>
+        </pluginManagement>
+    </build>
+
+    <profiles>
+        <profile>
+            <!--
+                The enforcer plugin can be a tremendous nuisance.
+                It fails because we use version ranges in our parent pom declarations with this output:
+
+[WARNING] Could not find org.jmockit:jmockit:jar:1.30:test at null
+[WARNING] Rule 0: org.apache.maven.plugins.enforcer.RequirePluginVersions failed with message:
+Failure to find de.metas:de.metas.parent:pom:(1.0.0,3) in (URL ...) was cached in the local repository, resolution will not be reattempted...
+  de.metas:de.metas.parent:pom:(1.0.0,3)
+
+                However, when running in CI, we resolve the parent version anyways (using the maven-versions-plugin)
+                and *then* we can benefit a lot from making sure that the plugin versions are not a moving target
+             -->
+            <id>enforcer-profile</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-enforcer-plugin</artifactId>
+                        <configuration>
+                            <rules>
+
+                                <!-- task 08834: We shall not leave the decision about plugin-versions
+                                    to maven. Rationale: we had the case that a build stopped working at a *very*
+                                    critical moment, because maven picked a more recent version of the jaxb plugin.
+                                    That version didn't support the way, we configured it and failed with an
+                                    error message. This shall not happen again. -->
+                                <requirePluginVersions>
+                                    <message>!! We need to have the plugin version under control to avoid build failures due to maven releasing a new plugin
+                                        version !!
+                                    </message>
+                                    <banLatest>true</banLatest>
+                                    <banRelease>true</banRelease>
+                                    <banSnapshots>true</banSnapshots>
+                                    <phases>clean,deploy,site</phases>
+                                    <additionalPlugins>
+                                        <additionalPlugin>org.apache.maven.plugins:maven-reactor-plugin</additionalPlugin>
+                                    </additionalPlugins>
+                                    <unCheckedPluginList>org.apache.maven.plugins:maven-enforcer-plugin,org.apache.maven.plugins:maven-eclipse-plugin
+                                    </unCheckedPluginList>
+                                </requirePluginVersions>
+                            </rules>
+                            <fail>true</fail>
+                        </configuration>
+
+                        <executions>
+                            <execution>
+                                <id>enforce</id>
+                                <goals>
+                                    <goal>enforce</goal>
+                                </goals>
+
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <!-- If there is a configs directory, then this profile will activate and zip up the files in that directory -->
+            <id>configs</id>
+            <activation>
+                <file>
+                    <exists>src/main/configs</exists>
+                </file>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-assembly-plugin</artifactId>
+                        <dependencies>
+                            <dependency>
+                                <groupId>de.metas</groupId>
+                                <artifactId>metasfresh-assemblies</artifactId>
+                                <version>10.0.0</version>
+                            </dependency>
+                        </dependencies>
+                        <executions>
+                            <execution>
+                                <id>make-configs-assembly</id> <!-- this is used for inheritance merges -->
+                                <phase>package</phase> <!-- bind to the packaging phase -->
+                                <goals>
+                                    <goal>single</goal>
+                                </goals>
+                                <configuration>
+                                    <descriptorRefs>
+                                        <descriptorRef>configs</descriptorRef>
+                                    </descriptorRefs>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <!-- If there is a sql directory, then this profile will activate and
+                zip up the migration SQL files in that directory. Note the property "migration-sql-basedir"
+                needs to be defined in that case -->
+            <id>postgres</id>
+            <activation>
+                <file>
+                    <exists>src/main/sql/postgresql/system</exists>
+                </file>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-assembly-plugin</artifactId>
+                        <dependencies>
+                            <dependency>
+                                <groupId>de.metas</groupId>
+                                <artifactId>metasfresh-assemblies</artifactId>
+                                <!-- version>${metasfresh.assembly.descriptor.version}</version -->
+                                <version>10.0.0</version>
+                            </dependency>
+                        </dependencies>
+                        <executions>
+                            <execution>
+                                <id>make-postgresql-assembly</id> <!-- this is used for inheritance merges -->
+                                <phase>package</phase> <!-- bind to the packaging phase -->
+                                <goals>
+                                    <goal>single</goal>
+                                </goals>
+                                <configuration>
+                                    <descriptorRefs>
+                                        <descriptorRef>migration_postgresql_system</descriptorRef>
+                                    </descriptorRefs>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <!--
+            Local build defaults profile - activated when BUILD_NUMBER is not set.
+            Provides default values for build properties to enable local development builds.
+            Without any value, the spring-boot release-info goal will probably fail since is usually tries to write this value into the build-info.properties file
+            See https://github.com/metasfresh/metasfresh/issues/2110 -->
+        <!-- Note that until now i don't see a reason to add a pendant for this to /de.metas.adempiere.adempiere.base/src/main/java-legacy/org/compiere/Adempiere.java ..so i don't.. -->
+        <profile>
+            <id>local-build-defaults</id>
+            <activation>
+                <property>
+                    <name>!env.BUILD_NUMBER</name>
+                </property>
+            </activation>
+            <properties>
+                <!-- This property is set by jacoco and used in the surefire config further down
+                    Set it to empty to avoid JVM startup error Could not find or load main class @{argLine} when run without jacoco
+                    thx to
+                    * https://github.com/metasfresh/metasfresh/issues/3073
+                    * http://www.eclemma.org/jacoco/trunk/doc/prepare-agent-mojo.html -->
+                <argLine/>
+
+                <env.MF_VERSION>10.0.0-LOCAL-NO-RELEASE</env.MF_VERSION>
+                <env.BRANCH_NAME>LOCAL-NO-RELEASE</env.BRANCH_NAME>
+                <env.MF_RELEASE_VERSION>0.0</env.MF_RELEASE_VERSION> <!-- needs to be like this for the launch4j plugin's sake -->
+                <env.BUILD_TAG>LOCAL-NO-RELEASE</env.BUILD_TAG>
+                <env.BUILD_URL>LOCAL-NO-RELEASE</env.BUILD_URL>
+                <env.JOB_NAME>LOCAL-NO-RELEASE</env.JOB_NAME>
+                <env.BUILD_NUMBER>0</env.BUILD_NUMBER>
+                <env.MF_VERSION_DOCKERIZED>LOCAL_NO_RELEASE</env.MF_VERSION_DOCKERIZED>
+                <env.BRANCH_NAME_DOCKERIZED>LOCAL_NO_RELEASE</env.BRANCH_NAME_DOCKERIZED>
+            </properties>
+        </profile>
+
+        <!--
+            If the src/main/docker is present, then this profile defines a dedicated property project.build.directory
+            and copies its contents and also the contents of src/main/configs (if it exists) into that directory.
+
+            The actual build can then provide additional files to ${project.build.directory}.
+            Note that the actual docker building is (currently) done outside of maven.
+        -->
+        <profile>
+            <id>prepare-docker</id>
+            <activation>
+                <file>
+                    <exists>src/main/docker</exists>
+                </file>
+            </activation>
+            <properties>
+                <!-- this value needs to be in sync with our Docker build configuration -->
+                <docker.build.directory>target/docker</docker.build.directory>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-resources-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>copy-docker-folder-for-docker-build</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>copy-resources</goal>
+                                </goals>
+                                <configuration>
+                                    <outputDirectory>${docker.build.directory}</outputDirectory>
+                                    <resources>
+                                        <resource>
+                                            <directory>src/main/docker</directory>
+                                            <filtering>true</filtering>
+                                        </resource>
+                                    </resources>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>copy-configs-folder-for-docker-build</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>copy-resources</goal>
+                                </goals>
+                                <configuration>
+                                    <outputDirectory>${docker.build.directory}/configs</outputDirectory>
+                                    <resources>
+                                        <resource>
+                                            <directory>src/main/configs</directory>
+                                            <filtering>true</filtering>
+                                        </resource>
+                                    </resources>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <!-- If there is a jasper sources directory, this profile will activate
+                 It will compile those jrxml files and then assemble the jasper files into
+                 a jar. It will *NOT* add src/main/jasperreports as additional source folder,
+                 (that's done by the "jasper-source-folder" profile) -->
+            <id>jasper-build</id>
+
+            <activation>
+                <file>
+                    <exists>src/main/jasperreports</exists>
+                </file>
+            </activation>
+
+            <build>
+                <plugins>
+                    <!-- outputDirectory is the same as jasperreports-maven-plugin's outputDirectory -->
+                    <!-- jrxmls are compiled into jasper files, they don't need to be copied, so we exclude *.jrxml -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-resources-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>copy-resources</id>
+                                <phase>process-resources</phase>
+                                <goals>
+                                    <goal>copy-resources</goal>
+                                </goals>
+                                <configuration>
+                                    <outputDirectory>${project.build.directory}/jasper</outputDirectory>
+                                    <resources>
+                                        <resource>
+                                            <directory>src/main/jasperreports</directory>
+                                            <excludes>
+                                                <exclude>**/*.jrxml</exclude>
+                                            </excludes>
+                                        </resource>
+                                    </resources>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>com.alexnederlof</groupId>
+                        <artifactId>jasperreports-plugin</artifactId>
+                        <version>2.6</version>
+                        <configuration>
+                            <!-- These are the default configurations: -->
+                            <compiler>net.sf.jasperreports.engine.design.JRJdtCompiler</compiler>
+                            <sourceDirectory>src/main/jasperreports</sourceDirectory>
+                            <outputDirectory>${project.build.directory}/jasper</outputDirectory>
+                            <outputFileExt>.jasper</outputFileExt>
+                            <xmlValidation>true</xmlValidation>
+                            <verbose>false</verbose>
+                            <numberOfThreads>4</numberOfThreads>
+                            <failOnMissingSourceDirectory>true</failOnMissingSourceDirectory>
+                            <sourceScanner>org.codehaus.plexus.compiler.util.scan.StaleSourceScanner</sourceScanner>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <phase>process-sources</phase>
+                                <goals>
+                                    <goal>jasper</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <dependencies>
+                            <dependency>
+                                <groupId>net.sf.jasperreports</groupId>
+                                <artifactId>jasperreports</artifactId>
+                                <version>${jasperreports.version}</version>
+                            </dependency>
+
+                            <!-- Thx to https://stackoverflow.com/questions/23756133/the-jrxml-file-compilation-failed-due-to-built-in-missing-in-ant -->
+                            <dependency>
+                                <groupId>net.sf.jasperreports</groupId>
+                                <artifactId>jasperreports-functions</artifactId>
+                                <version>${jasperreports.version}</version>
+                            </dependency>
+                            <dependency>
+                                <groupId>joda-time</groupId>
+                                <artifactId>joda-time</artifactId>
+                                <version>2.1</version>
+                            </dependency>
+
+                            <dependency>
+                                <!-- avoid compile error
+                                Error while compiling Jasper reports: java.lang.NoClassDefFoundError: org/springframework/beans/factory/support/BeanDefinitionRegistry: org.springframework.beans.factory.support.BeanDefinitionRegistry
+                                -->
+                                <groupId>org.springframework</groupId>
+                                <artifactId>spring-beans</artifactId>
+                                <version>4.3.8.RELEASE</version>
+                            </dependency>
+                            <dependency>
+                                <groupId>net.sf.barcode4j</groupId>
+                                <artifactId>barcode4j-fop-ext-complete</artifactId>
+                                <version>2.0</version>
+                                <type>jar</type>
+                                <exclusions>
+                                    <exclusion>
+                                        <groupId>commons-logging</groupId>
+                                        <artifactId>commons-logging</artifactId>
+                                    </exclusion>
+                                </exclusions>
+                            </dependency>
+                        </dependencies>
+                    </plugin>
+
+                    <plugin>
+                        <artifactId>maven-assembly-plugin</artifactId>
+                        <dependencies>
+                            <dependency>
+                                <groupId>de.metas</groupId>
+                                <artifactId>metasfresh-assemblies</artifactId>
+                                <!-- version>${metasfresh.assembly.descriptor.version}</version -->
+                                <version>10.0.0</version>
+                            </dependency>
+                        </dependencies>
+                        <executions>
+                            <execution>
+                                <id>make-jasper-assembly</id> <!-- this is used for inheritance merges -->
+                                <phase>package</phase> <!-- bind to the packaging phase -->
+                                <goals>
+                                    <goal>single</goal>
+                                </goals>
+                                <configuration>
+                                    <descriptorRefs>
+                                        <descriptorRef>jasper</descriptorRef>
+                                    </descriptorRefs>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>make-jasper-sources-assembly</id> <!-- this is used for inheritance merges -->
+                                <phase>package</phase> <!-- bind to the packaging phase -->
+                                <goals>
+                                    <goal>single</goal>
+                                </goals>
+                                <configuration>
+                                    <descriptorRefs>
+                                        <descriptorRef>jasper_sources</descriptorRef>
+                                    </descriptorRefs>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <!-- Adds src/main/jasperreports as additional source folder (if the directory is present)
+                 this is only intended to be active when running in eclipse, and not for *any* actual maven build.
+                 We don't want the jasper-stuff to end up in a "regular" artifact jar!
+                 Particularly the properties files need to be overridden in certain situations,
+                 so we can't afford to have an additional copy in the classpath via regular jars
+
+                 Hint: in eclipse, you can activate	this profile in the projects where you need it,
+                 by opening the projects properties	(=>maven).
+                 But, then you can't build a proper artifact using eclipse-maven -->
+            <id>jasper-source-folder</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>build-helper-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>add-resource</id>
+                                <phase>generate-resources</phase>
+                                <goals>
+                                    <goal>add-resource</goal>
+                                </goals>
+                                <configuration>
+                                    <resources>
+                                        <resource>
+                                            <directory>src/main/jasperreports</directory>
+                                        </resource>
+                                    </resources>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+</project>

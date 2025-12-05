@@ -1,0 +1,7 @@
+{
+  "externalHeaderId": "externalHeaderId",
+  "externalSystemCode": "Shopware6",
+  "ship": false,
+  "invoice": false,
+  "closeOrder": false
+}

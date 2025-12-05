@@ -1,0 +1,242 @@
+/*
+ * #%L
+ * de.metas.shipper.gateway.dhl
+ * %%
+ * Copyright (C) 2019 metas GmbH
+ * %%
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation, either version 2 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public
+ * License along with this program. If not, see
+ * <http://www.gnu.org/licenses/gpl-2.0.html>.
+ * #L%
+ */
+
+package de.metas.shipper.gateway.dhl;
+
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.ImmutableList;
+import de.metas.bpartner.service.IBPartnerOrgBL;
+import de.metas.common.util.CoalesceUtil;
+import de.metas.organization.OrgId;
+import de.metas.product.PackageDimensions;
+import de.metas.shipper.gateway.commons.DeliveryOrderUtil;
+import de.metas.shipper.gateway.dhl.model.DhlClientConfigRepository;
+import de.metas.shipper.gateway.dhl.model.DhlCustomDeliveryData;
+import de.metas.shipper.gateway.dhl.model.DhlCustomDeliveryDataDetail;
+import de.metas.shipper.gateway.dhl.model.DhlShipperProduct;
+import de.metas.shipper.gateway.spi.DraftDeliveryOrderCreator;
+import de.metas.shipper.gateway.spi.model.ContactPerson;
+import de.metas.shipper.gateway.spi.model.CustomDeliveryData;
+import de.metas.shipper.gateway.spi.model.DeliveryOrder;
+import de.metas.shipper.gateway.spi.model.DeliveryOrderParcel;
+import de.metas.shipper.gateway.spi.model.PickupDate;
+import de.metas.shipping.ShipperGatewayId;
+import de.metas.shipping.ShipperId;
+import de.metas.shipping.model.ShipperTransportationId;
+import de.metas.util.Services;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import org.adempiere.model.InterfaceWrapperHelper;
+import org.compiere.model.I_C_BPartner;
+import org.compiere.model.I_C_BPartner_Location;
+import org.compiere.model.I_C_Location;
+import org.jetbrains.annotations.NotNull;
+import org.springframework.stereotype.Service;
+
+import javax.annotation.Nullable;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Set;
+
+import static de.metas.shipper.gateway.commons.DeliveryOrderUtil.getPOReferences;
+
+@Service
+@RequiredArgsConstructor
+public class DhlDraftDeliveryOrderCreator implements DraftDeliveryOrderCreator
+{
+	private static final BigDecimal DEFAULT_PackageWeightInKg = BigDecimal.ONE;
+
+	@NonNull private final DhlClientConfigRepository clientConfigRepository;
+
+	@Override
+	public ShipperGatewayId getShipperGatewayId()
+	{
+		return DhlConstants.SHIPPER_GATEWAY_ID;
+	}
+
+	/**
+	 * Create the initial DTO.
+	 * <p>
+	 * keep in sync with {@link DhlDeliveryOrderRepository#toDeliveryOrderFromPO(de.metas.shipper.gateway.dhl.model.I_DHL_ShipmentOrderRequest)}
+	 * and {@link DhlDeliveryOrderRepository#createShipmentOrderRequest(DeliveryOrder)}
+	 */
+	@SuppressWarnings("JavadocReference")
+	@NonNull
+	@Override
+	public @NotNull DeliveryOrder createDraftDeliveryOrder(@NonNull final CreateDraftDeliveryOrderRequest request)
+	{
+		final DeliveryOrderKey deliveryOrderKey = request.getDeliveryOrderKey();
+
+		final String customerReference = getPOReferences(request.getPackageInfos());
+
+		final IBPartnerOrgBL bpartnerOrgBL = Services.get(IBPartnerOrgBL.class);
+		final I_C_BPartner pickupFromBPartner = bpartnerOrgBL.retrieveLinkedBPartner(deliveryOrderKey.getFromOrgId());
+		final I_C_Location pickupFromLocation = bpartnerOrgBL.retrieveOrgLocation(OrgId.ofRepoId(deliveryOrderKey.getFromOrgId()));
+		final LocalDate pickupDate = deliveryOrderKey.getPickupDate();
+
+		final int deliverToBPartnerId = deliveryOrderKey.getDeliverToBPartnerId();
+		final I_C_BPartner deliverToBPartner = InterfaceWrapperHelper.load(deliverToBPartnerId, I_C_BPartner.class);
+
+		final int deliverToBPartnerLocationId = deliveryOrderKey.getDeliverToBPartnerLocationId();
+		final I_C_BPartner_Location deliverToBPLocation = InterfaceWrapperHelper.load(deliverToBPartnerLocationId, I_C_BPartner_Location.class);
+		final I_C_Location deliverToLocation = deliverToBPLocation.getC_Location();
+		final String deliverToPhoneNumber = CoalesceUtil.firstNotEmptyTrimmed(deliverToBPLocation.getPhone(), deliverToBPLocation.getPhone2(), deliverToBPartner.getPhone2());
+
+		final ShipperId shipperId = deliveryOrderKey.getShipperId();
+		final ShipperTransportationId shipperTransportationId = deliveryOrderKey.getShipperTransportationId();
+
+		DhlShipperProduct detectedServiceType = DhlShipperProduct.Dhl_Paket;
+		final DhlCustomDeliveryData.DhlCustomDeliveryDataBuilder dataBuilder = DhlCustomDeliveryData.builder();
+
+		// create the customDeliveryDataDetails
+		for (final CreateDraftDeliveryOrderRequest.PackageInfo packageInfo : request.getPackageInfos())
+		{
+			final DhlCustomDeliveryDataDetail.DhlCustomDeliveryDataDetailBuilder dataDetailBuilder = DhlCustomDeliveryDataDetail.builder();
+			dataDetailBuilder.packageId(packageInfo.getPackageId());
+
+			// implement handling for DE -> DE and DE -> International packages
+			// currently we only support inside-EU international shipping. For everything else dhl api will error out until the DhlCustomsDocument is properly filled!
+			if (deliverToLocation.getC_Country_ID() != pickupFromLocation.getC_Country_ID())
+			{
+				detectedServiceType = DhlShipperProduct.Dhl_PaketInternational;
+
+				// "{ }" for easier method extraction later on
+				//				{
+				//					final I_M_Package mPackage = InterfaceWrapperHelper.load(packageId, I_M_Package.class);
+				//					final I_M_InOut inOut = InterfaceWrapperHelper.load(mPackage.getM_InOut_ID(), I_M_InOut.class);
+				//					if (!inOut.isExportedToCustomsInvoice())
+				//					{
+				//						throw new AdempiereException("International Delivery Order must have a Customs Invoice!");
+				//					}
+				//
+				//					final List<CustomsInvoiceLine> customsInvoiceLines = customsInvoiceRepository.retrieveLines(CustomsInvoiceId.ofRepoId(inOut.getC_Customs_Invoice_ID()));
+				//
+				//					detectedServiceType = DhlServiceType.Dhl_PaketInternational;
+				//					dataDetailBuilder.customsDocument(
+				//							DhlCustomsDocument.builder()
+				//									.exportType("OTHER")
+				//									//							.exportTypeDescription()
+				//									//							.additionalFee()
+				//									//							.electronicExportNotification()
+				//									//							.packageDescription()
+				//									//							.customsTariffNumber()
+				//									//							.customsAmount()
+				//									//							.netWeightInKg()
+				//									//							.customsValue()
+				//									//							.invoiceId()
+				//									//							.invoiceLineId()
+				//									.build())
+				//							.internationalDelivery(true)
+				//							.build();
+				//				}
+			}
+			else
+			{
+				dataDetailBuilder.internationalDelivery(false);
+			}
+			dataBuilder.detail(dataDetailBuilder.build());
+		}
+
+		return createDeliveryOrderFromParams(
+				request.getPackageInfos(),
+				pickupFromBPartner,
+				pickupFromLocation,
+				pickupDate,
+				deliverToBPartner,
+				//deliverToBPartnerLocationId,
+				deliverToLocation,
+				deliverToPhoneNumber,
+				detectedServiceType,
+				shipperId,
+				customerReference,
+				shipperTransportationId,
+				getPackageDimensions(request.getPackageInfos()),
+				dataBuilder.build());
+
+	}
+
+	@VisibleForTesting
+	DeliveryOrder createDeliveryOrderFromParams(
+			@NonNull final Set<CreateDraftDeliveryOrderRequest.PackageInfo> packageInfos,
+			@NonNull final I_C_BPartner pickupFromBPartner,
+			@NonNull final I_C_Location pickupFromLocation,
+			@NonNull final LocalDate pickupDate,
+			@NonNull final I_C_BPartner deliverToBPartner,
+			@NonNull final I_C_Location deliverToLocation,
+			@Nullable final String deliverToPhoneNumber,
+			@NonNull final DhlShipperProduct serviceType,
+			final ShipperId shipperId,
+			final String customerReference,
+			final ShipperTransportationId shipperTransportationId,
+			@NonNull final PackageDimensions packageDimensions,
+			final CustomDeliveryData customDeliveryData)
+	{
+		final List<DeliveryOrderParcel> deliveryOrderParcels = packageInfos.stream()
+				.map(packageInfo -> DeliveryOrderParcel.builder()
+						.packageDimensions(packageDimensions)
+						.packageId(packageInfo.getPackageId())
+						.grossWeightKg(packageInfo.getWeightInKgOr(DEFAULT_PackageWeightInKg))
+						.build())
+				.collect(ImmutableList.toImmutableList());
+
+		return DeliveryOrder.builder()
+				.shipperId(shipperId)
+				.shipperTransportationId(shipperTransportationId)
+				//
+
+				.shipperProduct(serviceType) // todo this should be made user-selectable. Ref: https://github.com/metasfresh/me03/issues/3128
+				.customerReference(customerReference)
+				.customDeliveryData(customDeliveryData)
+				//
+				// Pickup aka Shipper
+				.pickupAddress(DeliveryOrderUtil.prepareAddressFromLocationBP(pickupFromLocation,pickupFromBPartner)
+						.build())
+				.pickupDate(PickupDate.builder()
+						.date(pickupDate)
+						.build())
+				//
+				// Delivery aka Receiver
+				.deliveryAddress(DeliveryOrderUtil.prepareAddressFromLocationBP(deliverToLocation, deliverToBPartner)
+						.bpartnerId(deliverToBPartner.getC_BPartner_ID()) // afaics used only for logging
+						.build())
+				.deliveryContact(ContactPerson.builder()
+						.name(deliverToBPartner.getName())
+						.emailAddress(deliverToBPartner.getEMail())
+						.simplePhoneNumber(deliverToPhoneNumber)
+						.build())
+				//
+				// Delivery content
+				.deliveryOrderParcels(deliveryOrderParcels)
+				//
+				.build();
+	}
+
+	/**
+	 * Assume that all the packages inside a delivery position are of the same type and therefore have the same size.
+	 */
+	@NonNull
+	private PackageDimensions getPackageDimensions(@NonNull final Set<CreateDraftDeliveryOrderRequest.PackageInfo> packageInfos)
+	{
+		return packageInfos.iterator().next().getPackageDimension();
+	}
+}

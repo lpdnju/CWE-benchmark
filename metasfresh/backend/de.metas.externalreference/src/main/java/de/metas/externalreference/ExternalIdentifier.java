@@ -1,0 +1,240 @@
+/*
+ * #%L
+ * de.metas.externalreference
+ * %%
+ * Copyright (C) 2021 metas GmbH
+ * %%
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation, either version 2 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public
+ * License along with this program. If not, see
+ * <http://www.gnu.org/licenses/gpl-2.0.html>.
+ * #L%
+ */
+
+package de.metas.externalreference;
+
+import de.metas.bpartner.GLN;
+import de.metas.bpartner.GlnWithLabel;
+import de.metas.rest_api.utils.MetasfreshId;
+import de.metas.util.Check;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NonNull;
+import lombok.Value;
+import org.adempiere.exceptions.AdempiereException;
+
+import javax.annotation.Nullable;
+import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static de.metas.util.Check.isEmpty;
+
+@Value
+public class ExternalIdentifier
+{
+	@NonNull
+	Type type;
+
+	@NonNull
+	String rawValue;
+
+	@Nullable
+	ExternalReferenceValueAndSystem externalReferenceValueAndSystem;
+
+	private ExternalIdentifier(
+			@NonNull final Type type,
+			@NonNull final String rawValue,
+			@Nullable final ExternalReferenceValueAndSystem externalReferenceValueAndSystem)
+	{
+		if (Type.EXTERNAL_REFERENCE.equals(type) && externalReferenceValueAndSystem == null)
+		{
+			throw new AdempiereException("ExternalReferenceValueAndSystem cannot be null for type: EXTERNAL_REFERENCE!")
+					.appendParametersToMessage()
+					.setParameter("rawValue", rawValue)
+					.setParameter("type", type);
+		}
+
+		this.type = type;
+		this.rawValue = rawValue;
+		this.externalReferenceValueAndSystem = externalReferenceValueAndSystem;
+	}
+
+	@Nullable
+	public static ExternalIdentifier ofOrNull(@Nullable final String rawIdentifierString)
+	{
+		if (isEmpty(rawIdentifierString, true))
+		{
+			return null;
+		}
+		return of(rawIdentifierString);
+	}
+
+	@NonNull
+	public static Optional<ExternalIdentifier> ofIdentifierCandidate(@NonNull final String identifier)
+	{
+		if (Type.METASFRESH_ID.pattern.matcher(identifier).matches())
+		{
+			return Optional.of(new ExternalIdentifier(Type.METASFRESH_ID, identifier, null));
+		}
+
+		final Matcher externalReferenceMatcher = Type.EXTERNAL_REFERENCE.pattern.matcher(identifier);
+
+		if (externalReferenceMatcher.matches())
+		{
+			final ExternalReferenceValueAndSystem valueAndSystem = ExternalReferenceValueAndSystem.builder()
+					.externalSystem(externalReferenceMatcher.group(1))
+					.value(externalReferenceMatcher.group(2))
+					.build();
+
+			return Optional.of(new ExternalIdentifier(Type.EXTERNAL_REFERENCE, identifier, valueAndSystem));
+		}
+
+		final Matcher glnMatcher = Type.GLN.pattern.matcher(identifier);
+		if (glnMatcher.matches())
+		{
+			return Optional.of(new ExternalIdentifier(Type.GLN, identifier, null));
+		}
+
+		final Matcher glnWithLabelMatcher = Type.GLN_WITH_LABEL.pattern.matcher(identifier);
+		if (glnWithLabelMatcher.matches())
+		{
+			return Optional.of(new ExternalIdentifier(Type.GLN_WITH_LABEL, identifier, null));
+		}
+
+		final Matcher valMatcher = Type.VALUE.pattern.matcher(identifier);
+		if (valMatcher.matches())
+		{
+			return Optional.of(new ExternalIdentifier(Type.VALUE, identifier, null));
+		}
+
+		final Matcher gtinMatcher = Type.GTIN.pattern.matcher(identifier);
+		if (gtinMatcher.matches())
+		{
+			return Optional.of(new ExternalIdentifier(Type.GTIN, identifier, null));
+		}
+
+		return Optional.empty();
+	}
+
+	@NonNull
+	public static ExternalIdentifier of(@NonNull final String identifier)
+	{
+		return ofIdentifierCandidate(identifier)
+				.orElseThrow(() -> new AdempiereException("Unknown externalId type!")
+						.appendParametersToMessage()
+						.setParameter("externalId", identifier));
+	}
+
+	@NonNull
+	public ExternalReferenceValueAndSystem asExternalValueAndSystem()
+	{
+		Check.assume(Type.EXTERNAL_REFERENCE.equals(type),
+				"The type of this instance needs to be {}; this={}", Type.EXTERNAL_REFERENCE, this);
+		Check.assumeNotNull(externalReferenceValueAndSystem,
+				"externalReferenceValueAndSystem cannot be null to EXTERNAL_REFERENCE type!");
+
+		return externalReferenceValueAndSystem;
+	}
+
+	@NonNull
+	public MetasfreshId asMetasfreshId()
+	{
+		Check.assume(Type.METASFRESH_ID.equals(type),
+				"The type of this instance needs to be {}; this={}", Type.METASFRESH_ID, this);
+
+		return MetasfreshId.of(Integer.parseInt(rawValue));
+	}
+
+	@NonNull
+	public GLN asGLN()
+	{
+		Check.assume(Type.GLN.equals(type), "The type of this instance needs to be {}; this={}", Type.GLN, this);
+		final Matcher glnMatcher = Type.GLN.pattern.matcher(rawValue);
+
+		if (glnMatcher.find())
+		{
+			return GLN.ofString(glnMatcher.group(1));
+		}
+		else
+		{
+			throw new AdempiereException("External identifier of GLN parsing failed. External Identifier:" + rawValue);
+		}
+	}
+
+	@NonNull
+	public GlnWithLabel asGlnWithLabel()
+	{
+		Check.assume(Type.GLN_WITH_LABEL.equals(type), "The type of this instance needs to be {}; this={}", Type.GLN_WITH_LABEL, this);
+		final Matcher glnWithLabelMatcher = Type.GLN_WITH_LABEL.pattern.matcher(rawValue);
+
+		if (glnWithLabelMatcher.find())
+		{
+			return GlnWithLabel.ofString(glnWithLabelMatcher.group(1));
+		}
+		else
+		{
+			throw new AdempiereException("External identifier of GLN parsing failed. External Identifier:" + rawValue);
+		}
+	}
+
+	@NonNull
+	public String asValue()
+	{
+		Check.assume(Type.VALUE.equals(type),
+				"The type of this instance needs to be {}; this={}", Type.VALUE, this);
+
+		final Matcher valueMatcher = Type.VALUE.pattern.matcher(rawValue);
+
+		if (!valueMatcher.matches())
+		{
+			throw new AdempiereException("External identifier of Value parsing failed. External Identifier:" + rawValue);
+		}
+
+		return valueMatcher.group(1);
+	}
+
+	@NonNull
+	public String asGTIN()
+	{
+		Check.assume(Type.GTIN.equals(type),
+				"The type of this instance needs to be {}; this={}", Type.GTIN, this);
+
+		final Matcher gtinMatcher = Type.GTIN.pattern.matcher(rawValue);
+
+		if (!gtinMatcher.matches())
+		{
+			throw new AdempiereException("External identifier of Value parsing failed. External Identifier:" + rawValue);
+		}
+
+		return gtinMatcher.group(1);
+	}
+
+	@AllArgsConstructor
+	@Getter
+	public enum Type
+	{
+		METASFRESH_ID(Pattern.compile("^\\d+$")),
+		EXTERNAL_REFERENCE(Pattern.compile("^ext-([a-zA-Z0-9_]+)-(.+)$")),
+		GLN(Pattern.compile("^gln-(.+)")),
+
+		/**
+		 * GLN with an optional additional label that can be used in case metasfresh has multiple BPartners which share the same GLN.
+		 */
+		GLN_WITH_LABEL(Pattern.compile("^glnl-([^_]+_.+)")),
+		
+		GTIN(Pattern.compile("^gtin-(.+)")),
+		VALUE(Pattern.compile("^val-(.+)"));
+
+		private final Pattern pattern;
+	}
+}

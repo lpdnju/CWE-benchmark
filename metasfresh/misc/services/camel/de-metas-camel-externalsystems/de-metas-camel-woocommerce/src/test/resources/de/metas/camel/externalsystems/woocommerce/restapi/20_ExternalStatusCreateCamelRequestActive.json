@@ -1,0 +1,9 @@
+{
+  "externalSystemConfigType": "WooCommerce",
+  "externalSystemChildConfigValue": "childValue",
+  "serviceValue": "defaultRestAPIWOO",
+  "jsonStatusRequest": {
+    "status": "Active",
+    "adPInstanceId": 123
+  }
+}

@@ -1,0 +1,507 @@
+/*
+ * #%L
+ * de.metas.swat.base
+ * %%
+ * Copyright (C) 2025 metas GmbH
+ * %%
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation, either version 2 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public
+ * License along with this program. If not, see
+ * <http://www.gnu.org/licenses/gpl-2.0.html>.
+ * #L%
+ */
+
+package de.metas.invoicecandidate.api.impl.aggregationEngine;
+
+import de.metas.bpartner.BPartnerLocationId;
+import de.metas.business.BusinessTestHelper;
+import de.metas.currency.CurrencyRepository;
+import de.metas.document.invoicingpool.DocTypeInvoicingPoolService;
+import de.metas.invoice.InvoiceDocBaseType;
+import de.metas.invoicecandidate.api.IInvoiceHeader;
+import de.metas.invoicecandidate.api.IInvoiceLineRW;
+import de.metas.invoicecandidate.api.impl.AggregationEngine;
+import de.metas.invoicecandidate.internalbusinesslogic.InvoiceCandidateRecordService;
+import de.metas.invoicecandidate.model.I_C_Invoice_Candidate;
+import de.metas.money.MoneyService;
+import org.adempiere.ad.wrapper.POJOWrapper;
+import org.adempiere.model.InterfaceWrapperHelper;
+import org.compiere.SpringContextHolder;
+import org.compiere.model.I_C_BPartner;
+import org.compiere.model.I_C_BPartner_Location;
+import org.compiere.model.X_C_DocType;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+
+import java.math.BigDecimal;
+import java.util.List;
+
+import static java.math.BigDecimal.ONE;
+import static java.math.BigDecimal.TEN;
+import static org.assertj.core.api.Assertions.assertThat;
+
+/**
+ * <b>IMPORTANT:</b> these tests are still valid! Just the way the tests are implemented is "legacy".
+ */
+public class LegacyAggregationEngineTests extends AbstractAggregationEngineTestBase
+{
+	@BeforeEach
+	@Override
+	public void init()
+	{
+		super.init();
+
+		SpringContextHolder.registerJUnitBean(new MoneyService(new CurrencyRepository()));
+		SpringContextHolder.registerJUnitBean(new InvoiceCandidateRecordService());
+		SpringContextHolder.registerJUnitBean(DocTypeInvoicingPoolService.newInstanceForUnitTesting());
+	}
+
+	@Test
+	public void test_simple01()
+	{
+		final I_C_BPartner bPartner = BusinessTestHelper.createBPartner("test-bp");
+		final I_C_BPartner_Location bPartnerLocation = BusinessTestHelper.createBPartnerLocation(bPartner);
+		final BPartnerLocationId billBPartnerAndLocationId = BPartnerLocationId.ofRepoId(bPartnerLocation.getC_BPartner_ID(), bPartnerLocation.getC_BPartner_Location_ID());
+
+		final I_C_Invoice_Candidate ic1 = createInvoiceCandidate()
+				.setBillBPartnerAndLocationId(billBPartnerAndLocationId)
+				.setPriceEntered(1)
+				.setQtyOrdered(1)
+				.setManual(false)
+				.setSOTrx(true)
+				.build();
+		POJOWrapper.setInstanceName(ic1, "ic1");
+
+		final I_C_Invoice_Candidate ic2 = createInvoiceCandidate()
+				.setBillBPartnerAndLocationId(billBPartnerAndLocationId)
+				.setPriceEntered(1)
+				.setQtyOrdered(1)
+				.setManual(false)
+				.setSOTrx(true)
+				.build();
+		POJOWrapper.setInstanceName(ic2, "ic2");
+
+		final I_C_Invoice_Candidate ic3 = createInvoiceCandidate()
+				.setBillBPartnerAndLocationId(billBPartnerAndLocationId)
+				.setPriceEntered(1)
+				.setQtyOrdered(1)
+				.setManual(false)
+				.setSOTrx(true)
+				.build();
+		POJOWrapper.setInstanceName(ic3, "ic3");
+
+		updateInvalidCandidates();
+		InterfaceWrapperHelper.refresh(ic1);
+		InterfaceWrapperHelper.refresh(ic2);
+		InterfaceWrapperHelper.refresh(ic3);
+
+		final AggregationEngine engine = AggregationEngine.newInstanceForUnitTesting().build();
+		engine.addInvoiceCandidate(ic1);
+		engine.addInvoiceCandidate(ic2);
+		engine.addInvoiceCandidate(ic3);
+
+		final List<IInvoiceHeader> invoices = invokeAggregationEngine(engine);
+		assertThat(invoices).as("We are expecting only one invoice: %s", invoices).hasSize(1);
+
+		final IInvoiceHeader invoice = invoices.get(0);
+		assertThat(invoice.getDocBaseType()).as("Invalid DocBaseType").isEqualTo(InvoiceDocBaseType.CustomerInvoice);
+		validateInvoiceHeader("Invoice", invoice, ic1);
+
+		final List<IInvoiceLineRW> invoiceLines = getInvoiceLines(invoice);
+		assertThat(invoiceLines).as("We are expecting one invoice line per IC: %s", invoiceLines).hasSize(3);
+
+		assertLineCorrect(invoiceLines.get(0));
+		assertLineCorrect(invoiceLines.get(1));
+		assertLineCorrect(invoiceLines.get(2));
+		// System.out.println(invoices);
+	}
+
+	private void assertLineCorrect(final IInvoiceLineRW invoiceLine1)
+	{
+		assertThat(invoiceLine1.getPriceActual().toMoney().toBigDecimal()).as("Invalid PriceActual").isEqualByComparingTo(ONE);
+		assertThat(invoiceLine1.getQtysToInvoice().getStockQty().toBigDecimal()).as("Invalid QtyToInvoice").isEqualByComparingTo(ONE);
+		assertThat(invoiceLine1.getNetLineAmt().toBigDecimal()).as("Invalid NetLineAmt").isEqualByComparingTo(TEN);
+	}
+
+	@Test
+	public void test_API()
+	{
+		final I_C_BPartner bPartner = BusinessTestHelper.createBPartner("test-bp");
+		final I_C_BPartner_Location bPartnerLocation = BusinessTestHelper.createBPartnerLocation(bPartner);
+		final BPartnerLocationId billBPartnerAndLocationId = BPartnerLocationId.ofRepoId(bPartnerLocation.getC_BPartner_ID(), bPartnerLocation.getC_BPartner_Location_ID());
+
+		final I_C_Invoice_Candidate ic1 = createInvoiceCandidate()
+				.setBillBPartnerAndLocationId(billBPartnerAndLocationId)
+				.setPriceEntered(1)
+				.setQtyOrdered(1)
+				.setManual(false)
+				.setSOTrx(false)
+				.build();
+		POJOWrapper.setInstanceName(ic1, "ic1");
+
+		final I_C_Invoice_Candidate ic2 = createInvoiceCandidate()
+				.setBillBPartnerAndLocationId(billBPartnerAndLocationId)
+				.setPriceEntered(1)
+				.setQtyOrdered(1)
+				.setManual(false)
+				.setSOTrx(false)
+				.build();
+		POJOWrapper.setInstanceName(ic2, "ic2");
+
+		final I_C_Invoice_Candidate ic3 = createInvoiceCandidate()
+				.setBillBPartnerAndLocationId(billBPartnerAndLocationId)
+				.setPriceEntered(1)
+				.setQtyOrdered(1)
+				.setManual(false)
+				.setSOTrx(false)
+				.build();
+		POJOWrapper.setInstanceName(ic3, "ic3");
+
+		updateInvalidCandidates();
+
+		final AggregationEngine engine = AggregationEngine.newInstanceForUnitTesting().build();
+		engine.addInvoiceCandidate(ic1);
+		engine.addInvoiceCandidate(ic2);
+		engine.addInvoiceCandidate(ic3);
+
+		final List<IInvoiceHeader> invoices = invokeAggregationEngine(engine);
+		assertThat(invoices).as("We are expecting only one invoice: %s", invoices).hasSize(1);
+
+		final IInvoiceHeader invoice = invoices.get(0);
+		assertThat(invoice.getDocBaseType()).as("Invalid DocBaseType").isEqualTo(InvoiceDocBaseType.VendorInvoice);
+		validateInvoiceHeader("Invoice", invoice, ic1);
+
+		final List<IInvoiceLineRW> invoiceLines = getInvoiceLines(invoice);
+		assertThat(invoiceLines).as("We are expecting one invoice line per IC: %s", invoiceLines).hasSize(3);
+
+		assertLineCorrect(invoiceLines.get(0));
+		assertLineCorrect(invoiceLines.get(1));
+		assertLineCorrect(invoiceLines.get(2));
+		// System.out.println(invoices);
+	}
+
+	@Test
+	public void test_creditMemoLine()
+	{
+		// we also need a regular invoice candidate, or 'updateInvalidCandidates()' won't set the NetAmtToInvoice of the manual candidate to a positive value.
+		// but note that we will only invoice the manual candidate, and not 'regularIc1'.
+
+		final I_C_BPartner bPartner = BusinessTestHelper.createBPartner("test-bp");
+		final I_C_BPartner_Location bPartnerLocation = BusinessTestHelper.createBPartnerLocation(bPartner);
+		final BPartnerLocationId billBPartnerAndLocationId = BPartnerLocationId.ofRepoId(bPartnerLocation.getC_BPartner_ID(), bPartnerLocation.getC_BPartner_Location_ID());
+
+		final I_C_Invoice_Candidate regularIc1 = createInvoiceCandidate()
+				.setBillBPartnerAndLocationId(billBPartnerAndLocationId)
+				.setPriceEntered(10)
+				.setQtyOrdered(1)
+				.setManual(false)
+				.setSOTrx(true)
+				.build();
+		InterfaceWrapperHelper.save(regularIc1);
+
+		final I_C_Invoice_Candidate manualIc1 = createInvoiceCandidate()
+				.setBillBPartnerAndLocationId(billBPartnerAndLocationId)
+				.setPriceEntered(10)
+				.setQtyOrdered(-1)
+				.setManual(true)
+				.setSOTrx(true)
+				.build();
+		manualIc1.setC_ILCandHandler(manualHandler);
+		InterfaceWrapperHelper.save(manualIc1);
+
+		updateInvalidCandidates();
+
+		final AggregationEngine engine = AggregationEngine.newInstanceForUnitTesting().build();
+		engine.addInvoiceCandidate(manualIc1);
+
+		final List<IInvoiceHeader> invoices = invokeAggregationEngine(engine);
+		assertThat(invoices).as("We are expecting only one invoice: %s", invoices).hasSize(1);
+
+		final IInvoiceHeader invoice = invoices.get(0);
+		assertThat(invoice.getDocBaseType()).as("Invalid DocBaseType").isEqualTo(InvoiceDocBaseType.CustomerCreditMemo);
+		validateInvoiceHeader("Invoice", invoice, manualIc1);
+
+		final List<IInvoiceLineRW> invoiceLines = getInvoiceLines(invoice);
+		assertThat(invoiceLines).as("We are expecting only one invoice line: %s", invoiceLines).hasSize(1);
+
+		final IInvoiceLineRW invoiceLine = invoiceLines.get(0);
+		assertThat(invoiceLine.getPriceActual().toMoney().toBigDecimal()).as("Invalid PriceActual").isEqualByComparingTo(new BigDecimal("10"));
+		assertThat(invoiceLine.getQtysToInvoice().getStockQty().toBigDecimal()).as("Invalid QtyToInvoice").isEqualByComparingTo(new BigDecimal("1"));
+		assertThat(invoiceLine.getNetLineAmt().toBigDecimal()).as("Invalid NetLineAmt").isEqualByComparingTo(new BigDecimal("100")); // price=10 times qtyInUom=10
+
+		// System.out.println(invoices);
+	}
+
+	@Test
+	public void test_APIcreditMemoLine()
+	{
+		// we also need a regular invoice candidate, or 'updateInvalidCandidates()' won't set the NetAmtToInvoice of the manual candidate to a positive value.
+		// but note that we will only invoice the manual candidate, and not 'regularIc1'.
+
+		final I_C_BPartner bPartner = BusinessTestHelper.createBPartner("test-bp");
+		final I_C_BPartner_Location bPartnerLocation = BusinessTestHelper.createBPartnerLocation(bPartner);
+		final BPartnerLocationId billBPartnerAndLocationId = BPartnerLocationId.ofRepoId(bPartnerLocation.getC_BPartner_ID(), bPartnerLocation.getC_BPartner_Location_ID());
+
+		final I_C_Invoice_Candidate regularIc1 = createInvoiceCandidate()
+				.setBillBPartnerAndLocationId(billBPartnerAndLocationId)
+				.setPriceEntered(10)
+				.setQtyOrdered(1)
+				.setManual(false)
+				.setSOTrx(false)
+				.build();
+		InterfaceWrapperHelper.save(regularIc1);
+
+		final I_C_Invoice_Candidate manualIc1 = createInvoiceCandidate()
+				.setBillBPartnerAndLocationId(billBPartnerAndLocationId)
+				.setPriceEntered(10)
+				.setQtyOrdered(-1)
+				.setManual(true)
+				.setSOTrx(false)
+				.build();
+
+		manualIc1.setC_ILCandHandler(manualHandler);
+		InterfaceWrapperHelper.save(manualIc1);
+
+		updateInvalidCandidates();
+
+		final AggregationEngine engine = AggregationEngine.newInstanceForUnitTesting().build();
+		engine.addInvoiceCandidate(manualIc1);
+
+		final List<IInvoiceHeader> invoices = invokeAggregationEngine(engine);
+		assertThat(invoices).as("We are expecting only one invoice: %s", invoices).hasSize(1);
+
+		final IInvoiceHeader invoice = invoices.get(0);
+		assertThat(invoice.getDocBaseType()).as("Invalid DocBaseType").isEqualTo(InvoiceDocBaseType.VendorCreditMemo);
+		validateInvoiceHeader("Invoice", invoice, manualIc1);
+
+		final List<IInvoiceLineRW> invoiceLines = getInvoiceLines(invoice);
+		assertThat(invoiceLines).as("We are expecting only one invoice line: %s", invoiceLines).hasSize(1);
+
+		final IInvoiceLineRW invoiceLine = invoiceLines.get(0);
+		assertThat(invoiceLine.getPriceActual().toMoney().toBigDecimal()).as("Invalid PriceActual").isEqualByComparingTo(new BigDecimal("10"));
+		assertThat(invoiceLine.getQtysToInvoice().getStockQty().toBigDecimal()).as("Invalid QtyToInvoice").isEqualByComparingTo(new BigDecimal("1"));
+		assertThat(invoiceLine.getNetLineAmt().toBigDecimal()).as("Invalid NetLineAmt").isEqualByComparingTo(new BigDecimal("100")); // price=10 times qtyInUom=10
+
+		// System.out.println(invoices);
+	}
+
+	@Test
+	@Disabled("this test is not working atm, maybe it's also too old")
+	// FIXME: this test is not working atm, maybe it's also too old
+	public void test_regularLines_with_CreditMemo_notFullyInvoiced()
+	{
+		// ic1 has netAmtToInvoice = 50
+		final I_C_Invoice_Candidate ic1 = createInvoiceCandidate(1, 10, 5, false, true); // BP,Price,Qty
+		POJOWrapper.setInstanceName(ic1, "ic1");
+		InterfaceWrapperHelper.save(ic1);
+		InterfaceWrapperHelper.refresh(ic1);
+
+		// ic2 has netAmtToInvoice = -60, so we will expect a splitAmount of -10
+		final I_C_Invoice_Candidate ic2 = createInvoiceCandidate(1, -60, 1, true, true); // BP,Price,Qty
+		ic2.setC_ILCandHandler(manualHandler);
+		POJOWrapper.setInstanceName(ic2, "ic2");
+		InterfaceWrapperHelper.save(ic2);
+		InterfaceWrapperHelper.refresh(ic2);
+
+		//
+		// Update candidates
+		updateInvalidCandidates();
+		InterfaceWrapperHelper.refresh(ic1);
+		InterfaceWrapperHelper.refresh(ic2);
+
+		// Check IC1: NetAmtToInvoice=50
+		assertThat(ic1.getNetAmtToInvoice()).as("IC1 - Invalid NetAmtToInvoice").isEqualByComparingTo(new BigDecimal("50"));
+		// Check IC2: NetAmtToInvoice=-50 (balanced with IC1), SplitAmt=-10
+		assertThat(ic2.getNetAmtToInvoice()).as("IC2 - Invalid NetAmtToInvoice").isEqualByComparingTo(new BigDecimal("-50"));
+		assertThat(ic2.getSplitAmt()).as("IC2 - Invalid SplitAmt").isEqualByComparingTo(new BigDecimal("-10"));
+
+		//
+		// Generate invoice
+		{
+			final AggregationEngine engine = AggregationEngine.newInstanceForUnitTesting().build();
+			engine.addInvoiceCandidate(ic1);
+			engine.addInvoiceCandidate(ic2);
+
+			final List<IInvoiceHeader> invoices = invokeAggregationEngine(engine);
+			assertThat(invoices).as("We are expecting only one invoice: %s", invoices).hasSize(1);
+
+			final IInvoiceHeader invoice = invoices.get(0);
+			assertThat(invoice.getDocBaseType()).as("Invalid DocBaseType").isEqualTo(X_C_DocType.DOCBASETYPE_ARInvoice);
+			validateInvoiceHeader("Invoice", invoice, ic1);
+
+			final List<IInvoiceLineRW> invoiceLines = getInvoiceLines(invoice);
+			assertThat(invoiceLines).as("We are expecting 2 invoice lines: %s", invoiceLines).hasSize(2);
+
+			// Invoice Line 1:
+			final IInvoiceLineRW invoiceLine1 = getInvoiceLineByCandidate(invoice, ic1);
+			assertThat(invoiceLine1.getPriceActual().toMoney().toBigDecimal()).as("InvoiceLine1 - Invalid PriceActual").isEqualByComparingTo(TEN);
+			assertThat(invoiceLine1.getQtysToInvoice().getStockQty().toBigDecimal()).as("InvoiceLine1 - Invalid QtyToInvoice").isEqualByComparingTo(new BigDecimal("5"));
+			assertThat(invoiceLine1.getNetLineAmt().toBigDecimal()).as("InvoiceLine1 - Invalid NetLineAmt").isEqualByComparingTo(new BigDecimal("50"));
+
+			// Invoice Line 2:
+			// NOTE: only -50 was invoiced. "-10" was left in SplitAmt
+			final IInvoiceLineRW invoiceLine2 = getInvoiceLineByCandidate(invoice, ic2);
+			assertThat(invoiceLine2.getPriceActual().toMoney().toBigDecimal()).as("InvoiceLine2 - Invalid PriceActual").isEqualByComparingTo(new BigDecimal("-50"));
+			assertThat(invoiceLine2.getQtysToInvoice().getStockQty().toBigDecimal()).as("InvoiceLine2 - Invalid QtyToInvoice").isEqualByComparingTo(ONE);
+			assertThat(invoiceLine2.getNetLineAmt().toBigDecimal()).as("InvoiceLine2 - Invalid NetLineAmt").isEqualByComparingTo(new BigDecimal("-50"));
+		}
+
+		//
+		// Update candidates
+		updateInvalidCandidates();
+		InterfaceWrapperHelper.refresh(ic1);
+		InterfaceWrapperHelper.refresh(ic2);
+
+		//
+		// Manually updating the Invoice Candidates (as it should be after invoicing)
+		{
+			ic1.setQtyInvoiced(ic1.getQtyToInvoice());
+			ic1.setNetAmtInvoiced(ic1.getNetAmtToInvoice());
+			// getInvoiceCandidateValidator().updateProcessedFlag(ic1);
+			ic1.setProcessed(true); // need to set it manually; updateProcessedFlag() also checks for C_Invoice_Line_Allocs (created from de.metas.invoicecandidate.modelvalidator.C_Invoice) and we
+			// don't have any.
+			InterfaceWrapperHelper.save(ic1);
+			assertThat(ic1.isProcessed()).as("IC1 - shall be marked as Processed: %s", ic1).isTrue();
+		}
+		{
+			ic2.setQtyInvoiced(ic2.getQtyToInvoice());
+			ic2.setNetAmtInvoiced(ic2.getNetAmtToInvoice());
+			// getInvoiceCandidateValidator().updateProcessedFlag(ic2);
+			ic2.setProcessed(true); // need to set it manually; updateProcessedFlag() also checks for C_Invoice_Line_Allocs (created from de.metas.invoicecandidate.modelvalidator.C_Invoice) and we
+			// don't have any.
+			InterfaceWrapperHelper.save(ic2);
+			assertThat(ic2.isProcessed()).as("IC2 - shall be marked as Processed: %s", ic2).isTrue();
+		}
+
+		//
+		//
+		// SECOND RUN
+		//
+		//
+
+		//
+		// Manually split the credit memo line.
+		// In production this will be generated when we generate the invoice
+		final I_C_Invoice_Candidate ic2_split = invoiceCandBL.splitCandidate(ic2);
+		POJOWrapper.setInstanceName(ic2_split, "ic2_split");
+		getInvoiceCandidateValidator().invalidateCandidatesAfterChange(ic2_split);
+		InterfaceWrapperHelper.save(ic2_split);
+
+		//
+		// Update candidates
+		updateInvalidCandidates();
+		InterfaceWrapperHelper.refresh(ic1);
+		InterfaceWrapperHelper.refresh(ic2);
+		InterfaceWrapperHelper.refresh(ic2_split);
+
+		//
+		// Validate ic2's split candidate
+		// expecting getNetAmtToInvoice to be 0 because we don't have a "regular" IC to "split against"
+		assertThat(ic2_split.getNetAmtToInvoice()).as("IC2_split - Invalid NetAmtToInvoice").isEqualByComparingTo(BigDecimal.ZERO);
+		assertThat(ic2_split.getSplitAmt()).as("IC2_split - Invalid SplitAmt").isEqualByComparingTo(new BigDecimal("-10"));
+
+		//
+		// Creating another non-manual invoice candidate: Price=7, Qty=2 => NetAmtToInvoice=14
+		// We will expect the NetAmtToInvoice of ic2_split to be unaffected, because ic3 was created after ic2_split
+		final I_C_Invoice_Candidate ic3 = createInvoiceCandidate(1, 7, 2, false, true); // BP, Price, Qty, IsManual, IsSOTrx
+		POJOWrapper.setInstanceName(ic3, "ic3");
+		InterfaceWrapperHelper.save(ic3);
+
+		//
+		// Update candidates
+		updateInvalidCandidates();
+		InterfaceWrapperHelper.refresh(ic2_split);
+		InterfaceWrapperHelper.refresh(ic3);
+
+		// Validate IC3
+		assertThat(ic3.getNetAmtToInvoice()).as("IC3 - Invalid NetAmtToInvoice").isEqualByComparingTo(new BigDecimal("14"));
+		assertThat(ic3.getSplitAmt()).as("IC3 - Invalid SplitAmt").isEqualByComparingTo(new BigDecimal("0"));
+		//
+		// @formatter:off
+		//
+		// Validate ic2's split: check how it changed
+		// Before IC3:
+		//				IC1:		NetAmtToInvoice=50
+		//				IC2:		NetAmtToInvoice=-60
+		//				IC2_split:	NetAmtToInvoice=0, SplitAmt=-10
+		//							=> SUM: 50-60 = -10 (negative)
+		//	=> SplitAmt=-10, NetAmtToInvoice=0
+		//
+		//
+		// After IC3:
+		//				IC1:		NetAmtToInvoice=50 (did not changed)
+		//				IC2:		NetAmtToInvoice=-60 (did not changed)
+		//				IC3:		NetAmtToInvoice=14 (the new one)
+		//							=> SUM: 50-60+14 = +4 (positive)
+		//	=> SplitAmt=-6, NetAmtToInvoice=-4
+		//
+		// @formatter:on
+		//
+		// FIXME: need to find out why we have this numbers (maybe I am too tired)
+		assertThat(ic2_split.getNetAmtToInvoice()).as("IC2_split - Invalid NetAmtToInvoice").isEqualByComparingTo(new BigDecimal("-4"));
+		assertThat(ic2_split.getSplitAmt()).as("IC2_split - Invalid SplitAmt").isEqualByComparingTo(new BigDecimal("-6"));
+
+		//
+		// Generate invoice (again) for IC2_split, IC3
+		{
+			final AggregationEngine engine = AggregationEngine.newInstanceForUnitTesting().build();
+			// engine2.addIC(ic1); // already processed
+			// engine2.addIC(ic2); // already processed
+			engine.addInvoiceCandidate(ic2_split);
+			engine.addInvoiceCandidate(ic3);
+
+			final List<IInvoiceHeader> invoices = engine.aggregate();
+			assertThat(invoices).as("RUN2 - We are expecting only one invoice: %s", invoices).hasSize(1);
+
+			final IInvoiceHeader invoice = invoices.get(0);
+			assertThat(invoice.getDocBaseType()).as("RUN2 - Invalid DocBaseType").isEqualTo(X_C_DocType.DOCBASETYPE_ARInvoice);
+			final boolean invoiceReferencesOrder = false;
+			validateInvoiceHeader("Invoice", invoice, ic3, invoiceReferencesOrder);
+
+			final List<IInvoiceLineRW> invoiceLines = getInvoiceLines(invoice);
+			assertThat(invoiceLines).as("RUN2 - invalid expected lines count: %s", invoiceLines).hasSize(2);
+
+			// Invoice Line 1:
+			final IInvoiceLineRW invoiceLine1 = getInvoiceLineByCandidate(invoice, ic3);
+			assertThat(invoiceLine1.getPriceActual().toMoney().toBigDecimal()).as("InvoiceLine1 - Invalid PriceActual").isEqualByComparingTo(new BigDecimal("7"));
+			assertThat(invoiceLine1.getQtysToInvoice().getStockQty().toBigDecimal()).as("InvoiceLine1 - Invalid QtyToInvoice").isEqualByComparingTo(new BigDecimal("2"));
+			assertThat(invoiceLine1.getNetLineAmt().toBigDecimal()).as("InvoiceLine1 - Invalid NetLineAmt").isEqualByComparingTo(new BigDecimal("14"));
+
+			// Invoice Line 2:
+			final IInvoiceLineRW invoiceLine2 = getInvoiceLineByCandidate(invoice, ic2_split);
+			assertThat(invoiceLine2.getPriceActual().toMoney().toBigDecimal()).as("InvoiceLine2 - Invalid PriceActual").isEqualByComparingTo(new BigDecimal("-4"));
+			assertThat(invoiceLine2.getQtysToInvoice().getStockQty().toBigDecimal()).as("InvoiceLine2 - Invalid QtyToInvoice").isEqualByComparingTo(new BigDecimal("1"));
+			assertThat(invoiceLine2.getNetLineAmt().toBigDecimal()).as("InvoiceLine2 - Invalid NetLineAmt").isEqualByComparingTo(new BigDecimal("-4"));
+		}
+	}
+
+	@Test
+	public void test_regularLines_with_PartialCreditMemo_QtyNotOne()
+	{
+		final I_C_BPartner bPartner = BusinessTestHelper.createBPartner("test-bp");
+
+		final I_C_Invoice_Candidate ic1 = createInvoiceCandidate(bPartner.getC_BPartner_ID(), 10, 5, true, true);
+		InterfaceWrapperHelper.save(ic1);
+
+		final I_C_Invoice_Candidate ic2 = createInvoiceCandidate(bPartner.getC_BPartner_ID(), -30, 2, true, true);
+		ic2.setC_ILCandHandler(manualHandler);
+		InterfaceWrapperHelper.save(ic2);
+		assertThat(ic2.isError()).as("IC2- IsError").isFalse();
+
+		// should not throw exception because invoice candidates with negative amount are valid and lead to the creation of credit memos.
+		updateInvalidCandidates();
+
+		InterfaceWrapperHelper.refresh(ic2);
+		assertThat(ic2.isError()).as("IC2- IsError").isFalse();
+	}
+}

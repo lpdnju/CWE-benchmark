@@ -1,0 +1,52 @@
+de.metas.handlingunits.inventory.InventoryRepositoryTest.saveInventoryLine=[
+  {
+    "docBaseAndSubType": {
+      "docBaseType": "MMI",
+      "docSubType": "ISH"
+    },
+    "docStatus": "DR",
+    "documentNo": "documentNo",
+    "id": 1000000,
+    "inventoryType": "PHYSICAL",
+    "lines": [
+      {
+        "asiId": 1000000,
+        "counted": true,
+        "huAggregationType": "MULTI_HU",
+        "id": 1000000,
+        "inventoryLineHUs": [
+          {
+            "asiId": 1000001,
+            "huId": 100,
+            "id": 1000000,
+            "inventoryType": "PHYSICAL",
+            "isCounted": false,
+            "qtyBook": "10 Ea",
+            "qtyCount": "1 Ea"
+          },
+          {
+            "asiId": 1000002,
+            "huId": 200,
+            "id": 1000001,
+            "inventoryType": "PHYSICAL",
+            "isCounted": true,
+            "qtyBook": "20 Ea",
+            "qtyCount": "2 Ea"
+          }
+        ],
+        "inventoryType": "PHYSICAL",
+        "locatorId": "1000000_1000000",
+        "orgId": 1000000,
+        "packingInstructions": {
+          "tuPIItemProductId": 101,
+          "vhu": true
+        },
+        "productId": 40,
+        "qtyBookFixed": "30 Ea",
+        "qtyCountFixed": "3 Ea"
+      }
+    ],
+    "movementDate": "2020-06-15T00:00:00-08:00",
+    "orgId": 1000000
+  }
+]

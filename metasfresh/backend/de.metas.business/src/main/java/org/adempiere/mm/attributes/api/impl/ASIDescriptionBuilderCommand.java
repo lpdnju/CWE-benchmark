@@ -1,0 +1,296 @@
+package org.adempiere.mm.attributes.api.impl;
+
+import de.metas.i18n.ITranslatableString;
+import de.metas.i18n.Language;
+import de.metas.i18n.TranslatableStringBuilder;
+import de.metas.i18n.TranslatableStrings;
+import de.metas.uom.IUOMDAO;
+import de.metas.util.Check;
+import de.metas.util.Services;
+import lombok.NonNull;
+import org.adempiere.ad.expression.api.IExpressionEvaluator.OnVariableNotFound;
+import org.adempiere.ad.expression.api.IStringExpression;
+import org.adempiere.mm.attributes.AttributeId;
+import org.adempiere.mm.attributes.AttributeListValue;
+import org.adempiere.mm.attributes.AttributeSetId;
+import org.adempiere.mm.attributes.AttributeValueId;
+import org.adempiere.mm.attributes.AttributeValueType;
+import org.adempiere.mm.attributes.api.Attribute;
+import org.adempiere.mm.attributes.api.IAttributeDAO;
+import org.adempiere.mm.attributes.api.IAttributeSetInstanceDAO;
+import org.adempiere.model.InterfaceWrapperHelper;
+import org.compiere.model.I_M_Attribute;
+import org.compiere.model.I_M_AttributeInstance;
+import org.compiere.model.I_M_AttributeSetInstance;
+import org.compiere.model.X_M_Attribute;
+
+import javax.annotation.Nullable;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.Date;
+
+/*
+ * #%L
+ * de.metas.business
+ * %%
+ * Copyright (C) 2018 metas GmbH
+ * %%
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation, either version 2 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public
+ * License along with this program. If not, see
+ * <http://www.gnu.org/licenses/gpl-2.0.html>.
+ * #L%
+ */
+
+final class ASIDescriptionBuilderCommand
+{
+	private final IAttributeDAO attributesRepo = Services.get(IAttributeDAO.class);
+	private final IAttributeSetInstanceDAO asiDAO = Services.get(IAttributeSetInstanceDAO.class);
+	private final IUOMDAO uomsRepo = Services.get(IUOMDAO.class);
+
+	static final String SEPARATOR = "_";
+
+	private final I_M_AttributeSetInstance asi;
+	private final String adLanguage;
+	private final boolean verboseDescription;
+
+	//
+	private final AttributeSetId attributeSetId;
+
+	public ASIDescriptionBuilderCommand(@NonNull final I_M_AttributeSetInstance asi, final boolean verboseDescription)
+	{
+		this.asi = asi;
+		this.adLanguage = Language.getBaseAD_Language();
+		this.verboseDescription = verboseDescription;
+
+		attributeSetId = AttributeSetId.ofRepoIdOrNone(asi.getM_AttributeSet_ID());
+	}
+
+	public String buildDescription()
+	{
+		//
+		// Guard against null or new ASI
+		// In this case it makes no sense to build the Description because there are no attribute instances.
+		if (asi == null || InterfaceWrapperHelper.isNew(asi))
+		{
+			return null;
+		}
+
+		final TranslatableStringBuilder descriptionBuilder = TranslatableStrings.builder();
+
+		appendInstanceAttributes(descriptionBuilder);
+		appendProductAttributes(descriptionBuilder);
+
+		// NOTE: mk: if there is nothing to show then don't show ASI ID because that number will confuse the user.
+		// // In case there is no other description, at least show the ID
+		// if (sb.length() <= 0 && asi.getM_AttributeSetInstance_ID() > 0)
+		// {
+		// sb.append(asi.getM_AttributeSetInstance_ID());
+		// }
+
+		return descriptionBuilder
+				.build()
+				.translate(adLanguage);
+	}
+
+	private void appendInstanceAttributes(final TranslatableStringBuilder description)
+	{
+		for (final I_M_AttributeInstance instance : asiDAO.retrieveAttributeInstances(asi))
+		{
+			appendInstanceAttribute(description, instance);
+		}
+	}
+
+	private void appendInstanceAttribute(final TranslatableStringBuilder description, final I_M_AttributeInstance ai)
+	{
+		final ITranslatableString aiDescription = buildInstanceAttributeDescription(ai);
+		if (TranslatableStrings.isBlank(aiDescription))
+		{
+			return;
+		}
+
+		appendSeparator(description);
+		description.append(aiDescription);
+	}
+
+	private ITranslatableString buildInstanceAttributeDescription(@NonNull final I_M_AttributeInstance ai)
+	{
+		final AttributeId attributeId = AttributeId.ofRepoId(ai.getM_Attribute_ID());
+		final Attribute attribute = attributesRepo.getAttributeById(attributeId);
+
+		final IStringExpression descriptionPattern = attribute.getDescriptionPattern();
+		if (descriptionPattern == null)
+		{
+			return getInstanceAttributeValueAsString(ai);
+		}
+		else
+		{
+			final Object value = getInstanceAttributeValue(ai);
+			final AttributeValueId attributeValueId = AttributeValueId.ofRepoIdOrNull(ai.getM_AttributeValue_ID());
+
+			final AttributeDescriptionPatternEvalCtx ctx = AttributeDescriptionPatternEvalCtx.builder()
+					.attributesRepo(attributesRepo)
+					.uomsRepo(uomsRepo)
+					.attribute(attribute)
+					.attributeValue(value)
+					.attributeValueId(attributeValueId)
+					.adLanguage(adLanguage)
+					.verboseDescription(verboseDescription)
+					.build();
+			final String description = descriptionPattern.evaluate(ctx, OnVariableNotFound.Preserve);
+			return TranslatableStrings.anyLanguage(description);
+		}
+	}
+
+	private Object getInstanceAttributeValue(@NonNull final I_M_AttributeInstance ai)
+	{
+		final AttributeId attributeId = AttributeId.ofRepoId(ai.getM_Attribute_ID());
+		final I_M_Attribute attribute = attributesRepo.getAttributeRecordById(attributeId);
+
+		final String attributeValueType = attribute.getAttributeValueType();
+		if (X_M_Attribute.ATTRIBUTEVALUETYPE_StringMax40.equals(attributeValueType))
+		{
+			return ai.getValue();
+		}
+		else if (X_M_Attribute.ATTRIBUTEVALUETYPE_Number.equals(attributeValueType))
+		{
+			final boolean isNull = InterfaceWrapperHelper.isNull(ai, I_M_AttributeInstance.COLUMNNAME_ValueNumber);
+			return isNull ? null : ai.getValueNumber();
+		}
+		else if (X_M_Attribute.ATTRIBUTEVALUETYPE_Date.equals(attributeValueType))
+		{
+			return ai.getValueDate();
+		}
+		else if (X_M_Attribute.ATTRIBUTEVALUETYPE_List.equals(attributeValueType))
+		{
+			return ai.getValue();
+		}
+		else
+		{
+			return null;
+		}
+	}
+
+	private ITranslatableString getInstanceAttributeValueAsString(@NonNull final I_M_AttributeInstance ai)
+	{
+		final AttributeId attributeId = AttributeId.ofRepoId(ai.getM_Attribute_ID());
+		final Attribute attribute = attributesRepo.getAttributeById(attributeId);
+
+		final AttributeValueType attributeValueType = attribute.getValueType();
+		if (AttributeValueType.STRING.equals(attributeValueType))
+		{
+			final String valueStr = ai.getValue();
+			return formatStringValue(valueStr);
+		}
+		else if (AttributeValueType.NUMBER.equals(attributeValueType))
+		{
+			final boolean isNull = InterfaceWrapperHelper.isNull(ai, I_M_AttributeInstance.COLUMNNAME_ValueNumber);
+			final BigDecimal valueBD = isNull ? null : ai.getValueNumber();
+			if (valueBD == null && !verboseDescription)
+			{
+				return null;
+			}
+			else
+			{
+				return formatNumber(valueBD, attribute.getNumberDisplayType());
+			}
+		}
+		else if (AttributeValueType.DATE.equals(attributeValueType))
+		{
+			final Date valueDate = ai.getValueDate();
+			if (valueDate == null && !verboseDescription)
+			{
+				return null;
+			}
+			else
+			{
+				return formatDateValue(valueDate);
+			}
+		}
+		else if (AttributeValueType.LIST.equals(attributeValueType))
+		{
+			final AttributeValueId attributeValueId = AttributeValueId.ofRepoIdOrNull(ai.getM_AttributeValue_ID());
+			final AttributeListValue attributeValue = attributeValueId != null ? attributesRepo.retrieveAttributeValueOrNull(attribute, attributeValueId) : null;
+			if (attributeValue != null)
+			{
+				return attributeValue.getNameTrl();
+			}
+			else
+			{
+				return formatStringValue(ai.getValue());
+			}
+		}
+		else
+		{
+			// Unknown attributeValueType
+			return formatStringValue(ai.getValue());
+		}
+	}
+
+	static ITranslatableString formatStringValue(@Nullable final String valueStr)
+	{
+		if (Check.isEmpty(valueStr, true))
+		{
+			return TranslatableStrings.empty();
+		}
+		else
+		{
+			return TranslatableStrings.anyLanguage(valueStr.trim());
+		}
+	}
+
+	static ITranslatableString formatNumber(@Nullable final BigDecimal valueBD, final int displayType)
+	{
+		if (valueBD == null)
+		{
+			return TranslatableStrings.anyLanguage("0");
+		}
+		else
+		{
+			return TranslatableStrings.number(valueBD, displayType);
+		}
+	}
+
+	static ITranslatableString formatDateValue(@Nullable final java.util.Date valueDate)
+	{
+		return valueDate != null
+				? TranslatableStrings.date(valueDate)
+				: TranslatableStrings.anyLanguage("-");
+	}
+
+	static ITranslatableString formatDateValue(@Nullable final LocalDate valueDate)
+	{
+		return valueDate != null
+				? TranslatableStrings.date(valueDate)
+				: TranslatableStrings.anyLanguage("-");
+	}
+
+	private void appendSeparator(final TranslatableStringBuilder description)
+	{
+		if (description.isEmpty())
+		{
+			return;
+		}
+
+		description.append(SEPARATOR);
+	}
+
+	private void appendProductAttributes(final TranslatableStringBuilder description)
+	{
+		final boolean isInstanceAttribute = false;
+		for (final Attribute attribute : attributesRepo.retrieveAttributes(attributeSetId, isInstanceAttribute))
+		{
+			appendSeparator(description);
+			description.append(attribute.getDisplayName());
+		}
+	}
+}

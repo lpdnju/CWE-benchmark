@@ -1,0 +1,43 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<parent>
+		<groupId>de.metas.payment.sepa</groupId>
+		<artifactId>de.metas.payment.sepa</artifactId>
+		<version>10.0.0</version>
+		<relativePath>../pom.xml</relativePath>
+	</parent>
+
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>de.metas.payment.sepa.schema.pain_008_003_02</artifactId>
+	<packaging>jar</packaging>
+
+	<description>SEPA Payments - schema - pain_008_003_02 (Direct Debit)</description>
+
+	<properties>
+		<migration-sql-basedir></migration-sql-basedir>
+	</properties>
+
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.jvnet.jaxb2.maven2</groupId>
+				<artifactId>maven-jaxb2-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>generate-de.metas.payment.sepa.jaxb.sct.schema-pain_008_003_02</id>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+						<configuration>
+							<schemaDirectory>src/main/xsd</schemaDirectory>
+							<generatePackage>de.metas.payment.sepa.jaxb.sct.pain_008_003_02</generatePackage>
+							<generateDirectory>${project.basedir}/src/main/java-xjc</generateDirectory>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+</project>

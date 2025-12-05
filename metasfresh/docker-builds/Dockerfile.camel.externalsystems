@@ -1,0 +1,15 @@
+ARG REFNAME=local
+ARG REGISTRY=
+FROM ${REGISTRY}metasfresh/metas-mvn-camel:$REFNAME AS camel
+
+FROM eclipse-temurin:17.0.5_8-jdk
+
+RUN apt-get -y update && \
+    apt-get -y install curl && \
+    rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+COPY --from=camel /camel/de-metas-camel-externalsystems/core/target/uber/de-metas-camel-externalsystems-core.jar .
+
+ENTRYPOINT ["java", "-jar", "de-metas-camel-externalsystems-core.jar"]

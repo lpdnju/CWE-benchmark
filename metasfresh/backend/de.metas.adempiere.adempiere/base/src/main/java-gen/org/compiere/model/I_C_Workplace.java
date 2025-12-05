@@ -1,0 +1,322 @@
+package org.compiere.model;
+
+import javax.annotation.Nullable;
+import org.adempiere.model.ModelColumn;
+
+/** Generated Interface for C_Workplace
+ *  @author metasfresh (generated) 
+ */
+@SuppressWarnings("unused")
+public interface I_C_Workplace 
+{
+
+	String Table_Name = "C_Workplace";
+
+//	/** AD_Table_ID=542375 */
+//	int Table_ID = org.compiere.model.MTable.getTable_ID(Table_Name);
+
+
+	/**
+	 * Get Client.
+	 * Client/Tenant for this installation.
+	 *
+	 * <br>Type: TableDir
+	 * <br>Mandatory: true
+	 * <br>Virtual Column: false
+	 */
+	int getAD_Client_ID();
+
+	String COLUMNNAME_AD_Client_ID = "AD_Client_ID";
+
+	/**
+	 * Set Organisation.
+	 * Organisational entity within client
+	 *
+	 * <br>Type: Search
+	 * <br>Mandatory: true
+	 * <br>Virtual Column: false
+	 */
+	void setAD_Org_ID (int AD_Org_ID);
+
+	/**
+	 * Get Organisation.
+	 * Organisational entity within client
+	 *
+	 * <br>Type: Search
+	 * <br>Mandatory: true
+	 * <br>Virtual Column: false
+	 */
+	int getAD_Org_ID();
+
+	String COLUMNNAME_AD_Org_ID = "AD_Org_ID";
+
+	/**
+	 * Get Created.
+	 * Date this record was created
+	 *
+	 * <br>Type: DateTime
+	 * <br>Mandatory: true
+	 * <br>Virtual Column: false
+	 */
+	java.sql.Timestamp getCreated();
+
+	ModelColumn<I_C_Workplace, Object> COLUMN_Created = new ModelColumn<>(I_C_Workplace.class, "Created", null);
+	String COLUMNNAME_Created = "Created";
+
+	/**
+	 * Get Created By.
+	 * User who created this records
+	 *
+	 * <br>Type: Table
+	 * <br>Mandatory: true
+	 * <br>Virtual Column: false
+	 */
+	int getCreatedBy();
+
+	String COLUMNNAME_CreatedBy = "CreatedBy";
+
+	/**
+	 * Set Workplace.
+	 * The assignment applies to all users assigned to this workstation
+	 *
+	 * <br>Type: ID
+	 * <br>Mandatory: true
+	 * <br>Virtual Column: false
+	 */
+	void setC_Workplace_ID (int C_Workplace_ID);
+
+	/**
+	 * Get Workplace.
+	 * The assignment applies to all users assigned to this workstation
+	 *
+	 * <br>Type: ID
+	 * <br>Mandatory: true
+	 * <br>Virtual Column: false
+	 */
+	int getC_Workplace_ID();
+
+	ModelColumn<I_C_Workplace, Object> COLUMN_C_Workplace_ID = new ModelColumn<>(I_C_Workplace.class, "C_Workplace_ID", null);
+	String COLUMNNAME_C_Workplace_ID = "C_Workplace_ID";
+
+	/**
+	 * Set Description.
+	 *
+	 * <br>Type: Text
+	 * <br>Mandatory: false
+	 * <br>Virtual Column: false
+	 */
+	void setDescription (@Nullable java.lang.String Description);
+
+	/**
+	 * Get Description.
+	 *
+	 * <br>Type: Text
+	 * <br>Mandatory: false
+	 * <br>Virtual Column: false
+	 */
+	@Nullable java.lang.String getDescription();
+
+	ModelColumn<I_C_Workplace, Object> COLUMN_Description = new ModelColumn<>(I_C_Workplace.class, "Description", null);
+	String COLUMNNAME_Description = "Description";
+
+	/**
+	 * Set Active.
+	 * The record is active in the system
+	 *
+	 * <br>Type: YesNo
+	 * <br>Mandatory: true
+	 * <br>Virtual Column: false
+	 */
+	void setIsActive (boolean IsActive);
+
+	/**
+	 * Get Active.
+	 * The record is active in the system
+	 *
+	 * <br>Type: YesNo
+	 * <br>Mandatory: true
+	 * <br>Virtual Column: false
+	 */
+	boolean isActive();
+
+	ModelColumn<I_C_Workplace, Object> COLUMN_IsActive = new ModelColumn<>(I_C_Workplace.class, "IsActive", null);
+	String COLUMNNAME_IsActive = "IsActive";
+
+	/**
+	 * Set Max. Picking Jobs.
+	 * Specifies the maximum number of picking jobs allowed for this workplace.
+	 *
+	 * <br>Type: Integer
+	 * <br>Mandatory: true
+	 * <br>Virtual Column: false
+	 */
+	void setMaxPickingJobs (int MaxPickingJobs);
+
+	/**
+	 * Get Max. Picking Jobs.
+	 * Specifies the maximum number of picking jobs allowed for this workplace.
+	 *
+	 * <br>Type: Integer
+	 * <br>Mandatory: true
+	 * <br>Virtual Column: false
+	 */
+	int getMaxPickingJobs();
+
+	ModelColumn<I_C_Workplace, Object> COLUMN_MaxPickingJobs = new ModelColumn<>(I_C_Workplace.class, "MaxPickingJobs", null);
+	String COLUMNNAME_MaxPickingJobs = "MaxPickingJobs";
+
+	/**
+	 * Set Picking Slot.
+	 *
+	 * <br>Type: Search
+	 * <br>Mandatory: false
+	 * <br>Virtual Column: false
+	 */
+	void setM_PickingSlot_ID (int M_PickingSlot_ID);
+
+	/**
+	 * Get Picking Slot.
+	 *
+	 * <br>Type: Search
+	 * <br>Mandatory: false
+	 * <br>Virtual Column: false
+	 */
+	int getM_PickingSlot_ID();
+
+	ModelColumn<I_C_Workplace, Object> COLUMN_M_PickingSlot_ID = new ModelColumn<>(I_C_Workplace.class, "M_PickingSlot_ID", null);
+	String COLUMNNAME_M_PickingSlot_ID = "M_PickingSlot_ID";
+
+	/**
+	 * Set Warehouse.
+	 * Storage Warehouse and Service Point
+	 *
+	 * <br>Type: Search
+	 * <br>Mandatory: true
+	 * <br>Virtual Column: false
+	 */
+	void setM_Warehouse_ID (int M_Warehouse_ID);
+
+	/**
+	 * Get Warehouse.
+	 * Storage Warehouse and Service Point
+	 *
+	 * <br>Type: Search
+	 * <br>Mandatory: true
+	 * <br>Virtual Column: false
+	 */
+	int getM_Warehouse_ID();
+
+	String COLUMNNAME_M_Warehouse_ID = "M_Warehouse_ID";
+
+	/**
+	 * Set Name.
+	 *
+	 * <br>Type: String
+	 * <br>Mandatory: true
+	 * <br>Virtual Column: false
+	 */
+	void setName (java.lang.String Name);
+
+	/**
+	 * Get Name.
+	 *
+	 * <br>Type: String
+	 * <br>Mandatory: true
+	 * <br>Virtual Column: false
+	 */
+	java.lang.String getName();
+
+	ModelColumn<I_C_Workplace, Object> COLUMN_Name = new ModelColumn<>(I_C_Workplace.class, "Name", null);
+	String COLUMNNAME_Name = "Name";
+
+	/**
+	 * Set Order Picking Type.
+	 * Defines the method used to pick items for an order.
+	 *
+	 * <br>Type: List
+	 * <br>Mandatory: false
+	 * <br>Virtual Column: false
+	 */
+	void setOrderPickingType (@Nullable java.lang.String OrderPickingType);
+
+	/**
+	 * Get Order Picking Type.
+	 * Defines the method used to pick items for an order.
+	 *
+	 * <br>Type: List
+	 * <br>Mandatory: false
+	 * <br>Virtual Column: false
+	 */
+	@Nullable java.lang.String getOrderPickingType();
+
+	ModelColumn<I_C_Workplace, Object> COLUMN_OrderPickingType = new ModelColumn<>(I_C_Workplace.class, "OrderPickingType", null);
+	String COLUMNNAME_OrderPickingType = "OrderPickingType";
+
+	/**
+	 * Set Pick From Locator.
+	 *
+	 * <br>Type: Search
+	 * <br>Mandatory: false
+	 * <br>Virtual Column: false
+	 */
+	void setPickFrom_Locator_ID (int PickFrom_Locator_ID);
+
+	/**
+	 * Get Pick From Locator.
+	 *
+	 * <br>Type: Search
+	 * <br>Mandatory: false
+	 * <br>Virtual Column: false
+	 */
+	int getPickFrom_Locator_ID();
+
+	String COLUMNNAME_PickFrom_Locator_ID = "PickFrom_Locator_ID";
+
+	/**
+	 * Set Priority.
+	 * Priority of a document
+	 *
+	 * <br>Type: List
+	 * <br>Mandatory: false
+	 * <br>Virtual Column: false
+	 */
+	void setPriorityRule (@Nullable java.lang.String PriorityRule);
+
+	/**
+	 * Get Priority.
+	 * Priority of a document
+	 *
+	 * <br>Type: List
+	 * <br>Mandatory: false
+	 * <br>Virtual Column: false
+	 */
+	@Nullable java.lang.String getPriorityRule();
+
+	ModelColumn<I_C_Workplace, Object> COLUMN_PriorityRule = new ModelColumn<>(I_C_Workplace.class, "PriorityRule", null);
+	String COLUMNNAME_PriorityRule = "PriorityRule";
+
+	/**
+	 * Get Updated.
+	 * Date this record was updated
+	 *
+	 * <br>Type: DateTime
+	 * <br>Mandatory: true
+	 * <br>Virtual Column: false
+	 */
+	java.sql.Timestamp getUpdated();
+
+	ModelColumn<I_C_Workplace, Object> COLUMN_Updated = new ModelColumn<>(I_C_Workplace.class, "Updated", null);
+	String COLUMNNAME_Updated = "Updated";
+
+	/**
+	 * Get Updated By.
+	 * User who updated this records
+	 *
+	 * <br>Type: Table
+	 * <br>Mandatory: true
+	 * <br>Virtual Column: false
+	 */
+	int getUpdatedBy();
+
+	String COLUMNNAME_UpdatedBy = "UpdatedBy";
+}

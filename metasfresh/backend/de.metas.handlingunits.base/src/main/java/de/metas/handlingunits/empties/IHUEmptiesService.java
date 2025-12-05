@@ -1,0 +1,60 @@
+package de.metas.handlingunits.empties;
+
+import de.metas.handlingunits.inout.returns.IReturnsInOutProducer;
+import de.metas.handlingunits.model.I_M_Locator;
+import de.metas.inoutcandidate.model.I_M_ReceiptSchedule;
+import de.metas.util.ISingletonService;
+import org.compiere.model.I_M_InOut;
+import org.compiere.model.I_M_Warehouse;
+
+import java.util.Properties;
+
+/*
+ * #%L
+ * de.metas.handlingunits.base
+ * %%
+ * Copyright (C) 2017 metas GmbH
+ * %%
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation, either version 2 of the
+ * License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public
+ * License along with this program. If not, see
+ * <http://www.gnu.org/licenses/gpl-2.0.html>.
+ * #L%
+ */
+
+public interface IHUEmptiesService extends ISingletonService
+{
+	/**
+	 * Gets the warehouse locator to be used for empties.
+	 * 
+	 * @return empties locator
+	 */
+	I_M_Locator getEmptiesLocator(I_M_Warehouse warehouse);
+
+	/**
+	 * Generate movements for the empties (Leergut) inOut. If the given <code>inout</code> is a receipt, the movement will be from inOut's warehouse to the empties-warehouse (Gebindelager). If the
+	 * inOut is a shipment, the movement will be in the opposite direction.
+	 * task 08070
+	 */
+	void generateMovementFromEmptiesInout(I_M_InOut emptiesInOut);
+
+	/**
+	 * Calls {@link EmptiesMovementProducer#newInstance()}.
+	 */
+	EmptiesMovementProducer newEmptiesMovementProducer();
+
+	boolean isEmptiesInOut(I_M_InOut inout);
+
+	IReturnsInOutProducer newReturnsInOutProducer(Properties ctx);
+
+	I_M_InOut createDraftEmptiesInOutFromReceiptSchedule(I_M_ReceiptSchedule receiptSchedule, String movementType);
+}

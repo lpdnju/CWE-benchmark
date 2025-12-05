@@ -1,0 +1,35 @@
+.login-view {
+
+  .login-error {
+    min-height: 3em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .button {
+    background-color: $base-mf-green;
+    color: white;
+
+    &[disabled] {
+      background-color: $base-mf-green;
+      border-color: transparent;
+      box-shadow: none;
+    }
+  }
+
+  .alternative-button {
+    background-color: white;
+    color: $base-mf-green;
+    border-color: $base-mf-green;
+    font-size: 1.25rem;
+  }
+
+  .qr-code-auth {
+    .barcode-scanner {
+      max-height: 50vh;
+      video {
+        max-height: 50vh;
+      }
+    }
+  }
+}

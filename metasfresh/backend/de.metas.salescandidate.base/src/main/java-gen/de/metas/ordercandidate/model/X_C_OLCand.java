@@ -1,0 +1,1964 @@
+/*
+ * #%L
+ * de.metas.salescandidate.base
+ * %%
+ * Copyright (C) 2025 metas GmbH
+ * %%
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation, either version 2 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public
+ * License along with this program. If not, see
+ * <http://www.gnu.org/licenses/gpl-2.0.html>.
+ * #L%
+ */
+
+// Generated Model - DO NOT CHANGE
+package de.metas.ordercandidate.model;
+
+import javax.annotation.Nullable;
+import java.math.BigDecimal;
+import java.sql.ResultSet;
+import java.util.Properties;
+
+/** Generated Model for C_OLCand
+ *  @author metasfresh (generated) 
+ */
+@SuppressWarnings("unused")
+public class X_C_OLCand extends org.compiere.model.PO implements I_C_OLCand, org.compiere.model.I_Persistent 
+{
+
+	private static final long serialVersionUID = 1842037350L;
+
+    /** Standard Constructor */
+    public X_C_OLCand (final Properties ctx, final int C_OLCand_ID, @Nullable final String trxName)
+    {
+      super (ctx, C_OLCand_ID, trxName);
+    }
+
+    /** Load Constructor */
+    public X_C_OLCand (final Properties ctx, final ResultSet rs, @Nullable final String trxName)
+    {
+      super (ctx, rs, trxName);
+    }
+
+
+	/** Load Meta Data */
+	@Override
+	protected org.compiere.model.POInfo initPO(final Properties ctx)
+	{
+		return org.compiere.model.POInfo.getPOInfo(Table_Name);
+	}
+
+	@Override
+	public void setAD_DataDestination_ID (final int AD_DataDestination_ID)
+	{
+		if (AD_DataDestination_ID < 1) 
+			set_Value (COLUMNNAME_AD_DataDestination_ID, null);
+		else 
+			set_Value (COLUMNNAME_AD_DataDestination_ID, AD_DataDestination_ID);
+	}
+
+	@Override
+	public int getAD_DataDestination_ID() 
+	{
+		return get_ValueAsInt(COLUMNNAME_AD_DataDestination_ID);
+	}
+
+	@Override
+	public void setAD_InputDataSource_ID (final int AD_InputDataSource_ID)
+	{
+		if (AD_InputDataSource_ID < 1) 
+			set_Value (COLUMNNAME_AD_InputDataSource_ID, null);
+		else 
+			set_Value (COLUMNNAME_AD_InputDataSource_ID, AD_InputDataSource_ID);
+	}
+
+	@Override
+	public int getAD_InputDataSource_ID() 
+	{
+		return get_ValueAsInt(COLUMNNAME_AD_InputDataSource_ID);
+	}
+
+	@Override
+	public void setAD_Issue_ID (final int AD_Issue_ID)
+	{
+		if (AD_Issue_ID < 1) 
+			set_Value (COLUMNNAME_AD_Issue_ID, null);
+		else 
+			set_Value (COLUMNNAME_AD_Issue_ID, AD_Issue_ID);
+	}
+
+	@Override
+	public int getAD_Issue_ID() 
+	{
+		return get_ValueAsInt(COLUMNNAME_AD_Issue_ID);
+	}
+
+	@Override
+	public void setAD_Note_ID (final int AD_Note_ID)
+	{
+		if (AD_Note_ID < 1) 
+			set_Value (COLUMNNAME_AD_Note_ID, null);
+		else 
+			set_Value (COLUMNNAME_AD_Note_ID, AD_Note_ID);
+	}
+
+	@Override
+	public int getAD_Note_ID() 
+	{
+		return get_ValueAsInt(COLUMNNAME_AD_Note_ID);
+	}
+
+	@Override
+	public void setAD_Table_ID (final int AD_Table_ID)
+	{
+		if (AD_Table_ID < 1) 
+			set_ValueNoCheck (COLUMNNAME_AD_Table_ID, null);
+		else 
+			set_ValueNoCheck (COLUMNNAME_AD_Table_ID, AD_Table_ID);
+	}
+
+	@Override
+	public int getAD_Table_ID() 
+	{
+		return get_ValueAsInt(COLUMNNAME_AD_Table_ID);
+	}
+
+	@Override
+	public void setAD_User_EnteredBy_ID (final int AD_User_EnteredBy_ID)
+	{
+		if (AD_User_EnteredBy_ID < 1) 
+			set_Value (COLUMNNAME_AD_User_EnteredBy_ID, null);
+		else 
+			set_Value (COLUMNNAME_AD_User_EnteredBy_ID, AD_User_EnteredBy_ID);
+	}
+
+	@Override
+	public int getAD_User_EnteredBy_ID() 
+	{
+		return get_ValueAsInt(COLUMNNAME_AD_User_EnteredBy_ID);
+	}
+
+	@Override
+	public void setAD_User_ID (final int AD_User_ID)
+	{
+		if (AD_User_ID < 0) 
+			set_Value (COLUMNNAME_AD_User_ID, null);
+		else 
+			set_Value (COLUMNNAME_AD_User_ID, AD_User_ID);
+	}
+
+	@Override
+	public int getAD_User_ID() 
+	{
+		return get_ValueAsInt(COLUMNNAME_AD_User_ID);
+	}
+
+	/** 
+	 * ApplySalesRepFrom AD_Reference_ID=541416
+	 * Reference name: SalesRepFrom
+	 */
+	public static final int APPLYSALESREPFROM_AD_Reference_ID=541416;
+	/** Dispo = Candidate */
+	public static final String APPLYSALESREPFROM_Dispo = "Candidate";
+	/** Stammdaten = BPartner */
+	public static final String APPLYSALESREPFROM_Stammdaten = "BPartner";
+	/** Dispo wenn vorh. = CandidateFirst */
+	public static final String APPLYSALESREPFROM_DispoWennVorh = "CandidateFirst";
+	@Override
+	public void setApplySalesRepFrom (final java.lang.String ApplySalesRepFrom)
+	{
+		set_Value (COLUMNNAME_ApplySalesRepFrom, ApplySalesRepFrom);
+	}
+
+	@Override
+	public java.lang.String getApplySalesRepFrom() 
+	{
+		return get_ValueAsString(COLUMNNAME_ApplySalesRepFrom);
+	}
+
+	@Override
+	public void setBill_BPartner_ID (final int Bill_BPartner_ID)
+	{
+		if (Bill_BPartner_ID < 1) 
+			set_Value (COLUMNNAME_Bill_BPartner_ID, null);
+		else 
+			set_Value (COLUMNNAME_Bill_BPartner_ID, Bill_BPartner_ID);
+	}
+
+	@Override
+	public int getBill_BPartner_ID() 
+	{
+		return get_ValueAsInt(COLUMNNAME_Bill_BPartner_ID);
+	}
+
+	@Override
+	public void setBill_Location_ID (final int Bill_Location_ID)
+	{
+		if (Bill_Location_ID < 1) 
+			set_Value (COLUMNNAME_Bill_Location_ID, null);
+		else 
+			set_Value (COLUMNNAME_Bill_Location_ID, Bill_Location_ID);
+	}
+
+	@Override
+	public int getBill_Location_ID() 
+	{
+		return get_ValueAsInt(COLUMNNAME_Bill_Location_ID);
+	}
+
+	@Override
+	public org.compiere.model.I_C_Location getBill_Location_Value()
+	{
+		return get_ValueAsPO(COLUMNNAME_Bill_Location_Value_ID, org.compiere.model.I_C_Location.class);
+	}
+
+	@Override
+	public void setBill_Location_Value(final org.compiere.model.I_C_Location Bill_Location_Value)
+	{
+		set_ValueFromPO(COLUMNNAME_Bill_Location_Value_ID, org.compiere.model.I_C_Location.class, Bill_Location_Value);
+	}
+
+	@Override
+	public void setBill_Location_Value_ID (final int Bill_Location_Value_ID)
+	{
+		if (Bill_Location_Value_ID < 1) 
+			set_Value (COLUMNNAME_Bill_Location_Value_ID, null);
+		else 
+			set_Value (COLUMNNAME_Bill_Location_Value_ID, Bill_Location_Value_ID);
+	}
+
+	@Override
+	public int getBill_Location_Value_ID() 
+	{
+		return get_ValueAsInt(COLUMNNAME_Bill_Location_Value_ID);
+	}
+
+	@Override
+	public void setBill_User_ID (final int Bill_User_ID)
+	{
+		if (Bill_User_ID < 1) 
+			set_Value (COLUMNNAME_Bill_User_ID, null);
+		else 
+			set_Value (COLUMNNAME_Bill_User_ID, Bill_User_ID);
+	}
+
+	@Override
+	public int getBill_User_ID() 
+	{
+		return get_ValueAsInt(COLUMNNAME_Bill_User_ID);
+	}
+
+	@Override
+	public void setBPartnerName (final @Nullable java.lang.String BPartnerName)
+	{
+		set_Value (COLUMNNAME_BPartnerName, BPartnerName);
+	}
+
+	@Override
+	public java.lang.String getBPartnerName() 
+	{
+		return get_ValueAsString(COLUMNNAME_BPartnerName);
+	}
+
+	@Override
+	public void setC_Async_Batch_ID (final int C_Async_Batch_ID)
+	{
+		if (C_Async_Batch_ID < 1) 
+			set_Value (COLUMNNAME_C_Async_Batch_ID, null);
+		else 
+			set_Value (COLUMNNAME_C_Async_Batch_ID, C_Async_Batch_ID);
+	}
+
+	@Override
+	public int getC_Async_Batch_ID() 
+	{
+		return get_ValueAsInt(COLUMNNAME_C_Async_Batch_ID);
+	}
+
+	@Override
+	public void setC_BPartner_Effective_ID (final int C_BPartner_Effective_ID)
+	{
+		throw new IllegalArgumentException ("C_BPartner_Effective_ID is virtual column");	}
+
+	@Override
+	public int getC_BPartner_Effective_ID() 
+	{
+		return get_ValueAsInt(COLUMNNAME_C_BPartner_Effective_ID);
+	}
+
+	@Override
+	public void setC_BPartner_ID (final int C_BPartner_ID)
+	{
+		if (C_BPartner_ID < 1) 
+			set_Value (COLUMNNAME_C_BPartner_ID, null);
+		else 
+			set_Value (COLUMNNAME_C_BPartner_ID, C_BPartner_ID);
+	}
+
+	@Override
+	public int getC_BPartner_ID() 
+	{
+		return get_ValueAsInt(COLUMNNAME_C_BPartner_ID);
+	}
+
+	@Override
+	public void setC_BPartner_Location_ID (final int C_BPartner_Location_ID)
+	{
+		if (C_BPartner_Location_ID < 1) 
+			set_Value (COLUMNNAME_C_BPartner_Location_ID, null);
+		else 
+			set_Value (COLUMNNAME_C_BPartner_Location_ID, C_BPartner_Location_ID);
+	}
+
+	@Override
+	public int getC_BPartner_Location_ID() 
+	{
+		return get_ValueAsInt(COLUMNNAME_C_BPartner_Location_ID);
+	}
+
+	@Override
+	public org.compiere.model.I_C_Location getC_BPartner_Location_Value()
+	{
+		return get_ValueAsPO(COLUMNNAME_C_BPartner_Location_Value_ID, org.compiere.model.I_C_Location.class);
+	}
+
+	@Override
+	public void setC_BPartner_Location_Value(final org.compiere.model.I_C_Location C_BPartner_Location_Value)
+	{
+		set_ValueFromPO(COLUMNNAME_C_BPartner_Location_Value_ID, org.compiere.model.I_C_Location.class, C_BPartner_Location_Value);
+	}
+
+	@Override
+	public void setC_BPartner_Location_Value_ID (final int C_BPartner_Location_Value_ID)
+	{
+		if (C_BPartner_Location_Value_ID < 1) 
+			set_Value (COLUMNNAME_C_BPartner_Location_Value_ID, null);
+		else 
+			set_Value (COLUMNNAME_C_BPartner_Location_Value_ID, C_BPartner_Location_Value_ID);
+	}
+
+	@Override
+	public int getC_BPartner_Location_Value_ID() 
+	{
+		return get_ValueAsInt(COLUMNNAME_C_BPartner_Location_Value_ID);
+	}
+
+	@Override
+	public void setC_BPartner_Override_ID (final int C_BPartner_Override_ID)
+	{
+		if (C_BPartner_Override_ID < 1) 
+			set_Value (COLUMNNAME_C_BPartner_Override_ID, null);
+		else 
+			set_Value (COLUMNNAME_C_BPartner_Override_ID, C_BPartner_Override_ID);
+	}
+
+	@Override
+	public int getC_BPartner_Override_ID() 
+	{
+		return get_ValueAsInt(COLUMNNAME_C_BPartner_Override_ID);
+	}
+
+	@Override
+	public void setC_BPartner_SalesRep_ID (final int C_BPartner_SalesRep_ID)
+	{
+		if (C_BPartner_SalesRep_ID < 1) 
+			set_Value (COLUMNNAME_C_BPartner_SalesRep_ID, null);
+		else 
+			set_Value (COLUMNNAME_C_BPartner_SalesRep_ID, C_BPartner_SalesRep_ID);
+	}
+
+	@Override
+	public int getC_BPartner_SalesRep_ID() 
+	{
+		return get_ValueAsInt(COLUMNNAME_C_BPartner_SalesRep_ID);
+	}
+
+	@Override
+	public void setC_BPartner_SalesRep_Internal_ID (final int C_BPartner_SalesRep_Internal_ID)
+	{
+		if (C_BPartner_SalesRep_Internal_ID < 1) 
+			set_Value (COLUMNNAME_C_BPartner_SalesRep_Internal_ID, null);
+		else 
+			set_Value (COLUMNNAME_C_BPartner_SalesRep_Internal_ID, C_BPartner_SalesRep_Internal_ID);
+	}
+
+	@Override
+	public int getC_BPartner_SalesRep_Internal_ID() 
+	{
+		return get_ValueAsInt(COLUMNNAME_C_BPartner_SalesRep_Internal_ID);
+	}
+
+	@Override
+	public void setC_BP_Location_Effective_ID (final int C_BP_Location_Effective_ID)
+	{
+		throw new IllegalArgumentException ("C_BP_Location_Effective_ID is virtual column");	}
+
+	@Override
+	public int getC_BP_Location_Effective_ID() 
+	{
+		return get_ValueAsInt(COLUMNNAME_C_BP_Location_Effective_ID);
+	}
+
+	@Override
+	public void setC_BP_Location_Override_ID (final int C_BP_Location_Override_ID)
+	{
+		if (C_BP_Location_Override_ID < 1) 
+			set_Value (COLUMNNAME_C_BP_Location_Override_ID, null);
+		else 
+			set_Value (COLUMNNAME_C_BP_Location_Override_ID, C_BP_Location_Override_ID);
+	}
+
+	@Override
+	public int getC_BP_Location_Override_ID() 
+	{
+		return get_ValueAsInt(COLUMNNAME_C_BP_Location_Override_ID);
+	}
+
+	@Override
+	public org.compiere.model.I_C_Location getC_BP_Location_Override_Value()
+	{
+		return get_ValueAsPO(COLUMNNAME_C_BP_Location_Override_Value_ID, org.compiere.model.I_C_Location.class);
+	}
+
+	@Override
+	public void setC_BP_Location_Override_Value(final org.compiere.model.I_C_Location C_BP_Location_Override_Value)
+	{
+		set_ValueFromPO(COLUMNNAME_C_BP_Location_Override_Value_ID, org.compiere.model.I_C_Location.class, C_BP_Location_Override_Value);
+	}
+
+	@Override
+	public void setC_BP_Location_Override_Value_ID (final int C_BP_Location_Override_Value_ID)
+	{
+		if (C_BP_Location_Override_Value_ID < 1) 
+			set_Value (COLUMNNAME_C_BP_Location_Override_Value_ID, null);
+		else 
+			set_Value (COLUMNNAME_C_BP_Location_Override_Value_ID, C_BP_Location_Override_Value_ID);
+	}
+
+	@Override
+	public int getC_BP_Location_Override_Value_ID() 
+	{
+		return get_ValueAsInt(COLUMNNAME_C_BP_Location_Override_Value_ID);
+	}
+
+	@Override
+	public void setC_Charge_ID (final int C_Charge_ID)
+	{
+		if (C_Charge_ID < 1) 
+			set_Value (COLUMNNAME_C_Charge_ID, null);
+		else 
+			set_Value (COLUMNNAME_C_Charge_ID, C_Charge_ID);
+	}
+
+	@Override
+	public int getC_Charge_ID() 
+	{
+		return get_ValueAsInt(COLUMNNAME_C_Charge_ID);
+	}
+
+	@Override
+	public void setC_Currency_ID (final int C_Currency_ID)
+	{
+		if (C_Currency_ID < 1) 
+			set_Value (COLUMNNAME_C_Currency_ID, null);
+		else 
+			set_Value (COLUMNNAME_C_Currency_ID, C_Currency_ID);
+	}
+
+	@Override
+	public int getC_Currency_ID() 
+	{
+		return get_ValueAsInt(COLUMNNAME_C_Currency_ID);
+	}
+
+	@Override
+	public void setC_DocTypeInvoice_ID (final int C_DocTypeInvoice_ID)
+	{
+		if (C_DocTypeInvoice_ID < 1) 
+			set_Value (COLUMNNAME_C_DocTypeInvoice_ID, null);
+		else 
+			set_Value (COLUMNNAME_C_DocTypeInvoice_ID, C_DocTypeInvoice_ID);
+	}
+
+	@Override
+	public int getC_DocTypeInvoice_ID() 
+	{
+		return get_ValueAsInt(COLUMNNAME_C_DocTypeInvoice_ID);
+	}
+
+	@Override
+	public void setC_DocTypeOrder_ID (final int C_DocTypeOrder_ID)
+	{
+		if (C_DocTypeOrder_ID < 1) 
+			set_Value (COLUMNNAME_C_DocTypeOrder_ID, null);
+		else 
+			set_Value (COLUMNNAME_C_DocTypeOrder_ID, C_DocTypeOrder_ID);
+	}
+
+	@Override
+	public int getC_DocTypeOrder_ID() 
+	{
+		return get_ValueAsInt(COLUMNNAME_C_DocTypeOrder_ID);
+	}
+
+	@Override
+	public void setC_Flatrate_Conditions_ID (final int C_Flatrate_Conditions_ID)
+	{
+		if (C_Flatrate_Conditions_ID < 1) 
+			set_Value (COLUMNNAME_C_Flatrate_Conditions_ID, null);
+		else 
+			set_Value (COLUMNNAME_C_Flatrate_Conditions_ID, C_Flatrate_Conditions_ID);
+	}
+
+	@Override
+	public int getC_Flatrate_Conditions_ID() 
+	{
+		return get_ValueAsInt(COLUMNNAME_C_Flatrate_Conditions_ID);
+	}
+
+	@Override
+	public void setC_OLCand_ID (final int C_OLCand_ID)
+	{
+		if (C_OLCand_ID < 1) 
+			set_ValueNoCheck (COLUMNNAME_C_OLCand_ID, null);
+		else 
+			set_ValueNoCheck (COLUMNNAME_C_OLCand_ID, C_OLCand_ID);
+	}
+
+	@Override
+	public int getC_OLCand_ID() 
+	{
+		return get_ValueAsInt(COLUMNNAME_C_OLCand_ID);
+	}
+
+	@Override
+	public void setCompensationGroupKey (final @Nullable java.lang.String CompensationGroupKey)
+	{
+		set_Value (COLUMNNAME_CompensationGroupKey, CompensationGroupKey);
+	}
+
+	@Override
+	public java.lang.String getCompensationGroupKey() 
+	{
+		return get_ValueAsString(COLUMNNAME_CompensationGroupKey);
+	}
+
+	@Override
+	public void setC_PaymentTerm_ID (final int C_PaymentTerm_ID)
+	{
+		if (C_PaymentTerm_ID < 1) 
+			set_Value (COLUMNNAME_C_PaymentTerm_ID, null);
+		else 
+			set_Value (COLUMNNAME_C_PaymentTerm_ID, C_PaymentTerm_ID);
+	}
+
+	@Override
+	public int getC_PaymentTerm_ID() 
+	{
+		return get_ValueAsInt(COLUMNNAME_C_PaymentTerm_ID);
+	}
+
+	@Override
+	public void setC_TaxCategory_ID (final int C_TaxCategory_ID)
+	{
+		if (C_TaxCategory_ID < 1) 
+			set_Value (COLUMNNAME_C_TaxCategory_ID, null);
+		else 
+			set_Value (COLUMNNAME_C_TaxCategory_ID, C_TaxCategory_ID);
+	}
+
+	@Override
+	public int getC_TaxCategory_ID() 
+	{
+		return get_ValueAsInt(COLUMNNAME_C_TaxCategory_ID);
+	}
+
+	@Override
+	public void setC_UOM_ID (final int C_UOM_ID)
+	{
+		if (C_UOM_ID < 1) 
+			set_Value (COLUMNNAME_C_UOM_ID, null);
+		else 
+			set_Value (COLUMNNAME_C_UOM_ID, C_UOM_ID);
+	}
+
+	@Override
+	public int getC_UOM_ID() 
+	{
+		return get_ValueAsInt(COLUMNNAME_C_UOM_ID);
+	}
+
+	@Override
+	public void setC_UOM_Internal_ID (final int C_UOM_Internal_ID)
+	{
+		if (C_UOM_Internal_ID < 1) 
+			set_Value (COLUMNNAME_C_UOM_Internal_ID, null);
+		else 
+			set_Value (COLUMNNAME_C_UOM_Internal_ID, C_UOM_Internal_ID);
+	}
+
+	@Override
+	public int getC_UOM_Internal_ID() 
+	{
+		return get_ValueAsInt(COLUMNNAME_C_UOM_Internal_ID);
+	}
+
+	@Override
+	public void setDateCandidate (final java.sql.Timestamp DateCandidate)
+	{
+		set_Value (COLUMNNAME_DateCandidate, DateCandidate);
+	}
+
+	@Override
+	public java.sql.Timestamp getDateCandidate() 
+	{
+		return get_ValueAsTimestamp(COLUMNNAME_DateCandidate);
+	}
+
+	@Override
+	public void setDateOrdered (final @Nullable java.sql.Timestamp DateOrdered)
+	{
+		set_Value (COLUMNNAME_DateOrdered, DateOrdered);
+	}
+
+	@Override
+	public java.sql.Timestamp getDateOrdered() 
+	{
+		return get_ValueAsTimestamp(COLUMNNAME_DateOrdered);
+	}
+
+	@Override
+	public void setDatePromised (final @Nullable java.sql.Timestamp DatePromised)
+	{
+		set_Value (COLUMNNAME_DatePromised, DatePromised);
+	}
+
+	@Override
+	public java.sql.Timestamp getDatePromised() 
+	{
+		return get_ValueAsTimestamp(COLUMNNAME_DatePromised);
+	}
+
+	@Override
+	public void setDatePromised_Effective (final @Nullable java.sql.Timestamp DatePromised_Effective)
+	{
+		throw new IllegalArgumentException ("DatePromised_Effective is virtual column");	}
+
+	@Override
+	public java.sql.Timestamp getDatePromised_Effective() 
+	{
+		return get_ValueAsTimestamp(COLUMNNAME_DatePromised_Effective);
+	}
+
+	@Override
+	public void setDatePromised_Override (final @Nullable java.sql.Timestamp DatePromised_Override)
+	{
+		set_Value (COLUMNNAME_DatePromised_Override, DatePromised_Override);
+	}
+
+	@Override
+	public java.sql.Timestamp getDatePromised_Override() 
+	{
+		return get_ValueAsTimestamp(COLUMNNAME_DatePromised_Override);
+	}
+
+	/** 
+	 * DeliveryRule AD_Reference_ID=151
+	 * Reference name: C_Order DeliveryRule
+	 */
+	public static final int DELIVERYRULE_AD_Reference_ID=151;
+	/** AfterReceipt = R */
+	public static final String DELIVERYRULE_AfterReceipt = "R";
+	/** Availability = A */
+	public static final String DELIVERYRULE_Availability = "A";
+	/** CompleteLine = L */
+	public static final String DELIVERYRULE_CompleteLine = "L";
+	/** CompleteOrder = O */
+	public static final String DELIVERYRULE_CompleteOrder = "O";
+	/** Force = F */
+	public static final String DELIVERYRULE_Force = "F";
+	/** Manual = M */
+	public static final String DELIVERYRULE_Manual = "M";
+	/** MitNaechsterAbolieferung = S */
+	public static final String DELIVERYRULE_MitNaechsterAbolieferung = "S";
+	@Override
+	public void setDeliveryRule (final java.lang.String DeliveryRule)
+	{
+		set_Value (COLUMNNAME_DeliveryRule, DeliveryRule);
+	}
+
+	@Override
+	public java.lang.String getDeliveryRule() 
+	{
+		return get_ValueAsString(COLUMNNAME_DeliveryRule);
+	}
+
+	/** 
+	 * DeliveryViaRule AD_Reference_ID=152
+	 * Reference name: C_Order DeliveryViaRule
+	 */
+	public static final int DELIVERYVIARULE_AD_Reference_ID=152;
+	/** Pickup = P */
+	public static final String DELIVERYVIARULE_Pickup = "P";
+	/** Delivery = D */
+	public static final String DELIVERYVIARULE_Delivery = "D";
+	/** Shipper = S */
+	public static final String DELIVERYVIARULE_Shipper = "S";
+	/** Normalpost = NP */
+	public static final String DELIVERYVIARULE_Normalpost = "NP";
+	/** Luftpost = LU */
+	public static final String DELIVERYVIARULE_Luftpost = "LU";
+	@Override
+	public void setDeliveryViaRule (final java.lang.String DeliveryViaRule)
+	{
+		set_Value (COLUMNNAME_DeliveryViaRule, DeliveryViaRule);
+	}
+
+	@Override
+	public java.lang.String getDeliveryViaRule() 
+	{
+		return get_ValueAsString(COLUMNNAME_DeliveryViaRule);
+	}
+
+	@Override
+	public void setDescription (final @Nullable java.lang.String Description)
+	{
+		set_Value (COLUMNNAME_Description, Description);
+	}
+
+	@Override
+	public java.lang.String getDescription() 
+	{
+		return get_ValueAsString(COLUMNNAME_Description);
+	}
+
+	@Override
+	public void setDescriptionBottom (final @Nullable java.lang.String DescriptionBottom)
+	{
+		set_Value (COLUMNNAME_DescriptionBottom, DescriptionBottom);
+	}
+
+	@Override
+	public java.lang.String getDescriptionBottom() 
+	{
+		return get_ValueAsString(COLUMNNAME_DescriptionBottom);
+	}
+
+	@Override
+	public void setDescriptionHeader (final @Nullable java.lang.String DescriptionHeader)
+	{
+		set_Value (COLUMNNAME_DescriptionHeader, DescriptionHeader);
+	}
+
+	@Override
+	public java.lang.String getDescriptionHeader() 
+	{
+		return get_ValueAsString(COLUMNNAME_DescriptionHeader);
+	}
+
+	@Override
+	public void setDiscount (final @Nullable BigDecimal Discount)
+	{
+		set_Value (COLUMNNAME_Discount, Discount);
+	}
+
+	@Override
+	public BigDecimal getDiscount() 
+	{
+		final BigDecimal bd = get_ValueAsBigDecimal(COLUMNNAME_Discount);
+		return bd != null ? bd : BigDecimal.ZERO;
+	}
+
+	@Override
+	public void setDropShip_BPartner_Effective_ID (final int DropShip_BPartner_Effective_ID)
+	{
+		throw new IllegalArgumentException ("DropShip_BPartner_Effective_ID is virtual column");	}
+
+	@Override
+	public int getDropShip_BPartner_Effective_ID() 
+	{
+		return get_ValueAsInt(COLUMNNAME_DropShip_BPartner_Effective_ID);
+	}
+
+	@Override
+	public void setDropShip_BPartner_ID (final int DropShip_BPartner_ID)
+	{
+		if (DropShip_BPartner_ID < 1) 
+			set_Value (COLUMNNAME_DropShip_BPartner_ID, null);
+		else 
+			set_Value (COLUMNNAME_DropShip_BPartner_ID, DropShip_BPartner_ID);
+	}
+
+	@Override
+	public int getDropShip_BPartner_ID() 
+	{
+		return get_ValueAsInt(COLUMNNAME_DropShip_BPartner_ID);
+	}
+
+	@Override
+	public void setDropShip_BPartner_Override_ID (final int DropShip_BPartner_Override_ID)
+	{
+		if (DropShip_BPartner_Override_ID < 1) 
+			set_Value (COLUMNNAME_DropShip_BPartner_Override_ID, null);
+		else 
+			set_Value (COLUMNNAME_DropShip_BPartner_Override_ID, DropShip_BPartner_Override_ID);
+	}
+
+	@Override
+	public int getDropShip_BPartner_Override_ID() 
+	{
+		return get_ValueAsInt(COLUMNNAME_DropShip_BPartner_Override_ID);
+	}
+
+	@Override
+	public void setDropShip_Location_Effective_ID (final int DropShip_Location_Effective_ID)
+	{
+		throw new IllegalArgumentException ("DropShip_Location_Effective_ID is virtual column");	}
+
+	@Override
+	public int getDropShip_Location_Effective_ID() 
+	{
+		return get_ValueAsInt(COLUMNNAME_DropShip_Location_Effective_ID);
+	}
+
+	@Override
+	public void setDropShip_Location_ID (final int DropShip_Location_ID)
+	{
+		if (DropShip_Location_ID < 1) 
+			set_Value (COLUMNNAME_DropShip_Location_ID, null);
+		else 
+			set_Value (COLUMNNAME_DropShip_Location_ID, DropShip_Location_ID);
+	}
+
+	@Override
+	public int getDropShip_Location_ID() 
+	{
+		return get_ValueAsInt(COLUMNNAME_DropShip_Location_ID);
+	}
+
+	@Override
+	public void setDropShip_Location_Override_ID (final int DropShip_Location_Override_ID)
+	{
+		if (DropShip_Location_Override_ID < 1) 
+			set_Value (COLUMNNAME_DropShip_Location_Override_ID, null);
+		else 
+			set_Value (COLUMNNAME_DropShip_Location_Override_ID, DropShip_Location_Override_ID);
+	}
+
+	@Override
+	public int getDropShip_Location_Override_ID() 
+	{
+		return get_ValueAsInt(COLUMNNAME_DropShip_Location_Override_ID);
+	}
+
+	@Override
+	public org.compiere.model.I_C_Location getDropShip_Location_Override_Value()
+	{
+		return get_ValueAsPO(COLUMNNAME_DropShip_Location_Override_Value_ID, org.compiere.model.I_C_Location.class);
+	}
+
+	@Override
+	public void setDropShip_Location_Override_Value(final org.compiere.model.I_C_Location DropShip_Location_Override_Value)
+	{
+		set_ValueFromPO(COLUMNNAME_DropShip_Location_Override_Value_ID, org.compiere.model.I_C_Location.class, DropShip_Location_Override_Value);
+	}
+
+	@Override
+	public void setDropShip_Location_Override_Value_ID (final int DropShip_Location_Override_Value_ID)
+	{
+		if (DropShip_Location_Override_Value_ID < 1) 
+			set_Value (COLUMNNAME_DropShip_Location_Override_Value_ID, null);
+		else 
+			set_Value (COLUMNNAME_DropShip_Location_Override_Value_ID, DropShip_Location_Override_Value_ID);
+	}
+
+	@Override
+	public int getDropShip_Location_Override_Value_ID() 
+	{
+		return get_ValueAsInt(COLUMNNAME_DropShip_Location_Override_Value_ID);
+	}
+
+	@Override
+	public org.compiere.model.I_C_Location getDropShip_Location_Value()
+	{
+		return get_ValueAsPO(COLUMNNAME_DropShip_Location_Value_ID, org.compiere.model.I_C_Location.class);
+	}
+
+	@Override
+	public void setDropShip_Location_Value(final org.compiere.model.I_C_Location DropShip_Location_Value)
+	{
+		set_ValueFromPO(COLUMNNAME_DropShip_Location_Value_ID, org.compiere.model.I_C_Location.class, DropShip_Location_Value);
+	}
+
+	@Override
+	public void setDropShip_Location_Value_ID (final int DropShip_Location_Value_ID)
+	{
+		if (DropShip_Location_Value_ID < 1) 
+			set_Value (COLUMNNAME_DropShip_Location_Value_ID, null);
+		else 
+			set_Value (COLUMNNAME_DropShip_Location_Value_ID, DropShip_Location_Value_ID);
+	}
+
+	@Override
+	public int getDropShip_Location_Value_ID() 
+	{
+		return get_ValueAsInt(COLUMNNAME_DropShip_Location_Value_ID);
+	}
+
+	@Override
+	public void setDropShip_User_ID (final int DropShip_User_ID)
+	{
+		if (DropShip_User_ID < 1) 
+			set_Value (COLUMNNAME_DropShip_User_ID, null);
+		else 
+			set_Value (COLUMNNAME_DropShip_User_ID, DropShip_User_ID);
+	}
+
+	@Override
+	public int getDropShip_User_ID() 
+	{
+		return get_ValueAsInt(COLUMNNAME_DropShip_User_ID);
+	}
+
+	@Override
+	public void setEMail (final @Nullable java.lang.String EMail)
+	{
+		set_Value (COLUMNNAME_EMail, EMail);
+	}
+
+	@Override
+	public java.lang.String getEMail() 
+	{
+		return get_ValueAsString(COLUMNNAME_EMail);
+	}
+
+	@Override
+	public void setErrorMsg (final @Nullable java.lang.String ErrorMsg)
+	{
+		set_Value (COLUMNNAME_ErrorMsg, ErrorMsg);
+	}
+
+	@Override
+	public java.lang.String getErrorMsg() 
+	{
+		return get_ValueAsString(COLUMNNAME_ErrorMsg);
+	}
+
+	@Override
+	public void setErrorMsgJSON (final @Nullable java.lang.String ErrorMsgJSON)
+	{
+		set_Value (COLUMNNAME_ErrorMsgJSON, ErrorMsgJSON);
+	}
+
+	@Override
+	public java.lang.String getErrorMsgJSON() 
+	{
+		return get_ValueAsString(COLUMNNAME_ErrorMsgJSON);
+	}
+
+	@Override
+	public void setEXP_ReplicationTrx_ID (final int EXP_ReplicationTrx_ID)
+	{
+		if (EXP_ReplicationTrx_ID < 1) 
+			set_Value (COLUMNNAME_EXP_ReplicationTrx_ID, null);
+		else 
+			set_Value (COLUMNNAME_EXP_ReplicationTrx_ID, EXP_ReplicationTrx_ID);
+	}
+
+	@Override
+	public int getEXP_ReplicationTrx_ID() 
+	{
+		return get_ValueAsInt(COLUMNNAME_EXP_ReplicationTrx_ID);
+	}
+
+	@Override
+	public void setExternalHeaderId (final @Nullable java.lang.String ExternalHeaderId)
+	{
+		set_Value (COLUMNNAME_ExternalHeaderId, ExternalHeaderId);
+	}
+
+	@Override
+	public java.lang.String getExternalHeaderId() 
+	{
+		return get_ValueAsString(COLUMNNAME_ExternalHeaderId);
+	}
+
+	@Override
+	public void setExternalLineId (final @Nullable java.lang.String ExternalLineId)
+	{
+		set_Value (COLUMNNAME_ExternalLineId, ExternalLineId);
+	}
+
+	@Override
+	public java.lang.String getExternalLineId() 
+	{
+		return get_ValueAsString(COLUMNNAME_ExternalLineId);
+	}
+
+	@Override
+	public void setExternalSystem_ID (final int ExternalSystem_ID)
+	{
+		if (ExternalSystem_ID < 1) 
+			set_Value (COLUMNNAME_ExternalSystem_ID, null);
+		else 
+			set_Value (COLUMNNAME_ExternalSystem_ID, ExternalSystem_ID);
+	}
+
+	@Override
+	public int getExternalSystem_ID() 
+	{
+		return get_ValueAsInt(COLUMNNAME_ExternalSystem_ID);
+	}
+
+	@Override
+	public void setGroupCompensationDiscountPercentage (final @Nullable BigDecimal GroupCompensationDiscountPercentage)
+	{
+		set_Value (COLUMNNAME_GroupCompensationDiscountPercentage, GroupCompensationDiscountPercentage);
+	}
+
+	@Override
+	public BigDecimal getGroupCompensationDiscountPercentage() 
+	{
+		final BigDecimal bd = get_ValueAsBigDecimal(COLUMNNAME_GroupCompensationDiscountPercentage);
+		return bd != null ? bd : BigDecimal.ZERO;
+	}
+
+	@Override
+	public void setGroupingErrorMessage (final @Nullable java.lang.String GroupingErrorMessage)
+	{
+		set_Value (COLUMNNAME_GroupingErrorMessage, GroupingErrorMessage);
+	}
+
+	@Override
+	public java.lang.String getGroupingErrorMessage() 
+	{
+		return get_ValueAsString(COLUMNNAME_GroupingErrorMessage);
+	}
+
+	@Override
+	public void setHandOver_Location_Effective_ID (final int HandOver_Location_Effective_ID)
+	{
+		throw new IllegalArgumentException ("HandOver_Location_Effective_ID is virtual column");	}
+
+	@Override
+	public int getHandOver_Location_Effective_ID() 
+	{
+		return get_ValueAsInt(COLUMNNAME_HandOver_Location_Effective_ID);
+	}
+
+	@Override
+	public void setHandOver_Location_ID (final int HandOver_Location_ID)
+	{
+		if (HandOver_Location_ID < 1) 
+			set_Value (COLUMNNAME_HandOver_Location_ID, null);
+		else 
+			set_Value (COLUMNNAME_HandOver_Location_ID, HandOver_Location_ID);
+	}
+
+	@Override
+	public int getHandOver_Location_ID() 
+	{
+		return get_ValueAsInt(COLUMNNAME_HandOver_Location_ID);
+	}
+
+	@Override
+	public void setHandOver_Location_Override_ID (final int HandOver_Location_Override_ID)
+	{
+		if (HandOver_Location_Override_ID < 1) 
+			set_Value (COLUMNNAME_HandOver_Location_Override_ID, null);
+		else 
+			set_Value (COLUMNNAME_HandOver_Location_Override_ID, HandOver_Location_Override_ID);
+	}
+
+	@Override
+	public int getHandOver_Location_Override_ID() 
+	{
+		return get_ValueAsInt(COLUMNNAME_HandOver_Location_Override_ID);
+	}
+
+	@Override
+	public org.compiere.model.I_C_Location getHandOver_Location_Override_Value()
+	{
+		return get_ValueAsPO(COLUMNNAME_HandOver_Location_Override_Value_ID, org.compiere.model.I_C_Location.class);
+	}
+
+	@Override
+	public void setHandOver_Location_Override_Value(final org.compiere.model.I_C_Location HandOver_Location_Override_Value)
+	{
+		set_ValueFromPO(COLUMNNAME_HandOver_Location_Override_Value_ID, org.compiere.model.I_C_Location.class, HandOver_Location_Override_Value);
+	}
+
+	@Override
+	public void setHandOver_Location_Override_Value_ID (final int HandOver_Location_Override_Value_ID)
+	{
+		if (HandOver_Location_Override_Value_ID < 1) 
+			set_Value (COLUMNNAME_HandOver_Location_Override_Value_ID, null);
+		else 
+			set_Value (COLUMNNAME_HandOver_Location_Override_Value_ID, HandOver_Location_Override_Value_ID);
+	}
+
+	@Override
+	public int getHandOver_Location_Override_Value_ID() 
+	{
+		return get_ValueAsInt(COLUMNNAME_HandOver_Location_Override_Value_ID);
+	}
+
+	@Override
+	public org.compiere.model.I_C_Location getHandOver_Location_Value()
+	{
+		return get_ValueAsPO(COLUMNNAME_HandOver_Location_Value_ID, org.compiere.model.I_C_Location.class);
+	}
+
+	@Override
+	public void setHandOver_Location_Value(final org.compiere.model.I_C_Location HandOver_Location_Value)
+	{
+		set_ValueFromPO(COLUMNNAME_HandOver_Location_Value_ID, org.compiere.model.I_C_Location.class, HandOver_Location_Value);
+	}
+
+	@Override
+	public void setHandOver_Location_Value_ID (final int HandOver_Location_Value_ID)
+	{
+		if (HandOver_Location_Value_ID < 1) 
+			set_Value (COLUMNNAME_HandOver_Location_Value_ID, null);
+		else 
+			set_Value (COLUMNNAME_HandOver_Location_Value_ID, HandOver_Location_Value_ID);
+	}
+
+	@Override
+	public int getHandOver_Location_Value_ID() 
+	{
+		return get_ValueAsInt(COLUMNNAME_HandOver_Location_Value_ID);
+	}
+
+	@Override
+	public void setHandOver_Partner_Effective_ID (final int HandOver_Partner_Effective_ID)
+	{
+		throw new IllegalArgumentException ("HandOver_Partner_Effective_ID is virtual column");	}
+
+	@Override
+	public int getHandOver_Partner_Effective_ID() 
+	{
+		return get_ValueAsInt(COLUMNNAME_HandOver_Partner_Effective_ID);
+	}
+
+	@Override
+	public void setHandOver_Partner_ID (final int HandOver_Partner_ID)
+	{
+		if (HandOver_Partner_ID < 1) 
+			set_Value (COLUMNNAME_HandOver_Partner_ID, null);
+		else 
+			set_Value (COLUMNNAME_HandOver_Partner_ID, HandOver_Partner_ID);
+	}
+
+	@Override
+	public int getHandOver_Partner_ID() 
+	{
+		return get_ValueAsInt(COLUMNNAME_HandOver_Partner_ID);
+	}
+
+	@Override
+	public void setHandOver_Partner_Override_ID (final int HandOver_Partner_Override_ID)
+	{
+		if (HandOver_Partner_Override_ID < 1) 
+			set_Value (COLUMNNAME_HandOver_Partner_Override_ID, null);
+		else 
+			set_Value (COLUMNNAME_HandOver_Partner_Override_ID, HandOver_Partner_Override_ID);
+	}
+
+	@Override
+	public int getHandOver_Partner_Override_ID() 
+	{
+		return get_ValueAsInt(COLUMNNAME_HandOver_Partner_Override_ID);
+	}
+
+	@Override
+	public void setHandOver_User_ID (final int HandOver_User_ID)
+	{
+		if (HandOver_User_ID < 1) 
+			set_Value (COLUMNNAME_HandOver_User_ID, null);
+		else 
+			set_Value (COLUMNNAME_HandOver_User_ID, HandOver_User_ID);
+	}
+
+	@Override
+	public int getHandOver_User_ID() 
+	{
+		return get_ValueAsInt(COLUMNNAME_HandOver_User_ID);
+	}
+
+	@Override
+	public void setHeaderAggregationKey (final @Nullable java.lang.String HeaderAggregationKey)
+	{
+		set_Value (COLUMNNAME_HeaderAggregationKey, HeaderAggregationKey);
+	}
+
+	@Override
+	public java.lang.String getHeaderAggregationKey() 
+	{
+		return get_ValueAsString(COLUMNNAME_HeaderAggregationKey);
+	}
+
+	@Override
+	public void setImportWarningMessage (final @Nullable java.lang.String ImportWarningMessage)
+	{
+		set_Value (COLUMNNAME_ImportWarningMessage, ImportWarningMessage);
+	}
+
+	@Override
+	public java.lang.String getImportWarningMessage() 
+	{
+		return get_ValueAsString(COLUMNNAME_ImportWarningMessage);
+	}
+
+	/** 
+	 * InvoicableQtyBasedOn AD_Reference_ID=541023
+	 * Reference name: InvoicableQtyBasedOn
+	 */
+	public static final int INVOICABLEQTYBASEDON_AD_Reference_ID=541023;
+	/** Nominal = Nominal */
+	public static final String INVOICABLEQTYBASEDON_Nominal = "Nominal";
+	/** CatchWeight = CatchWeight */
+	public static final String INVOICABLEQTYBASEDON_CatchWeight = "CatchWeight";
+	@Override
+	public void setInvoicableQtyBasedOn (final java.lang.String InvoicableQtyBasedOn)
+	{
+		set_Value (COLUMNNAME_InvoicableQtyBasedOn, InvoicableQtyBasedOn);
+	}
+
+	@Override
+	public java.lang.String getInvoicableQtyBasedOn() 
+	{
+		return get_ValueAsString(COLUMNNAME_InvoicableQtyBasedOn);
+	}
+
+	/** 
+	 * InvoiceRule AD_Reference_ID=150
+	 * Reference name: C_Order InvoiceRule
+	 */
+	public static final int INVOICERULE_AD_Reference_ID=150;
+	/** AfterOrderDelivered = O */
+	public static final String INVOICERULE_AfterOrderDelivered = "O";
+	/** AfterDelivery = D */
+	public static final String INVOICERULE_AfterDelivery = "D";
+	/** CustomerScheduleAfterDelivery = S */
+	public static final String INVOICERULE_CustomerScheduleAfterDelivery = "S";
+	/** Immediate = I */
+	public static final String INVOICERULE_Immediate = "I";
+	/** OrderCompletelyDelivered = C */
+	public static final String INVOICERULE_OrderCompletelyDelivered = "C";
+	/** After Pick = P */
+	public static final String INVOICERULE_AfterPick = "P";
+	@Override
+	public void setInvoiceRule (final @Nullable java.lang.String InvoiceRule)
+	{
+		set_Value (COLUMNNAME_InvoiceRule, InvoiceRule);
+	}
+
+	@Override
+	public java.lang.String getInvoiceRule() 
+	{
+		return get_ValueAsString(COLUMNNAME_InvoiceRule);
+	}
+
+	@Override
+	public void setIsAutoInvoice (final boolean IsAutoInvoice)
+	{
+		set_Value (COLUMNNAME_IsAutoInvoice, IsAutoInvoice);
+	}
+
+	@Override
+	public boolean isAutoInvoice() 
+	{
+		return get_ValueAsBoolean(COLUMNNAME_IsAutoInvoice);
+	}
+
+	@Override
+	public void setIsError (final boolean IsError)
+	{
+		set_Value (COLUMNNAME_IsError, IsError);
+	}
+
+	@Override
+	public boolean isError() 
+	{
+		return get_ValueAsBoolean(COLUMNNAME_IsError);
+	}
+
+	@Override
+	public void setIsExplicitProductPriceAttribute (final boolean IsExplicitProductPriceAttribute)
+	{
+		set_Value (COLUMNNAME_IsExplicitProductPriceAttribute, IsExplicitProductPriceAttribute);
+	}
+
+	@Override
+	public boolean isExplicitProductPriceAttribute() 
+	{
+		return get_ValueAsBoolean(COLUMNNAME_IsExplicitProductPriceAttribute);
+	}
+
+	@Override
+	public void setIsGroupCompensationLine (final boolean IsGroupCompensationLine)
+	{
+		set_Value (COLUMNNAME_IsGroupCompensationLine, IsGroupCompensationLine);
+	}
+
+	@Override
+	public boolean isGroupCompensationLine() 
+	{
+		return get_ValueAsBoolean(COLUMNNAME_IsGroupCompensationLine);
+	}
+
+	@Override
+	public void setIsGroupingError (final boolean IsGroupingError)
+	{
+		set_Value (COLUMNNAME_IsGroupingError, IsGroupingError);
+	}
+
+	@Override
+	public boolean isGroupingError() 
+	{
+		return get_ValueAsBoolean(COLUMNNAME_IsGroupingError);
+	}
+
+	@Override
+	public void setIsManualDiscount (final boolean IsManualDiscount)
+	{
+		set_Value (COLUMNNAME_IsManualDiscount, IsManualDiscount);
+	}
+
+	@Override
+	public boolean isManualDiscount() 
+	{
+		return get_ValueAsBoolean(COLUMNNAME_IsManualDiscount);
+	}
+
+	@Override
+	public void setIsManualPrice (final boolean IsManualPrice)
+	{
+		set_Value (COLUMNNAME_IsManualPrice, IsManualPrice);
+	}
+
+	@Override
+	public boolean isManualPrice() 
+	{
+		return get_ValueAsBoolean(COLUMNNAME_IsManualPrice);
+	}
+
+	@Override
+	public void setIsManualQtyItemCapacity (final boolean IsManualQtyItemCapacity)
+	{
+		set_Value (COLUMNNAME_IsManualQtyItemCapacity, IsManualQtyItemCapacity);
+	}
+
+	@Override
+	public boolean isManualQtyItemCapacity() 
+	{
+		return get_ValueAsBoolean(COLUMNNAME_IsManualQtyItemCapacity);
+	}
+
+	@Override
+	public void setIsReplicationTrxError (final boolean IsReplicationTrxError)
+	{
+		throw new IllegalArgumentException ("IsReplicationTrxError is virtual column");	}
+
+	@Override
+	public boolean isReplicationTrxError() 
+	{
+		return get_ValueAsBoolean(COLUMNNAME_IsReplicationTrxError);
+	}
+
+	@Override
+	public void setIsReplicationTrxFinished (final boolean IsReplicationTrxFinished)
+	{
+		throw new IllegalArgumentException ("IsReplicationTrxFinished is virtual column");	}
+
+	@Override
+	public boolean isReplicationTrxFinished() 
+	{
+		return get_ValueAsBoolean(COLUMNNAME_IsReplicationTrxFinished);
+	}
+
+	@Override
+	public void setLine (final int Line)
+	{
+		set_Value (COLUMNNAME_Line, Line);
+	}
+
+	@Override
+	public int getLine() 
+	{
+		return get_ValueAsInt(COLUMNNAME_Line);
+	}
+
+	@Override
+	public void setManualQtyInPriceUOM (final @Nullable BigDecimal ManualQtyInPriceUOM)
+	{
+		set_Value (COLUMNNAME_ManualQtyInPriceUOM, ManualQtyInPriceUOM);
+	}
+
+	@Override
+	public BigDecimal getManualQtyInPriceUOM() 
+	{
+		final BigDecimal bd = get_ValueAsBigDecimal(COLUMNNAME_ManualQtyInPriceUOM);
+		return bd != null ? bd : BigDecimal.ZERO;
+	}
+
+	@Override
+	public org.compiere.model.I_M_AttributeSet getM_AttributeSet()
+	{
+		return get_ValueAsPO(COLUMNNAME_M_AttributeSet_ID, org.compiere.model.I_M_AttributeSet.class);
+	}
+
+	@Override
+	public void setM_AttributeSet(final org.compiere.model.I_M_AttributeSet M_AttributeSet)
+	{
+		set_ValueFromPO(COLUMNNAME_M_AttributeSet_ID, org.compiere.model.I_M_AttributeSet.class, M_AttributeSet);
+	}
+
+	@Override
+	public void setM_AttributeSet_ID (final int M_AttributeSet_ID)
+	{
+		if (M_AttributeSet_ID < 0) 
+			set_Value (COLUMNNAME_M_AttributeSet_ID, null);
+		else 
+			set_Value (COLUMNNAME_M_AttributeSet_ID, M_AttributeSet_ID);
+	}
+
+	@Override
+	public int getM_AttributeSet_ID() 
+	{
+		return get_ValueAsInt(COLUMNNAME_M_AttributeSet_ID);
+	}
+
+	@Override
+	public org.compiere.model.I_M_AttributeSetInstance getM_AttributeSetInstance()
+	{
+		return get_ValueAsPO(COLUMNNAME_M_AttributeSetInstance_ID, org.compiere.model.I_M_AttributeSetInstance.class);
+	}
+
+	@Override
+	public void setM_AttributeSetInstance(final org.compiere.model.I_M_AttributeSetInstance M_AttributeSetInstance)
+	{
+		set_ValueFromPO(COLUMNNAME_M_AttributeSetInstance_ID, org.compiere.model.I_M_AttributeSetInstance.class, M_AttributeSetInstance);
+	}
+
+	@Override
+	public void setM_AttributeSetInstance_ID (final int M_AttributeSetInstance_ID)
+	{
+		if (M_AttributeSetInstance_ID < 0) 
+			set_Value (COLUMNNAME_M_AttributeSetInstance_ID, null);
+		else 
+			set_Value (COLUMNNAME_M_AttributeSetInstance_ID, M_AttributeSetInstance_ID);
+	}
+
+	@Override
+	public int getM_AttributeSetInstance_ID() 
+	{
+		return get_ValueAsInt(COLUMNNAME_M_AttributeSetInstance_ID);
+	}
+
+	@Override
+	public void setM_HU_PI_Item_Product_Effective_ID (final int M_HU_PI_Item_Product_Effective_ID)
+	{
+		throw new IllegalArgumentException ("M_HU_PI_Item_Product_Effective_ID is virtual column");	}
+
+	@Override
+	public int getM_HU_PI_Item_Product_Effective_ID() 
+	{
+		return get_ValueAsInt(COLUMNNAME_M_HU_PI_Item_Product_Effective_ID);
+	}
+
+	@Override
+	public void setM_HU_PI_Item_Product_ID (final int M_HU_PI_Item_Product_ID)
+	{
+		if (M_HU_PI_Item_Product_ID < 1) 
+			set_Value (COLUMNNAME_M_HU_PI_Item_Product_ID, null);
+		else 
+			set_Value (COLUMNNAME_M_HU_PI_Item_Product_ID, M_HU_PI_Item_Product_ID);
+	}
+
+	@Override
+	public int getM_HU_PI_Item_Product_ID() 
+	{
+		return get_ValueAsInt(COLUMNNAME_M_HU_PI_Item_Product_ID);
+	}
+
+	@Override
+	public void setM_HU_PI_Item_Product_Override_ID (final int M_HU_PI_Item_Product_Override_ID)
+	{
+		if (M_HU_PI_Item_Product_Override_ID < 1) 
+			set_Value (COLUMNNAME_M_HU_PI_Item_Product_Override_ID, null);
+		else 
+			set_Value (COLUMNNAME_M_HU_PI_Item_Product_Override_ID, M_HU_PI_Item_Product_Override_ID);
+	}
+
+	@Override
+	public int getM_HU_PI_Item_Product_Override_ID() 
+	{
+		return get_ValueAsInt(COLUMNNAME_M_HU_PI_Item_Product_Override_ID);
+	}
+
+	@Override
+	public void setM_PricingSystem_ID (final int M_PricingSystem_ID)
+	{
+		if (M_PricingSystem_ID < 1) 
+			set_Value (COLUMNNAME_M_PricingSystem_ID, null);
+		else 
+			set_Value (COLUMNNAME_M_PricingSystem_ID, M_PricingSystem_ID);
+	}
+
+	@Override
+	public int getM_PricingSystem_ID() 
+	{
+		return get_ValueAsInt(COLUMNNAME_M_PricingSystem_ID);
+	}
+
+	@Override
+	public void setM_Product_Effective_ID (final int M_Product_Effective_ID)
+	{
+		throw new IllegalArgumentException ("M_Product_Effective_ID is virtual column");	}
+
+	@Override
+	public int getM_Product_Effective_ID() 
+	{
+		return get_ValueAsInt(COLUMNNAME_M_Product_Effective_ID);
+	}
+
+	@Override
+	public void setM_Product_ID (final int M_Product_ID)
+	{
+		if (M_Product_ID < 1) 
+			set_Value (COLUMNNAME_M_Product_ID, null);
+		else 
+			set_Value (COLUMNNAME_M_Product_ID, M_Product_ID);
+	}
+
+	@Override
+	public int getM_Product_ID() 
+	{
+		return get_ValueAsInt(COLUMNNAME_M_Product_ID);
+	}
+
+	@Override
+	public void setM_Product_Override_ID (final int M_Product_Override_ID)
+	{
+		if (M_Product_Override_ID < 1) 
+			set_Value (COLUMNNAME_M_Product_Override_ID, null);
+		else 
+			set_Value (COLUMNNAME_M_Product_Override_ID, M_Product_Override_ID);
+	}
+
+	@Override
+	public int getM_Product_Override_ID() 
+	{
+		return get_ValueAsInt(COLUMNNAME_M_Product_Override_ID);
+	}
+
+	@Override
+	public void setM_ProductPrice_Attribute_ID (final int M_ProductPrice_Attribute_ID)
+	{
+		if (M_ProductPrice_Attribute_ID < 1) 
+			set_ValueNoCheck (COLUMNNAME_M_ProductPrice_Attribute_ID, null);
+		else 
+			set_ValueNoCheck (COLUMNNAME_M_ProductPrice_Attribute_ID, M_ProductPrice_Attribute_ID);
+	}
+
+	@Override
+	public int getM_ProductPrice_Attribute_ID() 
+	{
+		return get_ValueAsInt(COLUMNNAME_M_ProductPrice_Attribute_ID);
+	}
+
+	@Override
+	public org.compiere.model.I_M_ProductPrice getM_ProductPrice()
+	{
+		return get_ValueAsPO(COLUMNNAME_M_ProductPrice_ID, org.compiere.model.I_M_ProductPrice.class);
+	}
+
+	@Override
+	public void setM_ProductPrice(final org.compiere.model.I_M_ProductPrice M_ProductPrice)
+	{
+		set_ValueFromPO(COLUMNNAME_M_ProductPrice_ID, org.compiere.model.I_M_ProductPrice.class, M_ProductPrice);
+	}
+
+	@Override
+	public void setM_ProductPrice_ID (final int M_ProductPrice_ID)
+	{
+		if (M_ProductPrice_ID < 1) 
+			set_ValueNoCheck (COLUMNNAME_M_ProductPrice_ID, null);
+		else 
+			set_ValueNoCheck (COLUMNNAME_M_ProductPrice_ID, M_ProductPrice_ID);
+	}
+
+	@Override
+	public int getM_ProductPrice_ID() 
+	{
+		return get_ValueAsInt(COLUMNNAME_M_ProductPrice_ID);
+	}
+
+	@Override
+	public org.compiere.model.I_M_Shipper getM_Shipper()
+	{
+		return get_ValueAsPO(COLUMNNAME_M_Shipper_ID, org.compiere.model.I_M_Shipper.class);
+	}
+
+	@Override
+	public void setM_Shipper(final org.compiere.model.I_M_Shipper M_Shipper)
+	{
+		set_ValueFromPO(COLUMNNAME_M_Shipper_ID, org.compiere.model.I_M_Shipper.class, M_Shipper);
+	}
+
+	@Override
+	public void setM_Shipper_ID (final int M_Shipper_ID)
+	{
+		if (M_Shipper_ID < 1) 
+			set_Value (COLUMNNAME_M_Shipper_ID, null);
+		else 
+			set_Value (COLUMNNAME_M_Shipper_ID, M_Shipper_ID);
+	}
+
+	@Override
+	public int getM_Shipper_ID() 
+	{
+		return get_ValueAsInt(COLUMNNAME_M_Shipper_ID);
+	}
+
+	@Override
+	public void setM_Warehouse_Dest_ID (final int M_Warehouse_Dest_ID)
+	{
+		if (M_Warehouse_Dest_ID < 1) 
+			set_Value (COLUMNNAME_M_Warehouse_Dest_ID, null);
+		else 
+			set_Value (COLUMNNAME_M_Warehouse_Dest_ID, M_Warehouse_Dest_ID);
+	}
+
+	@Override
+	public int getM_Warehouse_Dest_ID() 
+	{
+		return get_ValueAsInt(COLUMNNAME_M_Warehouse_Dest_ID);
+	}
+
+	@Override
+	public void setM_Warehouse_ID (final int M_Warehouse_ID)
+	{
+		if (M_Warehouse_ID < 1) 
+			set_Value (COLUMNNAME_M_Warehouse_ID, null);
+		else 
+			set_Value (COLUMNNAME_M_Warehouse_ID, M_Warehouse_ID);
+	}
+
+	@Override
+	public int getM_Warehouse_ID() 
+	{
+		return get_ValueAsInt(COLUMNNAME_M_Warehouse_ID);
+	}
+
+	/** 
+	 * PaymentRule AD_Reference_ID=195
+	 * Reference name: _Payment Rule
+	 */
+	public static final int PAYMENTRULE_AD_Reference_ID=195;
+	/** Cash = B */
+	public static final String PAYMENTRULE_Cash = "B";
+	/** CreditCard = K */
+	public static final String PAYMENTRULE_CreditCard = "K";
+	/** DirectDeposit = T */
+	public static final String PAYMENTRULE_DirectDeposit = "T";
+	/** Check = S */
+	public static final String PAYMENTRULE_Check = "S";
+	/** OnCredit = P */
+	public static final String PAYMENTRULE_OnCredit = "P";
+	/** DirectDebit = D */
+	public static final String PAYMENTRULE_DirectDebit = "D";
+	/** Mixed = M */
+	public static final String PAYMENTRULE_Mixed = "M";
+	/** PayPal = L */
+	public static final String PAYMENTRULE_PayPal = "L";
+	/** PayPal Extern = V */
+	public static final String PAYMENTRULE_PayPalExtern = "V";
+	/** Kreditkarte Extern = U */
+	public static final String PAYMENTRULE_KreditkarteExtern = "U";
+	/** Sofortüberweisung = R */
+	public static final String PAYMENTRULE_Sofortueberweisung = "R";
+	/** Reimbursement = E */
+	public static final String PAYMENTRULE_Reimbursement = "E";
+	/** Settlement = F */
+	public static final String PAYMENTRULE_Settlement = "F";
+	@Override
+	public void setPaymentRule (final @Nullable java.lang.String PaymentRule)
+	{
+		set_Value (COLUMNNAME_PaymentRule, PaymentRule);
+	}
+
+	@Override
+	public java.lang.String getPaymentRule() 
+	{
+		return get_ValueAsString(COLUMNNAME_PaymentRule);
+	}
+
+	@Override
+	public void setPhone (final @Nullable java.lang.String Phone)
+	{
+		set_Value (COLUMNNAME_Phone, Phone);
+	}
+
+	@Override
+	public java.lang.String getPhone() 
+	{
+		return get_ValueAsString(COLUMNNAME_Phone);
+	}
+
+	@Override
+	public void setPOReference (final @Nullable java.lang.String POReference)
+	{
+		set_Value (COLUMNNAME_POReference, POReference);
+	}
+
+	@Override
+	public java.lang.String getPOReference() 
+	{
+		return get_ValueAsString(COLUMNNAME_POReference);
+	}
+
+	@Override
+	public void setPresetDateInvoiced (final @Nullable java.sql.Timestamp PresetDateInvoiced)
+	{
+		set_Value (COLUMNNAME_PresetDateInvoiced, PresetDateInvoiced);
+	}
+
+	@Override
+	public java.sql.Timestamp getPresetDateInvoiced() 
+	{
+		return get_ValueAsTimestamp(COLUMNNAME_PresetDateInvoiced);
+	}
+
+	@Override
+	public void setPresetDateShipped (final @Nullable java.sql.Timestamp PresetDateShipped)
+	{
+		set_Value (COLUMNNAME_PresetDateShipped, PresetDateShipped);
+	}
+
+	@Override
+	public java.sql.Timestamp getPresetDateShipped() 
+	{
+		return get_ValueAsTimestamp(COLUMNNAME_PresetDateShipped);
+	}
+
+	@Override
+	public void setPriceActual (final @Nullable BigDecimal PriceActual)
+	{
+		set_Value (COLUMNNAME_PriceActual, PriceActual);
+	}
+
+	@Override
+	public BigDecimal getPriceActual() 
+	{
+		final BigDecimal bd = get_ValueAsBigDecimal(COLUMNNAME_PriceActual);
+		return bd != null ? bd : BigDecimal.ZERO;
+	}
+
+	@Override
+	public void setPriceDifference (final @Nullable BigDecimal PriceDifference)
+	{
+		throw new IllegalArgumentException ("PriceDifference is virtual column");	}
+
+	@Override
+	public BigDecimal getPriceDifference() 
+	{
+		final BigDecimal bd = get_ValueAsBigDecimal(COLUMNNAME_PriceDifference);
+		return bd != null ? bd : BigDecimal.ZERO;
+	}
+
+	@Override
+	public void setPriceEntered (final @Nullable BigDecimal PriceEntered)
+	{
+		set_Value (COLUMNNAME_PriceEntered, PriceEntered);
+	}
+
+	@Override
+	public BigDecimal getPriceEntered() 
+	{
+		final BigDecimal bd = get_ValueAsBigDecimal(COLUMNNAME_PriceEntered);
+		return bd != null ? bd : BigDecimal.ZERO;
+	}
+
+	@Override
+	public void setPriceInternal (final @Nullable BigDecimal PriceInternal)
+	{
+		set_Value (COLUMNNAME_PriceInternal, PriceInternal);
+	}
+
+	@Override
+	public BigDecimal getPriceInternal() 
+	{
+		final BigDecimal bd = get_ValueAsBigDecimal(COLUMNNAME_PriceInternal);
+		return bd != null ? bd : BigDecimal.ZERO;
+	}
+
+	@Override
+	public void setPrice_UOM_Internal_ID (final int Price_UOM_Internal_ID)
+	{
+		if (Price_UOM_Internal_ID < 1) 
+			set_Value (COLUMNNAME_Price_UOM_Internal_ID, null);
+		else 
+			set_Value (COLUMNNAME_Price_UOM_Internal_ID, Price_UOM_Internal_ID);
+	}
+
+	@Override
+	public int getPrice_UOM_Internal_ID() 
+	{
+		return get_ValueAsInt(COLUMNNAME_Price_UOM_Internal_ID);
+	}
+
+	@Override
+	public void setProcessed (final boolean Processed)
+	{
+		set_Value (COLUMNNAME_Processed, Processed);
+	}
+
+	@Override
+	public boolean isProcessed() 
+	{
+		return get_ValueAsBoolean(COLUMNNAME_Processed);
+	}
+
+	@Override
+	public void setProductDescription (final @Nullable java.lang.String ProductDescription)
+	{
+		set_Value (COLUMNNAME_ProductDescription, ProductDescription);
+	}
+
+	@Override
+	public java.lang.String getProductDescription() 
+	{
+		return get_ValueAsString(COLUMNNAME_ProductDescription);
+	}
+
+	@Override
+	public void setQtyEntered (final BigDecimal QtyEntered)
+	{
+		set_Value (COLUMNNAME_QtyEntered, QtyEntered);
+	}
+
+	@Override
+	public BigDecimal getQtyEntered() 
+	{
+		final BigDecimal bd = get_ValueAsBigDecimal(COLUMNNAME_QtyEntered);
+		return bd != null ? bd : BigDecimal.ZERO;
+	}
+
+	@Override
+	public void setQtyEntered_Override (final @Nullable BigDecimal QtyEntered_Override)
+	{
+		set_Value (COLUMNNAME_QtyEntered_Override, QtyEntered_Override);
+	}
+
+	@Override
+	public BigDecimal getQtyEntered_Override() 
+	{
+		final BigDecimal bd = get_ValueAsBigDecimal(COLUMNNAME_QtyEntered_Override);
+		return bd != null ? bd : BigDecimal.ZERO;
+	}
+
+	@Override
+	public void setQtyItemCapacity (final @Nullable BigDecimal QtyItemCapacity)
+	{
+		set_Value (COLUMNNAME_QtyItemCapacity, QtyItemCapacity);
+	}
+
+	@Override
+	public BigDecimal getQtyItemCapacity() 
+	{
+		final BigDecimal bd = get_ValueAsBigDecimal(COLUMNNAME_QtyItemCapacity);
+		return bd != null ? bd : BigDecimal.ZERO;
+	}
+
+	@Override
+	public void setQtyItemCapacityInternal (final @Nullable BigDecimal QtyItemCapacityInternal)
+	{
+		set_Value (COLUMNNAME_QtyItemCapacityInternal, QtyItemCapacityInternal);
+	}
+
+	@Override
+	public BigDecimal getQtyItemCapacityInternal() 
+	{
+		final BigDecimal bd = get_ValueAsBigDecimal(COLUMNNAME_QtyItemCapacityInternal);
+		return bd != null ? bd : BigDecimal.ZERO;
+	}
+
+	@Override
+	public void setQtyShipped (final @Nullable BigDecimal QtyShipped)
+	{
+		set_Value (COLUMNNAME_QtyShipped, QtyShipped);
+	}
+
+	@Override
+	public BigDecimal getQtyShipped() 
+	{
+		final BigDecimal bd = get_ValueAsBigDecimal(COLUMNNAME_QtyShipped);
+		return bd != null ? bd : BigDecimal.ZERO;
+	}
+
+	@Override
+	public void setQtyShipped_CatchWeight (final @Nullable BigDecimal QtyShipped_CatchWeight)
+	{
+		set_Value (COLUMNNAME_QtyShipped_CatchWeight, QtyShipped_CatchWeight);
+	}
+
+	@Override
+	public BigDecimal getQtyShipped_CatchWeight() 
+	{
+		final BigDecimal bd = get_ValueAsBigDecimal(COLUMNNAME_QtyShipped_CatchWeight);
+		return bd != null ? bd : BigDecimal.ZERO;
+	}
+
+	@Override
+	public void setQtyShipped_CatchWeight_UOM_ID (final int QtyShipped_CatchWeight_UOM_ID)
+	{
+		if (QtyShipped_CatchWeight_UOM_ID < 1) 
+			set_Value (COLUMNNAME_QtyShipped_CatchWeight_UOM_ID, null);
+		else 
+			set_Value (COLUMNNAME_QtyShipped_CatchWeight_UOM_ID, QtyShipped_CatchWeight_UOM_ID);
+	}
+
+	@Override
+	public int getQtyShipped_CatchWeight_UOM_ID() 
+	{
+		return get_ValueAsInt(COLUMNNAME_QtyShipped_CatchWeight_UOM_ID);
+	}
+
+	@Override
+	public void setRecord_ID (final int Record_ID)
+	{
+		if (Record_ID < 0) 
+			set_ValueNoCheck (COLUMNNAME_Record_ID, null);
+		else 
+			set_ValueNoCheck (COLUMNNAME_Record_ID, Record_ID);
+	}
+
+	@Override
+	public int getRecord_ID() 
+	{
+		return get_ValueAsInt(COLUMNNAME_Record_ID);
+	}
+
+	@Override
+	public void setReplicationTrxErrorMsg (final @Nullable java.lang.String ReplicationTrxErrorMsg)
+	{
+		throw new IllegalArgumentException ("ReplicationTrxErrorMsg is virtual column");	}
+
+	@Override
+	public java.lang.String getReplicationTrxErrorMsg() 
+	{
+		return get_ValueAsString(COLUMNNAME_ReplicationTrxErrorMsg);
+	}
+}

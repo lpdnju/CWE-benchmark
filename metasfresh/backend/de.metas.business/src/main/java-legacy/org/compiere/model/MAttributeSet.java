@@ -1,0 +1,106 @@
+/******************************************************************************
+ * Product: Adempiere ERP & CRM Smart Business Solution *
+ * Copyright (C) 1999-2006 ComPiere, Inc. All Rights Reserved. *
+ * This program is free software; you can redistribute it and/or modify it *
+ * under the terms version 2 of the GNU General Public License as published *
+ * by the Free Software Foundation. This program is distributed in the hope *
+ * that it will be useful, but WITHOUT ANY WARRANTY; without even the implied *
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. *
+ * See the GNU General Public License for more details. *
+ * You should have received a copy of the GNU General Public License along *
+ * with this program; if not, write to the Free Software Foundation, Inc., *
+ * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA. *
+ * For the text or an alternative of this public license, you may reach us *
+ * ComPiere, Inc., 2620 Augustine Dr. #245, Santa Clara, CA 95054, USA *
+ * or via info@compiere.org or http://www.compiere.org/license.html *
+ *****************************************************************************/
+package org.compiere.model;
+
+import org.compiere.util.DB;
+
+import java.sql.ResultSet;
+import java.util.Properties;
+
+/**
+ * Product Attribute Set
+ *
+ * @author Jorg Janke
+ * @author Teo Sarca, www.arhipac.ro
+ * <li>FR [ 2214883 ] Remove SQL code and Replace for Query
+ * @version $Id: MAttributeSet.java,v 1.3 2006/07/30 00:51:05 jjanke Exp $
+ */
+@Deprecated
+public class MAttributeSet extends X_M_AttributeSet
+{
+	@SuppressWarnings("unused")
+	public MAttributeSet(Properties ctx, int M_AttributeSet_ID, String trxName)
+	{
+		super(ctx, M_AttributeSet_ID, trxName);
+		if (is_new())
+		{
+			// setName (null);
+			setIsInstanceAttribute(false);
+			setMandatoryType(MANDATORYTYPE_NotMandatary);
+		}
+	}    // MAttributeSet
+
+	@SuppressWarnings("unused")
+	public MAttributeSet(Properties ctx, ResultSet rs, String trxName)
+	{
+		super(ctx, rs, trxName);
+	}    // MAttributeSet
+
+	@Override
+	protected boolean beforeSave(boolean newRecord)
+	{
+		if (!isInstanceAttribute())
+			setIsInstanceAttribute(true);
+		return true;
+	}    // beforeSave
+
+	@Override
+	protected boolean afterSave(boolean newRecord, boolean success)
+	{
+		// Set Instance Attribute
+		if (!isInstanceAttribute())
+		{
+			String sql = "UPDATE M_AttributeSet mas"
+					+ " SET IsInstanceAttribute='Y' "
+					+ "WHERE M_AttributeSet_ID=" + getM_AttributeSet_ID()
+					+ " AND IsInstanceAttribute='N'"
+					+ " AND (EXISTS (SELECT * FROM M_AttributeUse mau"
+					+ " INNER JOIN M_Attribute ma ON (mau.M_Attribute_ID=ma.M_Attribute_ID) "
+					+ "WHERE mau.M_AttributeSet_ID=mas.M_AttributeSet_ID"
+					+ " AND mau.IsActive='Y' AND ma.IsActive='Y'"
+					+ " AND ma.IsInstanceAttribute='Y')"
+					+ ")";
+			int no = DB.executeUpdateAndThrowExceptionOnFail(sql, get_TrxName());
+			if (no != 0)
+			{
+				log.warn("Set Instance Attribute");
+				setIsInstanceAttribute(true);
+			}
+		}
+		// Reset Instance Attribute
+		if (isInstanceAttribute())
+		{
+			String sql = "UPDATE M_AttributeSet mas"
+					+ " SET IsInstanceAttribute='N' "
+					+ "WHERE M_AttributeSet_ID=" + getM_AttributeSet_ID()
+					+ " AND IsInstanceAttribute='Y'"
+					+ " AND NOT EXISTS (SELECT * FROM M_AttributeUse mau"
+					+ " INNER JOIN M_Attribute ma ON (mau.M_Attribute_ID=ma.M_Attribute_ID) "
+					+ "WHERE mau.M_AttributeSet_ID=mas.M_AttributeSet_ID"
+					+ " AND mau.IsActive='Y' AND ma.IsActive='Y'"
+					+ " AND ma.IsInstanceAttribute='Y')";
+			int no = DB.executeUpdateAndThrowExceptionOnFail(sql, get_TrxName());
+			if (no != 0)
+			{
+				log.warn("Reset Instance Attribute");
+				setIsInstanceAttribute(false);
+			}
+		}
+		return success;
+	}    // afterSave
+
+}    // MAttributeSet

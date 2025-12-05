@@ -1,0 +1,313 @@
+package de.metas.handlingunits.picking.candidate.commands;
+
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+import de.metas.bpartner.BPartnerLocationId;
+import de.metas.handlingunits.HuId;
+import de.metas.handlingunits.IHUContextFactory;
+import de.metas.handlingunits.IHUStatusBL;
+import de.metas.handlingunits.IHandlingUnitsBL;
+import de.metas.handlingunits.IHandlingUnitsDAO;
+import de.metas.handlingunits.allocation.IAllocationDestination;
+import de.metas.handlingunits.allocation.IAllocationRequest;
+import de.metas.handlingunits.allocation.IAllocationResult;
+import de.metas.handlingunits.allocation.impl.AllocationUtils;
+import de.metas.handlingunits.allocation.impl.HUListAllocationSourceDestination;
+import de.metas.handlingunits.allocation.impl.HULoader;
+import de.metas.handlingunits.model.I_M_HU;
+import de.metas.handlingunits.picking.PickFrom;
+import de.metas.handlingunits.picking.PickingCandidate;
+import de.metas.handlingunits.picking.PickingCandidateRepository;
+import de.metas.handlingunits.picking.PickingCandidateService;
+import de.metas.handlingunits.picking.requests.AddQtyToHURequest;
+import de.metas.handlingunits.picking.slot.IHUPickingSlotBL;
+import de.metas.handlingunits.picking.slot.PickingSlotAllocateRequest;
+import de.metas.inout.ShipmentScheduleId;
+import de.metas.inoutcandidate.api.IShipmentScheduleBL;
+import de.metas.inoutcandidate.model.I_M_ShipmentSchedule;
+import de.metas.logging.LogManager;
+import de.metas.order.OrderId;
+import de.metas.picking.api.IPackagingDAO;
+import de.metas.picking.api.PickingConfigRepository;
+import de.metas.picking.api.PickingSlotId;
+import de.metas.product.IProductDAO;
+import de.metas.product.ProductId;
+import de.metas.quantity.Quantity;
+import de.metas.uom.IUOMConversionBL;
+import de.metas.uom.UOMConversionContext;
+import de.metas.uom.UomId;
+import de.metas.util.Services;
+import lombok.Builder;
+import lombok.NonNull;
+import org.adempiere.exceptions.AdempiereException;
+import org.apache.commons.collections4.CollectionUtils;
+import org.slf4j.Logger;
+
+import java.util.List;
+
+/*
+ * #%L
+ * de.metas.handlingunits.base
+ * %%
+ * Copyright (C) 2017 metas GmbH
+ * %%
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation, either version 2 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public
+ * License along with this program. If not, see
+ * <http://www.gnu.org/licenses/gpl-2.0.html>.
+ * #L%
+ */
+
+public class AddQtyToHUCommand
+{
+	private static final Logger logger = LogManager.getLogger(AddQtyToHUCommand.class);
+
+	private final IHandlingUnitsDAO handlingUnitsDAO = Services.get(IHandlingUnitsDAO.class);
+	private final IHUContextFactory huContextFactory = Services.get(IHUContextFactory.class);
+	private final IHUStatusBL huStatusBL = Services.get(IHUStatusBL.class);
+	private final IHUPickingSlotBL huPickingSlotBL = Services.get(IHUPickingSlotBL.class);
+	private final IPackagingDAO packingDAO = Services.get(IPackagingDAO.class);
+	private final IProductDAO productsRepo = Services.get(IProductDAO.class);
+	private final IUOMConversionBL uomConversionBL = Services.get(IUOMConversionBL.class);
+	private final IShipmentScheduleBL shipmentScheduleBL = Services.get(IShipmentScheduleBL.class);
+	private final IHandlingUnitsBL handlingUnitsBL = Services.get(IHandlingUnitsBL.class);
+
+	private final PickingCandidateRepository pickingCandidateRepository;
+	private final PickingCandidateService pickingCandidateService;
+
+	private final ImmutableList<HuId> sourceHUIds;
+	private final Quantity qtyToPack;
+	private final HuId packToHuId;
+	private final PickingSlotId pickingSlotId;
+	private final boolean allowOverDelivery;
+	private final boolean isForbidAggCUsForDifferentOrders;
+
+	private final ShipmentScheduleId shipmentScheduleId;
+	private final I_M_ShipmentSchedule shipmentSchedule;
+	private final ProductId productId;
+	private final Quantity qtyToDeliverTarget;
+
+	@Builder
+	private AddQtyToHUCommand(
+			@NonNull final PickingCandidateService pickingCandidateService,
+			@NonNull final PickingCandidateRepository pickingCandidateRepository,
+			@NonNull final AddQtyToHURequest request)
+	{
+		validateSourceHUs(request.getSourceHUIds());
+
+		this.sourceHUIds = request.getSourceHUIds();
+
+		this.pickingCandidateRepository = pickingCandidateRepository;
+		this.pickingCandidateService = pickingCandidateService;
+		this.packToHuId = request.getPackToHuId();
+		this.pickingSlotId = request.getPickingSlotId();
+		this.allowOverDelivery = request.isAllowOverDelivery();
+		this.isForbidAggCUsForDifferentOrders = request.isForbidAggCUsForDifferentOrders();
+
+		this.shipmentScheduleId = request.getShipmentScheduleId();
+		shipmentSchedule = shipmentScheduleBL.getById(shipmentScheduleId);
+		productId = ProductId.ofRepoId(shipmentSchedule.getM_Product_ID());
+		qtyToDeliverTarget = shipmentScheduleBL.getQtyToDeliver(shipmentSchedule);
+
+		this.qtyToPack = request.getQtyToPack();
+	}
+
+	/**
+	 * @return the quantity that was effectively added. We can only add the quantity that's still left in our source HUs.
+	 */
+	@NonNull
+	public Quantity performAndGetQtyPicked()
+	{
+		if (!allowOverDelivery)
+		{
+			assertNotOverDelivery();
+		}
+
+		if (isForbidAggCUsForDifferentOrders)
+		{
+			assertNotAggregatingCUsToDiffOrders();
+		}
+
+		final PickingCandidate candidate = getOrCreatePickingCandidate();
+
+		final HUListAllocationSourceDestination source = createFromSourceHUsAllocationSource();
+		final IAllocationDestination destination = createAllocationDestination();
+
+		// NOTE: create the context with the tread-inherited transaction,
+		// otherwise, the loader won't be able to access the HU's material item and therefore won't load anything!
+		final IAllocationRequest request = AllocationUtils.builder()
+				.setHUContext(huContextFactory.createMutableHUContextForProcessing())
+				.setProduct(productsRepo.getById(productId))
+				.setQuantity(qtyToPack)
+				.setDateAsToday()
+				.setFromReferencedTableRecord(pickingCandidateRepository.toTableRecordReference(candidate)) // the m_hu_trx_Line coming out of this will reference the picking candidate
+				.setForceQtyAllocation(true)
+				.create();
+
+		// Load QtyCU to HU(destination)
+		final IAllocationResult loadResult = HULoader.of(source, destination)
+				.setAllowPartialLoads(true) // don't fail if the the picking staff attempted to to pick more than the TU's capacity
+				.setAllowPartialUnloads(true) // don't fail if the the picking staff attempted to to pick more than the shipment schedule's quantity to deliver.
+				.load(request);
+		logger.info("addQtyToHU done; huId={}, qtyCU={}, loadResult={}", packToHuId, qtyToPack, loadResult);
+
+		// Update the candidate
+		final Quantity qtyPicked = Quantity.of(loadResult.getQtyAllocated(), request.getC_UOM());
+
+		addQtyToCandidate(candidate, productId, qtyPicked);
+
+		final BPartnerLocationId bpartnerAndLocationId = shipmentScheduleBL.getBPartnerLocationId(shipmentSchedule);
+		huPickingSlotBL.allocatePickingSlotIfPossible(PickingSlotAllocateRequest.builder()
+				.pickingSlotId(pickingSlotId)
+				.bpartnerAndLocationId(bpartnerAndLocationId)
+				.build());
+
+		return qtyPicked;
+	}
+
+	private PickingCandidate getOrCreatePickingCandidate()
+	{
+		final PickingCandidate existingCandidate = pickingCandidateRepository
+				.getByShipmentScheduleIdAndHuIdAndPickingSlotId(shipmentScheduleId, packToHuId, pickingSlotId)
+				.orElse(null);
+		if (existingCandidate != null)
+		{
+			return existingCandidate;
+		}
+
+		final PickingCandidate newCandidate = PickingCandidate.builder()
+				.qtyPicked(qtyToPack.toZero())
+				.shipmentScheduleId(shipmentScheduleId)
+				.pickFrom(PickFrom.ofHuId(packToHuId)) // TODO use source HU ID
+				.packedToHuId(packToHuId)
+				.pickingSlotId(pickingSlotId)
+				.build();
+		pickingCandidateRepository.save(newCandidate);
+		return newCandidate;
+	}
+
+	/**
+	 * Source - take the preselected sourceHUs
+	 */
+	private HUListAllocationSourceDestination createFromSourceHUsAllocationSource()
+	{
+		final List<I_M_HU> sourceHUs = handlingUnitsDAO.getByIds(sourceHUIds);
+		final HUListAllocationSourceDestination source = HUListAllocationSourceDestination.of(sourceHUs);
+		source.setDestroyEmptyHUs(false); // don't automatically destroy them. we will do that ourselves if the sourceHUs are empty at the time we process our picking candidates
+
+		return source;
+	}
+
+	private IAllocationDestination createAllocationDestination()
+	{
+		final I_M_HU hu = handlingUnitsDAO.getById(packToHuId);
+
+		// we made sure that the source HU is active, so the target HU also needs to be active. Otherwise, goods would just seem to vanish
+		if (!huStatusBL.isStatusActive(hu))
+		{
+			throw new AdempiereException("not an active HU").setParameter("hu", hu);
+		}
+
+		return HUListAllocationSourceDestination.of(hu);
+	}
+
+	private void addQtyToCandidate(
+			@NonNull final PickingCandidate candidate,
+			@NonNull final ProductId productId,
+			@NonNull final Quantity qtyToAdd)
+	{
+		final Quantity qtyNew;
+		if (candidate.getQtyPicked().signum() == 0)
+		{
+			qtyNew = qtyToAdd;
+		}
+		else
+		{
+			final UOMConversionContext conversionCtx = UOMConversionContext.of(productId);
+			final Quantity qty = candidate.getQtyPicked();
+			final Quantity qtyToAddConv = uomConversionBL.convertQuantityTo(qtyToAdd, conversionCtx, UomId.ofRepoId(qty.getUOM().getC_UOM_ID()));
+			qtyNew = qty.add(qtyToAddConv);
+		}
+
+		candidate.assertNotApproved();
+		candidate.pick(qtyNew);
+		pickingCandidateRepository.save(candidate);
+	}
+
+	private void assertNotOverDelivery()
+	{
+		Quantity qtyToDeliver = qtyToDeliverTarget;
+
+		final Quantity qtyPickedPlanned = packingDAO.retrieveQtyPickedPlanned(shipmentScheduleId).orElse(null);
+		if (qtyPickedPlanned != null)
+		{
+			qtyToDeliver = qtyToDeliver.subtract(qtyPickedPlanned);
+		}
+
+		if (qtyToPack.compareTo(qtyToDeliver) > 0)
+		{
+			throw new AdempiereException("@" + PickingConfigRepository.MSG_WEBUI_Picking_OverdeliveryNotAllowed + "@")
+					.appendParametersToMessage()
+					.setParameter("qtyToDeliverTarget", qtyToDeliverTarget)
+					.setParameter("qtyPickedPlanned", qtyPickedPlanned)
+					.setParameter("qtyToPack", qtyToPack);
+		}
+	}
+
+	private void validateSourceHUs(@NonNull final List<HuId> sourceHUIds)
+	{
+		for (final HuId sourceHuId : sourceHUIds)
+		{
+			if (!handlingUnitsBL.isHUHierarchyCleared(sourceHuId))
+			{
+				throw new AdempiereException("Non 'Cleared' HUs cannot be picked!")
+						.appendParametersToMessage()
+						.setParameter("M_HU_ID", sourceHuId);
+			}
+		}
+	}
+
+	private void assertNotAggregatingCUsToDiffOrders()
+	{
+		final OrderId pickingForOrderId = OrderId.ofRepoIdOrNull(shipmentSchedule.getC_Order_ID());
+
+		if (pickingForOrderId == null)
+		{
+			throw new AdempiereException("When isForbidAggCUsForDifferentOrders='Y' the pickingForOrderId must be known!")
+					.appendParametersToMessage()
+					.setParameter("ShipmentScheduleId", shipmentSchedule.getM_ShipmentSchedule_ID());
+		}
+
+		final I_M_HU hu = handlingUnitsDAO.getById(packToHuId);
+		final boolean isLoadingUnit = handlingUnitsBL.isLoadingUnit(hu);
+
+		if (isLoadingUnit)
+		{
+			throw new AdempiereException("packToHuId cannot be an LU, as picking to unknown TU is not allowed when isForbidAggCUsForDifferentOrders='Y'");
+		}
+
+		final ImmutableMap<HuId, ImmutableSet<OrderId>> huId2OpenPickingOrderIds = pickingCandidateService
+				.getOpenPickingOrderIdsByHuId(ImmutableSet.of(packToHuId));
+
+		final boolean thereAreOpenPickingOrdersForHU = CollectionUtils.isNotEmpty(huId2OpenPickingOrderIds.get(packToHuId));
+		final boolean noneOfThePickingOrdersMatchesTheCurrentOrder = !huId2OpenPickingOrderIds.get(packToHuId).contains(pickingForOrderId);
+
+		if (thereAreOpenPickingOrdersForHU && noneOfThePickingOrdersMatchesTheCurrentOrder)
+		{
+			throw new AdempiereException("Cannot pick to an HU with an open picking candidate pointing to a different order!")
+					.appendParametersToMessage()
+					.setParameter("shipmentScheduleId", shipmentSchedule.getM_ShipmentSchedule_ID())
+					.setParameter("huId", packToHuId);
+		}
+	}
+}

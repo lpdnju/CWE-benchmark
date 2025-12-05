@@ -1,0 +1,250 @@
+package de.metas.payment.sepa.api.impl;
+
+import de.metas.banking.Bank;
+import de.metas.banking.BankAccount;
+import de.metas.banking.BankAccountId;
+import de.metas.banking.BankId;
+import de.metas.banking.api.BankRepository;
+import de.metas.banking.api.IBPBankAccountDAO;
+import de.metas.banking.payment.IPaySelectionBL;
+import de.metas.banking.payment.PaySelectionLineType;
+import de.metas.banking.payment.PaySelectionTrxType;
+import de.metas.bpartner.service.IBPartnerOrgBL;
+import de.metas.i18n.AdMessageKey;
+import de.metas.invoice.InvoiceId;
+import de.metas.invoice.service.IInvoiceBL;
+import de.metas.order.IOrderBL;
+import de.metas.order.OrderId;
+import de.metas.payment.sepa.api.SEPAProtocol;
+import de.metas.payment.sepa.model.I_SEPA_Export;
+import de.metas.payment.sepa.model.I_SEPA_Export_Line;
+import de.metas.util.Check;
+import de.metas.util.Services;
+import lombok.NonNull;
+import org.adempiere.exceptions.AdempiereException;
+import org.adempiere.exceptions.FillMandatoryException;
+import org.adempiere.model.InterfaceWrapperHelper;
+import org.compiere.SpringContextHolder;
+import org.compiere.model.I_C_BPartner;
+import org.compiere.model.I_C_Invoice;
+import org.compiere.model.I_C_Order;
+import org.compiere.model.I_C_PaySelection;
+import org.compiere.model.I_C_PaySelectionLine;
+import org.jetbrains.annotations.Nullable;
+
+import static de.metas.common.util.CoalesceUtil.coalesceSuppliers;
+import static org.adempiere.model.InterfaceWrapperHelper.getTableId;
+import static org.adempiere.model.InterfaceWrapperHelper.newInstance;
+import static org.adempiere.model.InterfaceWrapperHelper.save;
+
+/*
+ * #%L
+ * de.metas.payment.sepa.base
+ * %%
+ * Copyright (C) 2020 metas GmbH
+ * %%
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation, either version 2 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public
+ * License along with this program. If not, see
+ * <http://www.gnu.org/licenses/gpl-2.0.html>.
+ * #L%
+ */
+
+class CreateSEPAExportFromPaySelectionCommand
+{
+	@NonNull private static final AdMessageKey ERR_C_BP_BankAccount_BankNotSet = AdMessageKey.of("de.metas.payment.sepa.C_BP_BankAccount_BankNotSet");
+	@NonNull private static final AdMessageKey ERR_C_BP_BankAccount_IBANNotSet = AdMessageKey.of("de.metas.payment.sepa.C_BP_BankAccount_IBANNotSet");
+	@NonNull private static final AdMessageKey ERR_C_BP_BankAccount_SEPA_CreditorIdentifierNotSet = AdMessageKey.of("de.metas.payment.sepa.C_BP_BankAccount_SEPA_CreditorIdentifierNotSet");
+	@NonNull private static final AdMessageKey ERR_C_Bank_SwiftCodeNotSet = AdMessageKey.of("de.metas.payment.sepa.C_Bank_SwiftCodeNotSet");
+	@NonNull private static final AdMessageKey ERR_SEPA_Invoice_Nor_Order_Set = AdMessageKey.of("SEPA_Invoice_Nor_Order_Set");
+
+	@NonNull private final IPaySelectionBL paySelectionBL = Services.get(IPaySelectionBL.class);
+	@NonNull private final IInvoiceBL invoiceBL = Services.get(IInvoiceBL.class);
+	@NonNull private final IOrderBL orderBL = Services.get(IOrderBL.class);
+	@NonNull private final IBPBankAccountDAO bankAccountDAO = Services.get(IBPBankAccountDAO.class);
+	@NonNull private final IBPartnerOrgBL partnerOrgBL = Services.get(IBPartnerOrgBL.class);
+	@NonNull private final BankRepository bankRepo = SpringContextHolder.instance.getBean(BankRepository.class);
+
+	private final I_C_PaySelection source;
+
+	public CreateSEPAExportFromPaySelectionCommand(@NonNull final org.compiere.model.I_C_PaySelection source)
+	{
+		this.source = InterfaceWrapperHelper.create(source, I_C_PaySelection.class);
+	}
+
+	public I_SEPA_Export run()
+	{
+		final I_SEPA_Export header = createExportHeader(source);
+
+		for (final I_C_PaySelectionLine line : paySelectionBL.retrievePaySelectionLines(source))
+		{
+			if (line.getC_BP_BankAccount_ID() <= 0)
+			{
+				// No Bank account. Nothing to do.
+				continue;
+			}
+			final I_SEPA_Export_Line exportLine = createExportLine(line);
+			exportLine.setSEPA_Export(header);
+			save(exportLine);
+		}
+
+		return header;
+	}
+
+	private I_SEPA_Export_Line createExportLine(@NonNull final I_C_PaySelectionLine line)
+	{
+		final PaySelectionLineType lineType = paySelectionBL.extractType(line);
+
+		final String description;
+		final String structuredRemittanceInfo;
+		switch (lineType)
+		{
+			case Invoice:
+			{
+				final I_C_Invoice sourceInvoice = invoiceBL.getById(InvoiceId.ofRepoId(line.getC_Invoice_ID()));
+				description = sourceInvoice.getDescription();
+				structuredRemittanceInfo = line.getReference();
+				break;
+
+			}
+			case Order:
+			{
+				final OrderId orderId = OrderId.ofRepoId(line.getC_Order_ID());
+				final I_C_Order order = orderBL.getById(orderId);
+				description = order.getDescription();
+				structuredRemittanceInfo = order.getPOReference();
+				break;
+			}
+			default:
+				throw new AdempiereException(ERR_SEPA_Invoice_Nor_Order_Set, line);
+		}
+
+		final BankAccount bpBankAccount = bankAccountDAO.getById(BankAccountId.ofRepoId(line.getC_BP_BankAccount_ID()));
+
+		final I_SEPA_Export_Line exportLine = newInstance(I_SEPA_Export_Line.class, line);
+
+		exportLine.setAD_Org_ID(line.getAD_Org_ID());
+		exportLine.setAD_Table_ID(getTableId(I_C_PaySelectionLine.class));
+		exportLine.setRecord_ID(line.getC_PaySelectionLine_ID());
+		exportLine.setAmt(line.getPayAmt());
+		exportLine.setC_BP_BankAccount_ID(bpBankAccount.getId().getRepoId());
+		exportLine.setC_Currency_ID(bpBankAccount.getCurrencyId().getRepoId());
+		exportLine.setC_BPartner_ID(line.getC_BPartner_ID());
+
+		final String IBAN = selectIBANOrNull(bpBankAccount);
+		if (Check.isBlank(IBAN))
+		{
+			throw new AdempiereException(ERR_C_BP_BankAccount_IBANNotSet, bpBankAccount);
+		}
+
+		exportLine.setIBAN(IBAN);
+
+		// task 07789: note that for the CASE of ESR accounts, there is a model validator in de.metas.payment.esr which will
+		// set this field
+		// exportLine.setOtherAccountIdentification(OtherAccountIdentification);
+		final BankId bankId = bpBankAccount.getBankId();
+		if (bankId != null)
+		{
+			final Bank bank = bankRepo.getById(bankId);
+			exportLine.setSwiftCode(toNullOrRemoveSpaces(bank.getSwiftCode()));
+		}
+
+		exportLine.setDescription(description);
+		exportLine.setStructuredRemittanceInfo(structuredRemittanceInfo);
+
+		return exportLine;
+	}
+
+	private I_SEPA_Export createExportHeader(@NonNull final I_C_PaySelection paySelectionHeader)
+	{
+		final PaySelectionTrxType paySelectionTrxType = PaySelectionTrxType.ofNullableCode(paySelectionHeader.getPaySelectionTrxType());
+		if (paySelectionTrxType == null)
+		{
+			throw new FillMandatoryException(false, I_C_PaySelection.COLUMNNAME_PaySelectionTrxType);
+		}
+
+		final I_SEPA_Export header = newInstance(I_SEPA_Export.class, paySelectionHeader);
+		final SEPAProtocol sepaProtocol = SEPAProtocol.ofPaySelectionTrxType(paySelectionTrxType);
+		header.setSEPA_Protocol(sepaProtocol.getCode());
+
+		//
+		// We need the source org BP.
+		final I_C_BPartner orgBP = partnerOrgBL.retrieveLinkedBPartner(paySelectionHeader.getAD_Org_ID());
+
+		final BankAccount bpBankAccount = bankAccountDAO.getById(BankAccountId.ofRepoId(paySelectionHeader.getC_BP_BankAccount_ID()));
+
+		// task 09923: In case the bp bank account does not have a bank set, it cannot be used in a SEPA Export
+		final BankId bankId = bpBankAccount.getBankId();
+		if (bankId == null)
+		{
+			throw new AdempiereException(ERR_C_BP_BankAccount_BankNotSet, bpBankAccount);
+		}
+
+		final String orgIBAN = selectIBANOrNull(bpBankAccount);
+		if (Check.isBlank(orgIBAN))
+		{
+			throw new AdempiereException(ERR_C_BP_BankAccount_IBANNotSet, bpBankAccount);
+		}
+
+		// Set corresponding data
+		header.setAD_Org_ID(paySelectionHeader.getAD_Org_ID());
+		header.setIBAN(orgIBAN);
+		header.setPaymentDate(paySelectionHeader.getPayDate());
+		header.setProcessed(false);
+		header.setSEPA_CreditorName(orgBP.getName());
+
+		final String sepaCreditorIdentifier = bpBankAccount.getSEPA_CreditorIdentifier();
+		if (SEPAProtocol.DIRECT_DEBIT_PAIN_008_003_02.equals(sepaProtocol) && Check.isBlank(sepaCreditorIdentifier))
+		{
+			throw new AdempiereException(ERR_C_BP_BankAccount_SEPA_CreditorIdentifierNotSet, bpBankAccount.toString());
+		}
+		if (Check.isNotBlank(sepaCreditorIdentifier))
+		{
+			header.setSEPA_CreditorIdentifier(sepaCreditorIdentifier);
+		}
+
+		final Bank bank = bankRepo.getById(bankId);
+		if (Check.isBlank(bank.getSwiftCode()))
+		{
+			throw new AdempiereException(ERR_C_Bank_SwiftCodeNotSet, bank.getBankName());
+		}
+		header.setSwiftCode(bank.getSwiftCode());
+
+		final int paySelectionTableID = getTableId(I_C_PaySelection.class);
+		header.setAD_Table_ID(paySelectionTableID);
+		header.setRecord_ID(paySelectionHeader.getC_PaySelection_ID());
+
+		header.setDescription(paySelectionHeader.getDescription());
+
+		header.setIsExportBatchBookings(paySelectionHeader.isExportBatchBookings());
+
+		save(header);
+		return header;
+	}
+
+	private static @Nullable String toNullOrRemoveSpaces(@Nullable final String from)
+	{
+		if (Check.isEmpty(from, true))
+		{
+			return null;
+		}
+		return from.replace(" ", "");
+	}
+
+	private static @Nullable String selectIBANOrNull(@NonNull final BankAccount bp_bankAccount)
+	{
+		return coalesceSuppliers(
+				() -> toNullOrRemoveSpaces(bp_bankAccount.getIBAN()),
+				() -> toNullOrRemoveSpaces(bp_bankAccount.getQR_IBAN())
+		);
+	}
+}

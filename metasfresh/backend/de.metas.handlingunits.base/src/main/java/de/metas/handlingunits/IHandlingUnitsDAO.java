@@ -1,0 +1,375 @@
+/*
+ * #%L
+ * de.metas.handlingunits.base
+ * %%
+ * Copyright (C) 2020 metas GmbH
+ * %%
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation, either version 2 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public
+ * License along with this program. If not, see
+ * <http://www.gnu.org/licenses/gpl-2.0.html>.
+ * #L%
+ */
+
+package de.metas.handlingunits;
+
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+import de.metas.bpartner.BPartnerId;
+import de.metas.common.util.pair.IPair;
+import de.metas.handlingunits.impl.CreateTUPackingInstructionsRequest;
+import de.metas.handlingunits.model.I_M_HU;
+import de.metas.handlingunits.model.I_M_HU_Item;
+import de.metas.handlingunits.model.I_M_HU_Item_Storage;
+import de.metas.handlingunits.model.I_M_HU_PI;
+import de.metas.handlingunits.model.I_M_HU_PI_Item;
+import de.metas.handlingunits.model.I_M_HU_PI_Version;
+import de.metas.handlingunits.model.I_M_HU_PackingMaterial;
+import de.metas.handlingunits.model.I_M_HU_Storage;
+import de.metas.handlingunits.model.X_M_HU_Item;
+import de.metas.organization.ClientAndOrgId;
+import de.metas.process.PInstanceId;
+import de.metas.util.ISingletonService;
+import de.metas.util.Services;
+import lombok.NonNull;
+import org.adempiere.ad.dao.IQueryBL;
+import org.adempiere.ad.dao.IQueryBuilder;
+import org.adempiere.ad.dao.IQueryOrderBy;
+import org.adempiere.ad.dao.IQueryOrderBy.Direction;
+import org.adempiere.ad.dao.IQueryOrderBy.Nulls;
+import org.adempiere.util.lang.IContextAware;
+import org.adempiere.warehouse.LocatorId;
+import org.compiere.model.I_M_Warehouse;
+import org.compiere.model.I_M_Product;
+
+import javax.annotation.Nullable;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Properties;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Stream;
+
+public interface IHandlingUnitsDAO extends ISingletonService
+{
+	IQueryOrderBy queryOrderBy = Services.get(IQueryBL.class)
+			.createQueryOrderByBuilder(I_M_HU_Item.class)
+			.addColumn(I_M_HU_Item.COLUMN_M_HU_Item_ID, Direction.Ascending, Nulls.Last)
+			.createQueryOrderBy();
+
+	Map<String, Integer> ITEM_TYPE_ORDERING = ImmutableMap.of(
+			X_M_HU_Item.ITEMTYPE_Material, 1,
+			X_M_HU_Item.ITEMTYPE_HandlingUnit, 2,
+			X_M_HU_Item.ITEMTYPE_HUAggregate, 3,
+			X_M_HU_Item.ITEMTYPE_PackingMaterial, 4);
+
+	/**
+	 * Specifies that material items shall be first, followed by HU-items, HU--aggregate-items and finally packing material items.
+	 * The ordering of HU-items before HU-aggregate-items is important when we deallocate from HUs, because we only want to "touch" the aggregate VHU if we need to.
+	 */
+	Comparator<I_M_HU_Item> HU_ITEMS_COMPARATOR = Comparator
+			.<I_M_HU_Item, Integer>comparing(
+					item -> ITEM_TYPE_ORDERING.get(Services.get(IHandlingUnitsBL.class).getItemType(item)))
+			.thenComparing(
+					queryOrderBy.getComparator(I_M_HU_Item.class));
+
+	I_M_HU getByIdOutOfTrx(HuId huId);
+
+	I_M_HU getById(HuId huId);
+
+	boolean existsById(@NonNull HuId huId);
+
+	List<I_M_HU> getBySelectionId(@NonNull PInstanceId selectionId);
+
+	Set<HuId> getHuIdsBySelectionId(@NonNull PInstanceId selectionId);
+
+	ClientAndOrgId getClientAndOrgId(@NonNull HuId huId);
+
+	List<I_M_HU> getByIds(Collection<HuId> huIds);
+
+	List<I_M_HU> getByIdsOutOfTrx(Collection<HuId> huIds);
+
+	void saveHU(I_M_HU hu);
+
+	void saveHUItem(I_M_HU_Item huItem);
+
+	void delete(I_M_HU hu);
+
+	I_M_HU_PI getPackingInstructionById(HuPackingInstructionsId id);
+
+	I_M_HU_PI_Item getPackingInstructionItemById(@NonNull HuPackingInstructionsItemId piItemId);
+
+	/**
+	 * Gets Virtual PI
+	 *
+	 * @return virtual PI; never return null
+	 */
+	I_M_HU_PI retrieveVirtualPI(Properties ctx);
+
+	I_M_HU_PI_Item retrieveVirtualPIItem(Properties ctx);
+
+	List<I_M_HU_PI_Item> getPackingInstructionItemsByIds(@NonNull Set<HuPackingInstructionsItemId> piItemIds);
+
+	/**
+	 * Create a new HU builder using the given {@code huContext}. Set the builder's {@code date} to the {@code huContext}'s date.
+	 */
+	IHUBuilder createHUBuilder(IHUContext huContext);
+
+	// Handling Unit Retrieval
+
+	/**
+	 * Gets parent {@link I_M_HU}
+	 *
+	 * @param hu may not be {@code null}
+	 * @return parent HU or null
+	 */
+	I_M_HU retrieveParent(final I_M_HU hu);
+
+	@Nullable HuId retrieveParentId(@NonNull I_M_HU hu);
+
+	/**
+	 * Actually returns {@link I_M_HU#getM_HU_Item_Parent()}, but in a potentially DB decoupled fashion.
+	 */
+	I_M_HU_Item retrieveParentItem(I_M_HU hu);
+
+	void setParentItem(I_M_HU hu, @Nullable I_M_HU_Item parentItem);
+
+	/**
+	 * Creates and saves a {@link I_M_HU_Item} for the given {@code hu}, using the given {@code piItem} as its template.
+	 *
+	 * @return created HU item
+	 */
+	I_M_HU_Item createHUItem(I_M_HU hu, I_M_HU_PI_Item piItem);
+
+	/**
+	 * Similar to {@link #createHUItem(I_M_HU, I_M_HU_PI_Item)}, but do not use any {@link I_M_HU_PI_Item} as template.<br>
+	 * Instead, create new item with {@link X_M_HU_Item#ITEMTYPE_HUAggregate} as its {@link I_M_HU_Item#COLUMN_ItemType}.
+	 *
+	 * @param hu the HU which the new item shall reference.
+	 */
+	I_M_HU_Item createAggregateHUItem(I_M_HU hu);
+
+	I_M_HU_Item createChildHUItem(I_M_HU hu);
+
+	/**
+	 * Retrieve items that reference the given {@code hu}, ordered by {@link #HU_ITEMS_COMPARATOR}.
+	 */
+	List<I_M_HU_Item> retrieveItems(I_M_HU hu);
+
+	List<I_M_HU_Item> retrieveItems(I_M_HU hu, HUItemType type);
+
+	@NonNull
+	I_M_HU_Item retrieveItem(I_M_HU hu, I_M_HU_PI_Item piItem);
+
+	Optional<I_M_HU_Item> retrieveItemIfExists(I_M_HU hu, I_M_HU_PI_Item piItem);
+
+	List<I_M_HU> retrieveIncludedHUs(final I_M_HU_Item item);
+
+	List<I_M_HU> retrieveIncludedHUs(@NonNull I_M_HU hu);
+
+	List<I_M_HU> retrieveIncludedHUs(@NonNull HuId huId);
+
+	// Handling Unit PI Retrieval
+
+	Optional<I_M_HU_PI_Item> retrieveFirstPIItem(
+			@NonNull HuPackingInstructionsId piId,
+			@Nullable String itemType,
+			@Nullable BPartnerId bpartnerId);
+
+	Optional<I_M_HU_PI_Item> retrieveFirstPIItem(
+			@NonNull I_M_HU_PI_Version version,
+			@Nullable HUItemType itemType,
+			@Nullable BPartnerId bpartnerId);
+
+	Optional<I_M_HU_PI_Item> retrieveFirstPIItem(
+			@NonNull HuPackingInstructionsId piId,
+			@NonNull HuPackingInstructionsId includedPIId,
+			@Nullable BPartnerId bpartnerId);
+
+	List<I_M_HU_PI_Item> retrievePIItems(@NonNull I_M_HU_PI handlingUnitPI, @Nullable BPartnerId bpartnerId);
+
+	/**
+	 * Retrieve (active) {@link I_M_HU_PI_Item}s for the given parameters.
+	 *
+	 * @param version    mandatory. Only return items that reference this version.
+	 * @param bpartnerId optional. If not {@code null}, then exclude items with {@link X_M_HU_Item#ITEMTYPE_HandlingUnit} that have a different {@link I_M_HU_PI_Item#COLUMNNAME_C_BPartner_ID}.
+	 */
+	List<I_M_HU_PI_Item> retrievePIItems(final I_M_HU_PI_Version version, final BPartnerId bpartnerId);
+
+	I_M_HU_PI_Item retrievePIItemMaterial(@NonNull I_M_HU_PI_Version version);
+
+	/**
+	 * Retrieve all {@link I_M_HU_PI_Item}s (active or inactive) for given M_HU_PI_Version.
+	 */
+	List<I_M_HU_PI_Item> retrieveAllPIItems(I_M_HU_PI_Version piVersion);
+
+	/**
+	 * @return current PI Version; never return null
+	 */
+	I_M_HU_PI_Version retrievePICurrentVersion(final I_M_HU_PI pi);
+
+	HuPackingInstructionsVersionId retrievePICurrentVersionId(final I_M_HU_PI pi);
+
+	HuPackingInstructionsVersionId retrievePICurrentVersionId(final HuPackingInstructionsId piId);
+
+	@NonNull
+	I_M_HU_PI_Version retrievePICurrentVersion(HuPackingInstructionsId piId);
+
+	/**
+	 * @return current PI Version or null
+	 */
+	@Nullable
+	I_M_HU_PI_Version retrievePICurrentVersionOrNull(I_M_HU_PI pi);
+
+	@Nullable
+	I_M_HU_PI_Version retrievePICurrentVersionOrNull(final HuPackingInstructionsId piId);
+
+	I_M_HU_PI_Version retrievePIVersionById(final HuPackingInstructionsVersionId id);
+
+	@Nullable
+	I_M_HU_PI retrievePIDefaultForPicking();
+
+	/**
+	 * Retrieve ALL PI Versions (active, not-active, current, not-current).
+	 */
+	List<I_M_HU_PI_Version> retrieveAllPIVersions(I_M_HU_PI pi);
+
+	Iterator<I_M_HU> retrieveTopLevelHUsForLocator(final LocatorId locatorId);
+
+	/**
+	 * @param huUnitType optional, may be {@code null} or empty. If given, then only return items whose {@link I_M_HU_PI_Version} has the given {@link I_M_HU_PI_Version#COLUMN_HU_UnitType}.
+	 * @return unique {@link I_M_HU_PI_Item}s of the selected {@link I_M_HU_PI}'s parent PI
+	 */
+	List<I_M_HU_PI_Item> retrieveParentPIItemsForParentPI(I_M_HU_PI huPI, String huUnitType, BPartnerId bpartnerId);
+
+	List<I_M_HU_PI_Item> retrieveParentPIItemsForParentPI(
+			@NonNull HuPackingInstructionsId packingInstructionsId,
+			@Nullable String huUnitType,
+			@Nullable BPartnerId bpartnerId);
+
+	/**
+	 * For the given {@code parentHU} and {@code piOfChildHU}, retrieve the PI item (with type HU) that can be used to link child and parent.
+	 */
+	@Nullable
+	I_M_HU_PI_Item retrieveParentPIItemForChildHUOrNull(I_M_HU parentHU, I_M_HU_PI piOfChildHU, IContextAware ctx);
+
+	/**
+	 * Retrieve first parent item if more are defined.
+	 */
+	@Nullable
+	I_M_HU_PI_Item retrieveDefaultParentPIItem(@NonNull I_M_HU_PI huPI, @Nullable String huUnitType, @Nullable BPartnerId bpartnerId);
+
+	@NonNull
+	Optional<HuPackingInstructionsItemId> retrieveDefaultParentPIItemId(@NonNull I_M_HU_PI huPI, @Nullable String huUnitType, @Nullable BPartnerId bpartnerId);
+
+	/**
+	 * Retrieves the default LU.
+	 *
+	 * @return default LU or <code>null</code>.
+	 */
+	@Nullable
+	I_M_HU_PI retrieveDefaultLUOrNull(Properties ctx, int adOrgId);
+
+	/**
+	 * @return packing material or null
+	 */
+	@Nullable
+	I_M_HU_PackingMaterial retrievePackingMaterial(I_M_HU_PI_Version piVersion, BPartnerId bpartnerId);
+
+	I_M_HU_PackingMaterial retrievePackingMaterialByPIVersionID(@NonNull HuPackingInstructionsVersionId versionId, @Nullable BPartnerId bpartnerId);
+
+	List<I_M_HU> retrieveVirtualHUs(I_M_HU_Item itemMaterial);
+
+	IHUQueryBuilder createHUQueryBuilder();
+
+	List<I_M_HU_Item> retrieveAllItemsNoCache(Collection<HuId> huIds);
+
+	List<I_M_HU> retrieveAllIncludedHUsNoCache(Set<HuItemId> huItemIds);
+
+	List<I_M_HU_Item_Storage> retrieveAllItemStoragesNoCache(Set<HuItemId> huItemIds);
+
+	List<I_M_HU_Storage> retrieveAllStoragesNoCache(Set<HuId> huIds);
+
+	/**
+	 * Retrieve the packing materials of the given {@code hu}.<br>
+	 * Also takes into account the case that the given {@code hu} is an aggregate VHU (gh #460).
+	 * <p>
+	 * NOTE
+	 * <ul>
+	 * <li>this method will return packing material(s) of this HU only and not for its included HUs.</li>
+	 * </ul>
+	 *
+	 * @return packing material and quantity pairs
+	 */
+	List<IPair<I_M_HU_PackingMaterial, Integer>> retrievePackingMaterialAndQtys(I_M_HU hu);
+
+	/**
+	 * Create or return a <b>HU</b> item. Other item types generally exist already, or should not exist.
+	 *
+	 * @return a pair of the item that was created or retrieved on the left and a boolean that is {@code true} if the item was created and {@code false} if it was retrieved.
+	 */
+	IPair<I_M_HU_Item, Boolean> createHUItemIfNotExists(I_M_HU hu, I_M_HU_PI_Item piItem);
+
+	I_M_HU_Item retrieveAggregatedItem(I_M_HU hu);
+
+	/**
+	 * Retrieve the aggregated item of the given HU if it has one.
+	 *
+	 * @return the aggregated item or null.
+	 */
+	I_M_HU_Item retrieveAggregatedItemOrNull(I_M_HU hu);
+
+	/**
+	 * Retrieve all the child HUs of the given item, both active and not active
+	 */
+	List<I_M_HU> retrieveChildHUsForItem(I_M_HU_Item parentItem);
+
+	/**
+	 * Get the warehouses of the hus' organization , excluding those which currently contain the given HUs
+	 */
+	List<I_M_Warehouse> retrieveWarehousesWhichContainNoneOf(List<I_M_HU> hus);
+
+	Set<LocatorId> getLocatorIds(List<I_M_HU> hus);
+
+	// TODO: replace it by getByIds
+	@Deprecated
+	List<I_M_HU> retrieveByIds(Collection<HuId> huIds);
+
+	void setReservedByHUIds(final Set<HuId> huIds, boolean reserved);
+
+	ImmutableSet<HuPackingInstructionsIdAndCaption> retrieveParentLUPIs(
+			@NonNull Set<HuPackingInstructionsItemId> piItemIds,
+			@Nullable BPartnerId bpartnerId);
+
+	@NonNull
+	ImmutableSet<HuPackingInstructionsIdAndCaption> retrievePIInfo(@NonNull Collection<HuPackingInstructionsItemId> piItemIds);
+
+	@NonNull
+	I_M_HU_PI getIncludedPI(@NonNull I_M_HU_PI_Item piItem);
+
+	void save(@NonNull I_M_HU_PI huPi);
+
+	Optional<HuId> getFirstHuIdByExternalLotNo(String externalLotNo);
+
+	@NonNull
+	ImmutableSet<HuId> retrieveHuIdAndDownstream(@NonNull HuId huId);
+
+	<T> Stream<T> streamByQuery(@NonNull final IQueryBuilder<I_M_HU> queryBuilder, @NonNull final Function<I_M_HU, T> mapper);
+
+	void createTUPackingInstructions(CreateTUPackingInstructionsRequest request);
+
+	Optional<I_M_HU_PI_Item> getTUPIItemForLUPIAndItemProduct(@Nullable final BPartnerId bpartnerId, @NonNull final HuPackingInstructionsId luPIId, @NonNull final HUPIItemProductId piItemProductId);
+}

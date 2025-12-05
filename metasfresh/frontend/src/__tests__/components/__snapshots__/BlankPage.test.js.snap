@@ -1,0 +1,14 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`BlankPage renders correctly 1`] = `
+<div
+  className="blank-page"
+>
+  <h1>
+    not found title
+  </h1>
+  <h3>
+    not found description
+  </h3>
+</div>
+`;

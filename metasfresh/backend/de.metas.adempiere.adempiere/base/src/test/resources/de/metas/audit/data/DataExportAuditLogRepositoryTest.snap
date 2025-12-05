@@ -1,0 +1,11 @@
+de.metas.audit.data.DataExportAuditLogRepositoryTest.save=[
+  {
+    "action": "AssignedToParent",
+    "adPInstanceId": 4,
+    "dataExportAuditLogId": {
+      "dataExportAuditId": 1,
+      "repoId": 100001
+    },
+    "externalSystemConfigId": 3
+  }
+]

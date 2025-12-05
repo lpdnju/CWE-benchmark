@@ -1,0 +1,821 @@
+/*
+ * #%L
+ * de.metas.adempiere.adempiere.base
+ * %%
+ * Copyright (C) 2025 metas GmbH
+ * %%
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation, either version 2 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public
+ * License along with this program. If not, see
+ * <http://www.gnu.org/licenses/gpl-2.0.html>.
+ * #L%
+ */
+
+// Generated Model - DO NOT CHANGE
+package org.compiere.model;
+
+import javax.annotation.Nullable;
+import java.math.BigDecimal;
+import java.sql.ResultSet;
+import java.util.Properties;
+
+/** Generated Model for C_BP_Group
+ *  @author metasfresh (generated) 
+ */
+@SuppressWarnings("unused")
+public class X_C_BP_Group extends org.compiere.model.PO implements I_C_BP_Group, org.compiere.model.I_Persistent 
+{
+
+	private static final long serialVersionUID = 1353171231L;
+
+    /** Standard Constructor */
+    public X_C_BP_Group (final Properties ctx, final int C_BP_Group_ID, @Nullable final String trxName)
+    {
+      super (ctx, C_BP_Group_ID, trxName);
+    }
+
+    /** Load Constructor */
+    public X_C_BP_Group (final Properties ctx, final ResultSet rs, @Nullable final String trxName)
+    {
+      super (ctx, rs, trxName);
+    }
+
+
+	/** Load Meta Data */
+	@Override
+	protected org.compiere.model.POInfo initPO(final Properties ctx)
+	{
+		return org.compiere.model.POInfo.getPOInfo(Table_Name);
+	}
+
+	@Override
+	public org.compiere.model.I_AD_PrintColor getAD_PrintColor()
+	{
+		return get_ValueAsPO(COLUMNNAME_AD_PrintColor_ID, org.compiere.model.I_AD_PrintColor.class);
+	}
+
+	@Override
+	public void setAD_PrintColor(final org.compiere.model.I_AD_PrintColor AD_PrintColor)
+	{
+		set_ValueFromPO(COLUMNNAME_AD_PrintColor_ID, org.compiere.model.I_AD_PrintColor.class, AD_PrintColor);
+	}
+
+	@Override
+	public void setAD_PrintColor_ID (final int AD_PrintColor_ID)
+	{
+		if (AD_PrintColor_ID < 1) 
+			set_Value (COLUMNNAME_AD_PrintColor_ID, null);
+		else 
+			set_Value (COLUMNNAME_AD_PrintColor_ID, AD_PrintColor_ID);
+	}
+
+	@Override
+	public int getAD_PrintColor_ID() 
+	{
+		return get_ValueAsInt(COLUMNNAME_AD_PrintColor_ID);
+	}
+
+	@Override
+	public void setBill_BPartner_ID (final int Bill_BPartner_ID)
+	{
+		if (Bill_BPartner_ID < 1) 
+			set_Value (COLUMNNAME_Bill_BPartner_ID, null);
+		else 
+			set_Value (COLUMNNAME_Bill_BPartner_ID, Bill_BPartner_ID);
+	}
+
+	@Override
+	public int getBill_BPartner_ID() 
+	{
+		return get_ValueAsInt(COLUMNNAME_Bill_BPartner_ID);
+	}
+
+	@Override
+	public void setBill_Location_ID (final int Bill_Location_ID)
+	{
+		if (Bill_Location_ID < 1) 
+			set_Value (COLUMNNAME_Bill_Location_ID, null);
+		else 
+			set_Value (COLUMNNAME_Bill_Location_ID, Bill_Location_ID);
+	}
+
+	@Override
+	public int getBill_Location_ID() 
+	{
+		return get_ValueAsInt(COLUMNNAME_Bill_Location_ID);
+	}
+
+	@Override
+	public void setBill_User_ID (final int Bill_User_ID)
+	{
+		if (Bill_User_ID < 1) 
+			set_Value (COLUMNNAME_Bill_User_ID, null);
+		else 
+			set_Value (COLUMNNAME_Bill_User_ID, Bill_User_ID);
+	}
+
+	@Override
+	public int getBill_User_ID() 
+	{
+		return get_ValueAsInt(COLUMNNAME_Bill_User_ID);
+	}
+
+	/** 
+	 * BPNameAndGreetingStrategy AD_Reference_ID=541338
+	 * Reference name: Individual business partner's name format
+	 */
+	public static final int BPNAMEANDGREETINGSTRATEGY_AD_Reference_ID=541338;
+	/** First Contact = FC */
+	public static final String BPNAMEANDGREETINGSTRATEGY_FirstContact = "FC";
+	/** Membership Contact = MC */
+	public static final String BPNAMEANDGREETINGSTRATEGY_MembershipContact = "MC";
+	/** Do Nothing = XX */
+	public static final String BPNAMEANDGREETINGSTRATEGY_DoNothing = "XX";
+	@Override
+	public void setBPNameAndGreetingStrategy (final java.lang.String BPNameAndGreetingStrategy)
+	{
+		set_Value (COLUMNNAME_BPNameAndGreetingStrategy, BPNameAndGreetingStrategy);
+	}
+
+	@Override
+	public java.lang.String getBPNameAndGreetingStrategy() 
+	{
+		return get_ValueAsString(COLUMNNAME_BPNameAndGreetingStrategy);
+	}
+
+	@Override
+	public void setC_BP_Group_ID (final int C_BP_Group_ID)
+	{
+		if (C_BP_Group_ID < 1) 
+			set_ValueNoCheck (COLUMNNAME_C_BP_Group_ID, null);
+		else 
+			set_ValueNoCheck (COLUMNNAME_C_BP_Group_ID, C_BP_Group_ID);
+	}
+
+	@Override
+	public int getC_BP_Group_ID() 
+	{
+		return get_ValueAsInt(COLUMNNAME_C_BP_Group_ID);
+	}
+
+	@Override
+	public org.compiere.model.I_C_Dunning getC_Dunning()
+	{
+		return get_ValueAsPO(COLUMNNAME_C_Dunning_ID, org.compiere.model.I_C_Dunning.class);
+	}
+
+	@Override
+	public void setC_Dunning(final org.compiere.model.I_C_Dunning C_Dunning)
+	{
+		set_ValueFromPO(COLUMNNAME_C_Dunning_ID, org.compiere.model.I_C_Dunning.class, C_Dunning);
+	}
+
+	@Override
+	public void setC_Dunning_ID (final int C_Dunning_ID)
+	{
+		if (C_Dunning_ID < 1) 
+			set_Value (COLUMNNAME_C_Dunning_ID, null);
+		else 
+			set_Value (COLUMNNAME_C_Dunning_ID, C_Dunning_ID);
+	}
+
+	@Override
+	public int getC_Dunning_ID() 
+	{
+		return get_ValueAsInt(COLUMNNAME_C_Dunning_ID);
+	}
+
+	@Override
+	public org.compiere.model.I_C_Incoterms getC_Incoterms()
+	{
+		return get_ValueAsPO(COLUMNNAME_C_Incoterms_ID, org.compiere.model.I_C_Incoterms.class);
+	}
+
+	@Override
+	public void setC_Incoterms(final org.compiere.model.I_C_Incoterms C_Incoterms)
+	{
+		set_ValueFromPO(COLUMNNAME_C_Incoterms_ID, org.compiere.model.I_C_Incoterms.class, C_Incoterms);
+	}
+
+	@Override
+	public void setC_Incoterms_ID (final int C_Incoterms_ID)
+	{
+		if (C_Incoterms_ID < 1) 
+			set_Value (COLUMNNAME_C_Incoterms_ID, null);
+		else 
+			set_Value (COLUMNNAME_C_Incoterms_ID, C_Incoterms_ID);
+	}
+
+	@Override
+	public int getC_Incoterms_ID() 
+	{
+		return get_ValueAsInt(COLUMNNAME_C_Incoterms_ID);
+	}
+
+	@Override
+	public void setC_PaymentTerm_ID (final int C_PaymentTerm_ID)
+	{
+		if (C_PaymentTerm_ID < 1) 
+			set_Value (COLUMNNAME_C_PaymentTerm_ID, null);
+		else 
+			set_Value (COLUMNNAME_C_PaymentTerm_ID, C_PaymentTerm_ID);
+	}
+
+	@Override
+	public int getC_PaymentTerm_ID() 
+	{
+		return get_ValueAsInt(COLUMNNAME_C_PaymentTerm_ID);
+	}
+
+	@Override
+	public void setCreditWatchPercent (final @Nullable BigDecimal CreditWatchPercent)
+	{
+		set_Value (COLUMNNAME_CreditWatchPercent, CreditWatchPercent);
+	}
+
+	@Override
+	public BigDecimal getCreditWatchPercent() 
+	{
+		final BigDecimal bd = get_ValueAsBigDecimal(COLUMNNAME_CreditWatchPercent);
+		return bd != null ? bd : BigDecimal.ZERO;
+	}
+
+	@Override
+	public void setDescription (final @Nullable java.lang.String Description)
+	{
+		set_Value (COLUMNNAME_Description, Description);
+	}
+
+	@Override
+	public java.lang.String getDescription() 
+	{
+		return get_ValueAsString(COLUMNNAME_Description);
+	}
+
+	/** 
+	 * FreightCostRule AD_Reference_ID=153
+	 * Reference name: C_Order FreightCostRule
+	 */
+	public static final int FREIGHTCOSTRULE_AD_Reference_ID=153;
+	/** FreightIncluded = I */
+	public static final String FREIGHTCOSTRULE_FreightIncluded = "I";
+	/** FixPrice = F */
+	public static final String FREIGHTCOSTRULE_FixPrice = "F";
+	/** Calculated = C */
+	public static final String FREIGHTCOSTRULE_Calculated = "C";
+	/** Line = L */
+	public static final String FREIGHTCOSTRULE_Line = "L";
+	/** Versandkostenpauschale = P */
+	public static final String FREIGHTCOSTRULE_Versandkostenpauschale = "P";
+	@Override
+	public void setFreightCostRule (final @Nullable java.lang.String FreightCostRule)
+	{
+		set_Value (COLUMNNAME_FreightCostRule, FreightCostRule);
+	}
+
+	@Override
+	public java.lang.String getFreightCostRule() 
+	{
+		return get_ValueAsString(COLUMNNAME_FreightCostRule);
+	}
+
+	@Override
+	public void setIncotermLocation (final @Nullable java.lang.String IncotermLocation)
+	{
+		set_Value (COLUMNNAME_IncotermLocation, IncotermLocation);
+	}
+
+	@Override
+	public java.lang.String getIncotermLocation() 
+	{
+		return get_ValueAsString(COLUMNNAME_IncotermLocation);
+	}
+
+	/** 
+	 * InvoiceRule AD_Reference_ID=150
+	 * Reference name: C_Order InvoiceRule
+	 */
+	public static final int INVOICERULE_AD_Reference_ID=150;
+	/** AfterOrderDelivered = O */
+	public static final String INVOICERULE_AfterOrderDelivered = "O";
+	/** AfterDelivery = D */
+	public static final String INVOICERULE_AfterDelivery = "D";
+	/** CustomerScheduleAfterDelivery = S */
+	public static final String INVOICERULE_CustomerScheduleAfterDelivery = "S";
+	/** Immediate = I */
+	public static final String INVOICERULE_Immediate = "I";
+	/** OrderCompletelyDelivered = C */
+	public static final String INVOICERULE_OrderCompletelyDelivered = "C";
+	/** After Pick = P */
+	public static final String INVOICERULE_AfterPick = "P";
+	@Override
+	public void setInvoiceRule (final @Nullable java.lang.String InvoiceRule)
+	{
+		set_Value (COLUMNNAME_InvoiceRule, InvoiceRule);
+	}
+
+	@Override
+	public java.lang.String getInvoiceRule() 
+	{
+		return get_ValueAsString(COLUMNNAME_InvoiceRule);
+	}
+
+	@Override
+	public void setIsAssociation (final boolean IsAssociation)
+	{
+		set_Value (COLUMNNAME_IsAssociation, IsAssociation);
+	}
+
+	@Override
+	public boolean isAssociation() 
+	{
+		return get_ValueAsBoolean(COLUMNNAME_IsAssociation);
+	}
+
+	/** 
+	 * IsAutoInvoice AD_Reference_ID=319
+	 * Reference name: _YesNo
+	 */
+	public static final int ISAUTOINVOICE_AD_Reference_ID=319;
+	/** Yes = Y */
+	public static final String ISAUTOINVOICE_Yes = "Y";
+	/** No = N */
+	public static final String ISAUTOINVOICE_No = "N";
+	@Override
+	public void setIsAutoInvoice (final @Nullable java.lang.String IsAutoInvoice)
+	{
+		set_Value (COLUMNNAME_IsAutoInvoice, IsAutoInvoice);
+	}
+
+	@Override
+	public java.lang.String getIsAutoInvoice() 
+	{
+		return get_ValueAsString(COLUMNNAME_IsAutoInvoice);
+	}
+
+	@Override
+	public void setIsConfidentialInfo (final boolean IsConfidentialInfo)
+	{
+		set_Value (COLUMNNAME_IsConfidentialInfo, IsConfidentialInfo);
+	}
+
+	@Override
+	public boolean isConfidentialInfo() 
+	{
+		return get_ValueAsBoolean(COLUMNNAME_IsConfidentialInfo);
+	}
+
+	@Override
+	public void setIsCustomer (final boolean IsCustomer)
+	{
+		set_Value (COLUMNNAME_IsCustomer, IsCustomer);
+	}
+
+	@Override
+	public boolean isCustomer() 
+	{
+		return get_ValueAsBoolean(COLUMNNAME_IsCustomer);
+	}
+
+	@Override
+	public void setIsDefault (final boolean IsDefault)
+	{
+		set_Value (COLUMNNAME_IsDefault, IsDefault);
+	}
+
+	@Override
+	public boolean isDefault() 
+	{
+		return get_ValueAsBoolean(COLUMNNAME_IsDefault);
+	}
+
+	@Override
+	public org.compiere.model.I_M_DiscountSchema getM_DiscountSchema()
+	{
+		return get_ValueAsPO(COLUMNNAME_M_DiscountSchema_ID, org.compiere.model.I_M_DiscountSchema.class);
+	}
+
+	@Override
+	public void setM_DiscountSchema(final org.compiere.model.I_M_DiscountSchema M_DiscountSchema)
+	{
+		set_ValueFromPO(COLUMNNAME_M_DiscountSchema_ID, org.compiere.model.I_M_DiscountSchema.class, M_DiscountSchema);
+	}
+
+	@Override
+	public void setM_DiscountSchema_ID (final int M_DiscountSchema_ID)
+	{
+		if (M_DiscountSchema_ID < 1) 
+			set_Value (COLUMNNAME_M_DiscountSchema_ID, null);
+		else 
+			set_Value (COLUMNNAME_M_DiscountSchema_ID, M_DiscountSchema_ID);
+	}
+
+	@Override
+	public int getM_DiscountSchema_ID() 
+	{
+		return get_ValueAsInt(COLUMNNAME_M_DiscountSchema_ID);
+	}
+
+	@Override
+	public void setM_FreightCost_ID (final int M_FreightCost_ID)
+	{
+		if (M_FreightCost_ID < 1) 
+			set_Value (COLUMNNAME_M_FreightCost_ID, null);
+		else 
+			set_Value (COLUMNNAME_M_FreightCost_ID, M_FreightCost_ID);
+	}
+
+	@Override
+	public int getM_FreightCost_ID() 
+	{
+		return get_ValueAsInt(COLUMNNAME_M_FreightCost_ID);
+	}
+
+	@Override
+	public void setM_PriceList_ID (final int M_PriceList_ID)
+	{
+		if (M_PriceList_ID < 1) 
+			set_Value (COLUMNNAME_M_PriceList_ID, null);
+		else 
+			set_Value (COLUMNNAME_M_PriceList_ID, M_PriceList_ID);
+	}
+
+	@Override
+	public int getM_PriceList_ID() 
+	{
+		return get_ValueAsInt(COLUMNNAME_M_PriceList_ID);
+	}
+
+	@Override
+	public void setM_PricingSystem_ID (final int M_PricingSystem_ID)
+	{
+		if (M_PricingSystem_ID < 1) 
+			set_Value (COLUMNNAME_M_PricingSystem_ID, null);
+		else 
+			set_Value (COLUMNNAME_M_PricingSystem_ID, M_PricingSystem_ID);
+	}
+
+	@Override
+	public int getM_PricingSystem_ID() 
+	{
+		return get_ValueAsInt(COLUMNNAME_M_PricingSystem_ID);
+	}
+
+	/** 
+	 * MRP_Exclude AD_Reference_ID=319
+	 * Reference name: _YesNo
+	 */
+	public static final int MRP_EXCLUDE_AD_Reference_ID=319;
+	/** Yes = Y */
+	public static final String MRP_EXCLUDE_Yes = "Y";
+	/** No = N */
+	public static final String MRP_EXCLUDE_No = "N";
+	@Override
+	public void setMRP_Exclude (final @Nullable java.lang.String MRP_Exclude)
+	{
+		set_Value (COLUMNNAME_MRP_Exclude, MRP_Exclude);
+	}
+
+	@Override
+	public java.lang.String getMRP_Exclude() 
+	{
+		return get_ValueAsString(COLUMNNAME_MRP_Exclude);
+	}
+
+	@Override
+	public void setName (final java.lang.String Name)
+	{
+		set_Value (COLUMNNAME_Name, Name);
+	}
+
+	@Override
+	public java.lang.String getName() 
+	{
+		return get_ValueAsString(COLUMNNAME_Name);
+	}
+
+	@Override
+	public org.compiere.model.I_C_BP_Group getParent_BP_Group()
+	{
+		return get_ValueAsPO(COLUMNNAME_Parent_BP_Group_ID, org.compiere.model.I_C_BP_Group.class);
+	}
+
+	@Override
+	public void setParent_BP_Group(final org.compiere.model.I_C_BP_Group Parent_BP_Group)
+	{
+		set_ValueFromPO(COLUMNNAME_Parent_BP_Group_ID, org.compiere.model.I_C_BP_Group.class, Parent_BP_Group);
+	}
+
+	@Override
+	public void setParent_BP_Group_ID (final int Parent_BP_Group_ID)
+	{
+		if (Parent_BP_Group_ID < 1) 
+			set_Value (COLUMNNAME_Parent_BP_Group_ID, null);
+		else 
+			set_Value (COLUMNNAME_Parent_BP_Group_ID, Parent_BP_Group_ID);
+	}
+
+	@Override
+	public int getParent_BP_Group_ID() 
+	{
+		return get_ValueAsInt(COLUMNNAME_Parent_BP_Group_ID);
+	}
+
+	/** 
+	 * PaymentRule AD_Reference_ID=195
+	 * Reference name: _Payment Rule
+	 */
+	public static final int PAYMENTRULE_AD_Reference_ID=195;
+	/** Cash = B */
+	public static final String PAYMENTRULE_Cash = "B";
+	/** CreditCard = K */
+	public static final String PAYMENTRULE_CreditCard = "K";
+	/** DirectDeposit = T */
+	public static final String PAYMENTRULE_DirectDeposit = "T";
+	/** Check = S */
+	public static final String PAYMENTRULE_Check = "S";
+	/** OnCredit = P */
+	public static final String PAYMENTRULE_OnCredit = "P";
+	/** DirectDebit = D */
+	public static final String PAYMENTRULE_DirectDebit = "D";
+	/** Mixed = M */
+	public static final String PAYMENTRULE_Mixed = "M";
+	/** PayPal = L */
+	public static final String PAYMENTRULE_PayPal = "L";
+	/** PayPal Extern = V */
+	public static final String PAYMENTRULE_PayPalExtern = "V";
+	/** Kreditkarte Extern = U */
+	public static final String PAYMENTRULE_KreditkarteExtern = "U";
+	/** Sofortüberweisung = R */
+	public static final String PAYMENTRULE_Sofortueberweisung = "R";
+	/** Reimbursement = E */
+	public static final String PAYMENTRULE_Reimbursement = "E";
+	/** Settlement = F */
+	public static final String PAYMENTRULE_Settlement = "F";
+	@Override
+	public void setPaymentRule (final @Nullable java.lang.String PaymentRule)
+	{
+		set_Value (COLUMNNAME_PaymentRule, PaymentRule);
+	}
+
+	@Override
+	public java.lang.String getPaymentRule() 
+	{
+		return get_ValueAsString(COLUMNNAME_PaymentRule);
+	}
+
+	/** 
+	 * PaymentRulePO AD_Reference_ID=195
+	 * Reference name: _Payment Rule
+	 */
+	public static final int PAYMENTRULEPO_AD_Reference_ID=195;
+	/** Cash = B */
+	public static final String PAYMENTRULEPO_Cash = "B";
+	/** CreditCard = K */
+	public static final String PAYMENTRULEPO_CreditCard = "K";
+	/** DirectDeposit = T */
+	public static final String PAYMENTRULEPO_DirectDeposit = "T";
+	/** Check = S */
+	public static final String PAYMENTRULEPO_Check = "S";
+	/** OnCredit = P */
+	public static final String PAYMENTRULEPO_OnCredit = "P";
+	/** DirectDebit = D */
+	public static final String PAYMENTRULEPO_DirectDebit = "D";
+	/** Mixed = M */
+	public static final String PAYMENTRULEPO_Mixed = "M";
+	/** PayPal = L */
+	public static final String PAYMENTRULEPO_PayPal = "L";
+	/** PayPal Extern = V */
+	public static final String PAYMENTRULEPO_PayPalExtern = "V";
+	/** Kreditkarte Extern = U */
+	public static final String PAYMENTRULEPO_KreditkarteExtern = "U";
+	/** Sofortüberweisung = R */
+	public static final String PAYMENTRULEPO_Sofortueberweisung = "R";
+	/** Reimbursement = E */
+	public static final String PAYMENTRULEPO_Reimbursement = "E";
+	/** Settlement = F */
+	public static final String PAYMENTRULEPO_Settlement = "F";
+	@Override
+	public void setPaymentRulePO (final @Nullable java.lang.String PaymentRulePO)
+	{
+		set_Value (COLUMNNAME_PaymentRulePO, PaymentRulePO);
+	}
+
+	@Override
+	public java.lang.String getPaymentRulePO() 
+	{
+		return get_ValueAsString(COLUMNNAME_PaymentRulePO);
+	}
+
+	@Override
+	public org.compiere.model.I_M_DiscountSchema getPO_DiscountSchema()
+	{
+		return get_ValueAsPO(COLUMNNAME_PO_DiscountSchema_ID, org.compiere.model.I_M_DiscountSchema.class);
+	}
+
+	@Override
+	public void setPO_DiscountSchema(final org.compiere.model.I_M_DiscountSchema PO_DiscountSchema)
+	{
+		set_ValueFromPO(COLUMNNAME_PO_DiscountSchema_ID, org.compiere.model.I_M_DiscountSchema.class, PO_DiscountSchema);
+	}
+
+	@Override
+	public void setPO_DiscountSchema_ID (final int PO_DiscountSchema_ID)
+	{
+		if (PO_DiscountSchema_ID < 1) 
+			set_Value (COLUMNNAME_PO_DiscountSchema_ID, null);
+		else 
+			set_Value (COLUMNNAME_PO_DiscountSchema_ID, PO_DiscountSchema_ID);
+	}
+
+	@Override
+	public int getPO_DiscountSchema_ID() 
+	{
+		return get_ValueAsInt(COLUMNNAME_PO_DiscountSchema_ID);
+	}
+
+	@Override
+	public void setPO_IncotermLocation (final @Nullable java.lang.String PO_IncotermLocation)
+	{
+		set_Value (COLUMNNAME_PO_IncotermLocation, PO_IncotermLocation);
+	}
+
+	@Override
+	public java.lang.String getPO_IncotermLocation() 
+	{
+		return get_ValueAsString(COLUMNNAME_PO_IncotermLocation);
+	}
+
+	@Override
+	public org.compiere.model.I_C_Incoterms getPO_Incoterms()
+	{
+		return get_ValueAsPO(COLUMNNAME_PO_Incoterms_ID, org.compiere.model.I_C_Incoterms.class);
+	}
+
+	@Override
+	public void setPO_Incoterms(final org.compiere.model.I_C_Incoterms PO_Incoterms)
+	{
+		set_ValueFromPO(COLUMNNAME_PO_Incoterms_ID, org.compiere.model.I_C_Incoterms.class, PO_Incoterms);
+	}
+
+	@Override
+	public void setPO_Incoterms_ID (final int PO_Incoterms_ID)
+	{
+		if (PO_Incoterms_ID < 1) 
+			set_Value (COLUMNNAME_PO_Incoterms_ID, null);
+		else 
+			set_Value (COLUMNNAME_PO_Incoterms_ID, PO_Incoterms_ID);
+	}
+
+	@Override
+	public int getPO_Incoterms_ID() 
+	{
+		return get_ValueAsInt(COLUMNNAME_PO_Incoterms_ID);
+	}
+
+	@Override
+	public void setPO_PaymentTerm_ID (final int PO_PaymentTerm_ID)
+	{
+		if (PO_PaymentTerm_ID < 1) 
+			set_Value (COLUMNNAME_PO_PaymentTerm_ID, null);
+		else 
+			set_Value (COLUMNNAME_PO_PaymentTerm_ID, PO_PaymentTerm_ID);
+	}
+
+	@Override
+	public int getPO_PaymentTerm_ID() 
+	{
+		return get_ValueAsInt(COLUMNNAME_PO_PaymentTerm_ID);
+	}
+
+	@Override
+	public void setPO_PriceList_ID (final int PO_PriceList_ID)
+	{
+		if (PO_PriceList_ID < 1) 
+			set_Value (COLUMNNAME_PO_PriceList_ID, null);
+		else 
+			set_Value (COLUMNNAME_PO_PriceList_ID, PO_PriceList_ID);
+	}
+
+	@Override
+	public int getPO_PriceList_ID() 
+	{
+		return get_ValueAsInt(COLUMNNAME_PO_PriceList_ID);
+	}
+
+	@Override
+	public void setPO_PricingSystem_ID (final int PO_PricingSystem_ID)
+	{
+		if (PO_PricingSystem_ID < 1) 
+			set_Value (COLUMNNAME_PO_PricingSystem_ID, null);
+		else 
+			set_Value (COLUMNNAME_PO_PricingSystem_ID, PO_PricingSystem_ID);
+	}
+
+	@Override
+	public int getPO_PricingSystem_ID() 
+	{
+		return get_ValueAsInt(COLUMNNAME_PO_PricingSystem_ID);
+	}
+
+	@Override
+	public void setPriceMatchTolerance (final @Nullable BigDecimal PriceMatchTolerance)
+	{
+		set_Value (COLUMNNAME_PriceMatchTolerance, PriceMatchTolerance);
+	}
+
+	@Override
+	public BigDecimal getPriceMatchTolerance() 
+	{
+		final BigDecimal bd = get_ValueAsBigDecimal(COLUMNNAME_PriceMatchTolerance);
+		return bd != null ? bd : BigDecimal.ZERO;
+	}
+
+	/** 
+	 * PriorityBase AD_Reference_ID=350
+	 * Reference name: C_BP_Group PriorityBase
+	 */
+	public static final int PRIORITYBASE_AD_Reference_ID=350;
+	/** Same = S */
+	public static final String PRIORITYBASE_Same = "S";
+	/** Lower = L */
+	public static final String PRIORITYBASE_Lower = "L";
+	/** Higher = H */
+	public static final String PRIORITYBASE_Higher = "H";
+	@Override
+	public void setPriorityBase (final @Nullable java.lang.String PriorityBase)
+	{
+		set_Value (COLUMNNAME_PriorityBase, PriorityBase);
+	}
+
+	@Override
+	public java.lang.String getPriorityBase() 
+	{
+		return get_ValueAsString(COLUMNNAME_PriorityBase);
+	}
+
+	@Override
+	public void setPurchaser_User_ID (final int Purchaser_User_ID)
+	{
+		if (Purchaser_User_ID < 1) 
+			set_Value (COLUMNNAME_Purchaser_User_ID, null);
+		else 
+			set_Value (COLUMNNAME_Purchaser_User_ID, Purchaser_User_ID);
+	}
+
+	@Override
+	public int getPurchaser_User_ID() 
+	{
+		return get_ValueAsInt(COLUMNNAME_Purchaser_User_ID);
+	}
+
+	/** 
+	 * SOCreditStatus AD_Reference_ID=289
+	 * Reference name: C_BPartner SOCreditStatus
+	 */
+	public static final int SOCREDITSTATUS_AD_Reference_ID=289;
+	/** CreditStop = S */
+	public static final String SOCREDITSTATUS_CreditStop = "S";
+	/** CreditHold = H */
+	public static final String SOCREDITSTATUS_CreditHold = "H";
+	/** CreditWatch = W */
+	public static final String SOCREDITSTATUS_CreditWatch = "W";
+	/** NoCreditCheck = X */
+	public static final String SOCREDITSTATUS_NoCreditCheck = "X";
+	/** CreditOK = O */
+	public static final String SOCREDITSTATUS_CreditOK = "O";
+	/** NurEineRechnung = I */
+	public static final String SOCREDITSTATUS_NurEineRechnung = "I";
+	@Override
+	public void setSOCreditStatus (final java.lang.String SOCreditStatus)
+	{
+		set_Value (COLUMNNAME_SOCreditStatus, SOCreditStatus);
+	}
+
+	@Override
+	public java.lang.String getSOCreditStatus() 
+	{
+		return get_ValueAsString(COLUMNNAME_SOCreditStatus);
+	}
+
+	@Override
+	public void setValue (final java.lang.String Value)
+	{
+		set_Value (COLUMNNAME_Value, Value);
+	}
+
+	@Override
+	public java.lang.String getValue() 
+	{
+		return get_ValueAsString(COLUMNNAME_Value);
+	}
+}

@@ -1,0 +1,71 @@
+package de.metas.handlingunits.sourcehu.interceptor;
+
+import de.metas.handlingunits.HuId;
+import de.metas.handlingunits.IHandlingUnitsBL;
+import de.metas.handlingunits.model.I_M_HU;
+import de.metas.handlingunits.model.X_M_HU;
+import de.metas.handlingunits.sourcehu.ISourceHuDAO;
+import de.metas.i18n.AdMessageKey;
+import de.metas.util.Services;
+import lombok.NonNull;
+import org.adempiere.ad.modelvalidator.annotations.Interceptor;
+import org.adempiere.ad.modelvalidator.annotations.ModelChange;
+import org.adempiere.exceptions.AdempiereException;
+import org.compiere.model.ModelValidator;
+
+@Interceptor(I_M_HU.class)
+public class M_HU
+{
+	private final IHandlingUnitsBL handlingUnitsBL = Services.get(IHandlingUnitsBL.class);
+
+	public static final M_HU INSTANCE = new M_HU();
+
+	private M_HU()
+	{
+	}
+
+	@ModelChange( //
+			timings = { ModelValidator.TYPE_BEFORE_CHANGE }, //
+			ifColumnsChanged = I_M_HU.COLUMNNAME_M_Locator_ID //
+	)
+	public void preventMovingSourceHu(@NonNull final I_M_HU hu)
+	{
+		final ISourceHuDAO sourceHuDAO = Services.get(ISourceHuDAO.class);
+		final boolean sourceHU = sourceHuDAO.isSourceHu(HuId.ofRepoId(hu.getM_HU_ID()));
+		if (sourceHU)
+		{
+			throw new SourceHuMayNotBeRemovedException(hu);
+		}
+	}
+
+	@SuppressWarnings("serial")
+	public static final class SourceHuMayNotBeRemovedException extends AdempiereException
+	{
+		private static final AdMessageKey MSG_CANNOT_MOVE_SOURCE_HU_1P = AdMessageKey.of("CANNOT_MOVE_SOURCE_HU");
+
+		private SourceHuMayNotBeRemovedException(final I_M_HU hu)
+		{
+			super(MSG_CANNOT_MOVE_SOURCE_HU_1P, new Object[] { hu.getValue() });
+		}
+	}
+
+	@ModelChange(timings = ModelValidator.TYPE_BEFORE_CHANGE, ifColumnsChanged = I_M_HU.COLUMNNAME_HUStatus)
+	public void validateHUStatus(@NonNull final I_M_HU hu)
+	{
+		final String huStatus = hu.getHUStatus();
+
+		final boolean isHUConsumed = X_M_HU.HUSTATUS_Picked.equals(huStatus) || X_M_HU.HUSTATUS_Shipped.equals(huStatus) || X_M_HU.HUSTATUS_Issued.equals(huStatus);
+
+		if (!isHUConsumed)
+		{
+			return;
+		}
+
+		if (!handlingUnitsBL.isHUHierarchyCleared(hu))
+		{
+			throw new AdempiereException("M_HUs that are not cleared can not be picked, shipped or issued!")
+					.appendParametersToMessage()
+					.setParameter("M_HU_ID", hu.getM_HU_ID());
+		}
+	}
+}
