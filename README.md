@@ -7,4 +7,5 @@
 | Repo | Lang | Link | CWE Issues Injected |
 | :---: | :--- | :--- | :--- |
 | shopizer | java | https://github.com/shopizer-ecommerce/shopizer | 13 |
+| thingsboard | java + typescript | https://github.com/thingsboard/thingsboard | 9 |
 | mattermost | go + typescript | https://github.com/mattermost/mattermost | 12 |

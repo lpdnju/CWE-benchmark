@@ -1,0 +1,101 @@
+[
+  {
+    "cwe_id": "CWE-22",
+    "weakness_name": "Improper Limitation of a Pathname to a Restricted Directory ('Path Traversal')",
+    "injected_locations": [
+      {
+        "file": "application/src/main/java/org/thingsboard/server/controller/TbResourceController.java",
+        "line_number": 403,
+        "code_snippet": "File file = new File(baseDir + filePath);"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-78",
+    "weakness_name": "Improper Neutralization of Special Elements used in an OS Command ('OS Command Injection')",
+    "injected_locations": [
+      {
+        "file": "application/src/main/java/org/thingsboard/server/controller/SystemInfoController.java",
+        "line_number": 201,
+        "code_snippet": "Process process = Runtime.getRuntime().exec(command);"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-79",
+    "weakness_name": "Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting')",
+    "injected_locations": [
+      {
+        "file": "application/src/main/java/org/thingsboard/server/controller/CustomerController.java",
+        "line_number": 196,
+        "code_snippet": "return \"<html><body><h1>\" + greeting + \", \" + customer.getTitle() + \"!</h1></body></html>\";"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-89",
+    "weakness_name": "Improper Neutralization of Special Elements used in an SQL Command ('SQL Injection')",
+    "injected_locations": [
+      {
+        "file": "dao/src/main/java/org/thingsboard/server/dao/user/UserServiceImpl.java",
+        "line_number": 582,
+        "code_snippet": "String sql = \"SELECT * FROM tb_user WHERE first_name LIKE '%\" + searchTerm + \"%' OR last_name LIKE '%\" + searchTerm + \"%'\";"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-90",
+    "weakness_name": "Improper Neutralization of Special Elements used in an LDAP Query ('LDAP Injection')",
+    "injected_locations": [
+      {
+        "file": "application/src/main/java/org/thingsboard/server/controller/AuthController.java",
+        "line_number": 293,
+        "code_snippet": "String filter = \"(&(objectClass=person)(uid=\" + username + \"))\";"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-259",
+    "weakness_name": "Use of Hard-coded Password",
+    "injected_locations": [
+      {
+        "file": "dao/src/main/java/org/thingsboard/server/dao/config/JpaDaoConfig.java",
+        "line_number": 56,
+        "code_snippet": "private static final String DB_ADMIN_PASSWORD = \"admin123!@#\";"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-434",
+    "weakness_name": "Unrestricted Upload of File with Dangerous Type",
+    "injected_locations": [
+      {
+        "file": "application/src/main/java/org/thingsboard/server/controller/ImageController.java",
+        "line_number": 361,
+        "code_snippet": "File destFile = new File(uploadDir + fileName);"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-502",
+    "weakness_name": "Deserialization of Untrusted Data",
+    "injected_locations": [
+      {
+        "file": "application/src/main/java/org/thingsboard/server/controller/DeviceController.java",
+        "line_number": 798,
+        "code_snippet": "Object obj = ois.readObject();"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-564",
+    "weakness_name": "SQL Injection: Hibernate",
+    "injected_locations": [
+      {
+        "file": "dao/src/main/java/org/thingsboard/server/dao/sql/JpaAbstractDao.java",
+        "line_number": 246,
+        "code_snippet": "String hql = \"FROM \" + getEntityClass().getSimpleName() + \" e WHERE e.\" + filterField + \" = '\" + filterValue + \"'\";"
+      }
+    ]
+  }
+]
