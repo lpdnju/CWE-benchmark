@@ -10,4 +10,7 @@
 | thingsboard | Java, Spring Boot, Netty, Cassandra/PostgreSQL, React | IoT Device Management | https://github.com/thingsboard/thingsboard | 9 |
 | metasfresh | Java, Spring Boot, React | ERP | https://github.com/metasfresh/metasfresh | 8 |
 | mattermost | Go (Server), React (Webapp), MySQL/PostgreSQL | Team Collaboration / Chat | https://github.com/mattermost/mattermost | 12 |
+| tensorflow | C++, Python | AI infrastructure |  https://github.com/tensorflow/tensorflow | 8 |
+
+
 

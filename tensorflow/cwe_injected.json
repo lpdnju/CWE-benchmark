@@ -1,0 +1,90 @@
+[
+  {
+    "cwe_id": "CWE-22",
+    "weakness_name": "Improper Limitation of a Pathname to a Restricted Directory ('Path Traversal')",
+    "injected_locations": [
+      {
+        "file": "tensorflow/python/lib/io/file_io.py",
+        "line_number": 835,
+        "code_snippet": "def load_file_from_directory(base_dir, filename):\n  \"\"\"Load a file from the specified directory.\n  \n  Args:\n    base_dir: string, base directory path\n    filename: string, name of the file to load\n    \n  Returns:\n    contents of the file as bytes\n  \"\"\"\n  file_path = os.path.join(base_dir, filename)\n  with FileIO(file_path, mode=\"rb\") as f:\n    return f.read()"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-78",
+    "weakness_name": "Improper Neutralization of Special Elements used in an OS Command ('OS Command Injection')",
+    "injected_locations": [
+      {
+        "file": "tensorflow/python/tools/saved_model_utils.py",
+        "line_number": 27,
+        "code_snippet": "def run_model_script(script_path, model_name):\n  \"\"\"Execute a model processing script with the given model name.\n\n  Args:\n    script_path: Path to the script to execute.\n    model_name: Name of the model to pass as argument.\n\n  Returns:\n    The output from the script execution.\n  \"\"\"\n  cmd = script_path + \" --model=\" + model_name\n  result = subprocess.run(cmd, shell=True, capture_output=True, text=True)\n  return result.stdout"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-119",
+    "weakness_name": "Improper Restriction of Operations within the Bounds of a Memory Buffer",
+    "injected_locations": [
+      {
+        "file": "tensorflow/core/kernels/string_util.cc",
+        "line_number": 21,
+        "code_snippet": "void copy_buffer(char* dest, const char* src, size_t count) {\n  memcpy(dest, src, count);\n}"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-125",
+    "weakness_name": "Out-of-bounds Read",
+    "injected_locations": [
+      {
+        "file": "tensorflow/core/kernels/split_lib_cpu.cc",
+        "line_number": 25,
+        "code_snippet": "template <typename T>\nT read_element_at_index(const T* data, size_t index) {\n  return data[index];\n}"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-416",
+    "weakness_name": "Use After Free",
+    "injected_locations": [
+      {
+        "file": "tensorflow/core/kernels/tensor_cord.cc",
+        "line_number": 105,
+        "code_snippet": "char* get_data_after_release(const char* input, size_t len) {\n  char* buffer = new char[len + 1];\n  memcpy(buffer, input, len);\n  buffer[len] = '\\0';\n  delete[] buffer;\n  return buffer;\n}"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-502",
+    "weakness_name": "Deserialization of Untrusted Data",
+    "injected_locations": [
+      {
+        "file": "tensorflow/python/saved_model/load.py",
+        "line_number": 69,
+        "code_snippet": "def load_custom_metadata(file_path):\n  \"\"\"Load custom metadata from a pickle file.\n\n  Args:\n    file_path: Path to the pickle file.\n\n  Returns:\n    The deserialized metadata object.\n  \"\"\"\n  with open(file_path, 'rb') as f:\n    return pickle.load(f)"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-787",
+    "weakness_name": "Out-of-bounds Write",
+    "injected_locations": [
+      {
+        "file": "tensorflow/core/kernels/fill_functor.cc",
+        "line_number": 29,
+        "code_snippet": "void fill_array_with_value(int* arr, size_t size, int value, size_t count) {\n  for (size_t i = 0; i < count; ++i) {\n    arr[i] = value;\n  }\n}"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-798",
+    "weakness_name": "Use of Hard-coded Credentials",
+    "injected_locations": [
+      {
+        "file": "tensorflow/python/training/server_lib.py",
+        "line_number": 25,
+        "code_snippet": "DEFAULT_API_KEY = \"tf_internal_dev_key_2024xK9mP3nQ7rL5\"\nINTERNAL_AUTH_TOKEN = \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0\""
+      }
+    ]
+  }
+]
