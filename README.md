@@ -1,7 +1,6 @@
 # This repo holds projects with CWE-Issues Injected.
 **For each repo**
-- Injected CWE issues will be liste in cwe_injected.json
-- Remove cwe* file before run assessment
+- Injected CWE issues will be liste in cwe_injected/{repo_name}.json
 
 # Repo Info
 | Repo | Stack | Type |Link | CWE Issues Injected | Injected Report |
