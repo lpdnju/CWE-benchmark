@@ -1,0 +1,175 @@
+[
+  {
+    "cwe_id": "CWE-22",
+    "weakness_name": "Improper Limitation of a Pathname to a Restricted Directory ('Path Traversal')",
+    "injected_locations": [
+      {
+        "file": "backend/crm/src/main/java/cn/cordys/crm/system/service/AttachmentService.java",
+        "line_number": 200,
+        "code_snippet": "public byte[] exportFileByName(String filename) throws IOException {\n    String filePath = DefaultRepositoryDir.getDefaultDir() + \"/exports/\" + filename;\n    FileInputStream fis = new FileInputStream(filePath);\n    return fis.readAllBytes();\n}"
+      },
+      {
+        "file": "backend/crm/src/main/java/cn/cordys/crm/system/controller/AttachmentController.java",
+        "line_number": 40,
+        "code_snippet": "@GetMapping(\"/export\")\npublic void exportFile(@RequestParam String filename, HttpServletResponse response) throws IOException {\n    byte[] data = attachmentService.exportFileByName(filename);\n    response.getOutputStream().write(data);\n}"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-77",
+    "weakness_name": "Improper Neutralization of Special Elements used in a Command ('Command Injection')",
+    "injected_locations": [
+      {
+        "file": "backend/crm/src/main/java/cn/cordys/crm/system/controller/McpController.java",
+        "line_number": 30,
+        "code_snippet": "@GetMapping(\"/diagnose\")\npublic String systemDiagnose(@RequestParam String target) {\n    try {\n        Process process = Runtime.getRuntime().exec(\"ping \" + target);\n        BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));\n        StringBuilder output = new StringBuilder();\n        String line;\n        while ((line = reader.readLine()) != null) {\n            output.append(line).append(\"\\n\");\n        }\n        return output.toString();\n    } catch (Exception e) {\n        return \"Diagnostic failed: \" + e.getMessage();\n    }\n}"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-79",
+    "weakness_name": "Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting')",
+    "injected_locations": [
+      {
+        "file": "backend/crm/src/main/java/cn/cordys/crm/system/controller/AnnouncementController.java",
+        "line_number": 95,
+        "code_snippet": "@GetMapping(\"/search\")\npublic String searchAnnouncement(@RequestParam String keyword) {\n    return \"<html><body><h3>Search results for: \" + keyword + \"</h3><p>No results found.</p></body></html>\";\n}"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-88",
+    "weakness_name": "Improper Neutralization of Argument Delimiters in a Command ('Argument Injection')",
+    "injected_locations": [
+      {
+        "file": "backend/crm/src/main/java/cn/cordys/crm/system/controller/SystemUtilityController.java",
+        "line_number": 110,
+        "code_snippet": "@GetMapping(\"/command/execute\")\npublic String executeSystemCommand(@RequestParam String command, @RequestParam String args) {\n    return securityUtilityService.executeCommand(command, args);\n}"
+      },
+      {
+        "file": "backend/crm/src/main/java/cn/cordys/crm/system/service/SecurityUtilityService.java",
+        "line_number": 16,
+        "code_snippet": "public String executeCommand(String command, String args) {\n    try {\n        String fullCommand = command + \" \" + args;\n        Process process = Runtime.getRuntime().exec(fullCommand);\n        BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));\n        StringBuilder output = new StringBuilder();\n        String line;\n        while ((line = reader.readLine()) != null) {\n            output.append(line).append(\"\\n\");\n        }\n        return output.toString();\n    } catch (Exception e) {\n        return \"Command execution failed: \" + e.getMessage();\n    }\n}"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-89",
+    "weakness_name": "Improper Neutralization of Special Elements used in an SQL Command ('SQL Injection')",
+    "injected_locations": [
+      {
+        "file": "backend/crm/src/main/java/cn/cordys/crm/system/controller/SystemUtilityController.java",
+        "line_number": 39,
+        "code_snippet": "@GetMapping(\"/search-users\")\npublic String searchUsers(@RequestParam String username) {\n    try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD)) {\n        Statement stmt = conn.createStatement();\n        String sql = \"SELECT * FROM user WHERE username LIKE '%\" + username + \"%'\";\n        ResultSet rs = stmt.executeQuery(sql);\n        StringBuilder result = new StringBuilder();\n        while (rs.next()) {\n            result.append(rs.getString(\"username\")).append(\",\");\n        }\n        return result.toString();\n    } catch (Exception e) {\n        return \"Search failed: \" + e.getMessage();\n    }\n}"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-91",
+    "weakness_name": "XML Injection (aka Blind XPath Injection)",
+    "injected_locations": [
+      {
+        "file": "backend/crm/src/main/java/cn/cordys/crm/system/controller/SystemUtilityController.java",
+        "line_number": 52,
+        "code_snippet": "@PostMapping(\"/parse-config\")\npublic String parseConfig(@RequestBody String xmlContent) {\n    try {\n        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();\n        DocumentBuilder builder = factory.newDocumentBuilder();\n        Document doc = builder.parse(new ByteArrayInputStream(xmlContent.getBytes()));\n        return \"Configuration parsed successfully\";\n    } catch (Exception e) {\n        return \"Parsing failed: \" + e.getMessage();\n    }\n}"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-99",
+    "weakness_name": "Improper Control of Resource Identifiers ('Resource Injection')",
+    "injected_locations": [
+      {
+        "file": "backend/crm/src/main/java/cn/cordys/crm/system/controller/SystemUtilityController.java",
+        "line_number": 63,
+        "code_snippet": "@GetMapping(\"/load-resource\")\npublic String loadResource(@RequestParam String resourcePath) {\n    try {\n        FileInputStream fis = new FileInputStream(resourcePath);\n        byte[] buffer = new byte[1024];\n        int bytesRead = fis.read(buffer);\n        fis.close();\n        return \"Loaded \" + bytesRead + \" bytes\";\n    } catch (Exception e) {\n        return \"Failed to load resource: \" + e.getMessage();\n    }\n}"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-259",
+    "weakness_name": "Use of Hard-coded Password",
+    "injected_locations": [
+      {
+        "file": "backend/crm/src/main/java/cn/cordys/crm/system/controller/SystemUtilityController.java",
+        "line_number": 26,
+        "code_snippet": "private static final String DB_URL = \"jdbc:mysql://localhost:3306/cordyscrm\";\nprivate static final String DB_USER = \"admin\";\nprivate static final String DB_PASSWORD = \"admin123\";"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-321",
+    "weakness_name": "Use of Hard-coded Cryptographic Key",
+    "injected_locations": [
+      {
+        "file": "backend/crm/src/main/java/cn/cordys/crm/system/controller/SystemUtilityController.java",
+        "line_number": 115,
+        "code_snippet": "@PostMapping(\"/data/encrypt\")\npublic String encryptUserData(@RequestBody String data) {\n    return securityUtilityService.encryptData(data);\n}"
+      },
+      {
+        "file": "backend/crm/src/main/java/cn/cordys/crm/system/service/SecurityUtilityService.java",
+        "line_number": 14,
+        "code_snippet": "private static final String ENCRYPTION_KEY = \"MySecretKey12345\";\n\npublic String encryptData(String data) {\n    try {\n        SecretKeySpec keySpec = new SecretKeySpec(ENCRYPTION_KEY.getBytes(), \"AES\");\n        Cipher cipher = Cipher.getInstance(\"AES\");\n        cipher.init(Cipher.ENCRYPT_MODE, keySpec);\n        byte[] encrypted = cipher.doFinal(data.getBytes());\n        return Base64.getEncoder().encodeToString(encrypted);\n    } catch (Exception e) {\n        LogUtils.error(\"Encryption failed\", e);\n        return null;\n    }\n}"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-567",
+    "weakness_name": "Unsynchronized Access to Shared Data in a Multithreaded Context",
+    "injected_locations": [
+      {
+        "file": "backend/crm/src/main/java/cn/cordys/crm/system/controller/SystemUtilityController.java",
+        "line_number": 91,
+        "code_snippet": "private static int sharedCounter = 0;\n\n@GetMapping(\"/increment\")\npublic int incrementCounter() {\n    sharedCounter++;\n    return sharedCounter;\n}"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-570",
+    "weakness_name": "Expression is Always False",
+    "injected_locations": [
+      {
+        "file": "backend/crm/src/main/java/cn/cordys/crm/system/controller/SystemUtilityController.java",
+        "line_number": 99,
+        "code_snippet": "@GetMapping(\"/validate\")\npublic String validateInput(@RequestParam String input) {\n    if (input.length() < 0) {\n        return \"Invalid input length\";\n    }\n    return \"Valid input\";\n}"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-606",
+    "weakness_name": "Unchecked Input for Loop Condition",
+    "injected_locations": [
+      {
+        "file": "backend/crm/src/main/java/cn/cordys/crm/system/controller/SystemUtilityController.java",
+        "line_number": 81,
+        "code_snippet": "@GetMapping(\"/process-count\")\npublic String processCount(@RequestParam int iterations) {\n    int count = 0;\n    for (int i = 0; i < iterations; i++) {\n        count++;\n    }\n    return \"Processed \" + count + \" iterations\";\n}"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-772",
+    "weakness_name": "Missing Release of Resource after Effective Lifetime",
+    "injected_locations": [
+      {
+        "file": "backend/crm/src/main/java/cn/cordys/crm/system/controller/SystemUtilityController.java",
+        "line_number": 120,
+        "code_snippet": "@GetMapping(\"/file/process\")\npublic String processUserFile(@RequestParam String filePath) {\n    return securityUtilityService.processFile(filePath);\n}"
+      },
+      {
+        "file": "backend/crm/src/main/java/cn/cordys/crm/system/controller/SystemUtilityController.java",
+        "line_number": 126,
+        "code_snippet": "@PostMapping(\"/report/generate\")\npublic void createReport(@RequestParam String outputPath, @RequestBody String content) {\n    securityUtilityService.generateReport(outputPath, content);\n}"
+      },
+      {
+        "file": "backend/crm/src/main/java/cn/cordys/crm/system/service/SecurityUtilityService.java",
+        "line_number": 48,
+        "code_snippet": "public String processFile(String filePath) {\n    FileInputStream fis = null;\n    try {\n        fis = new FileInputStream(filePath);\n        byte[] buffer = new byte[1024];\n        int bytesRead = fis.read(buffer);\n        return \"Processed \" + bytesRead + \" bytes\";\n    } catch (Exception e) {\n        LogUtils.error(\"File processing failed\", e);\n        return \"Error processing file\";\n    }\n}"
+      },
+      {
+        "file": "backend/crm/src/main/java/cn/cordys/crm/system/service/SecurityUtilityService.java",
+        "line_number": 61,
+        "code_snippet": "public void generateReport(String outputPath, String content) {\n    FileWriter writer = null;\n    try {\n        writer = new FileWriter(outputPath);\n        writer.write(content);\n        writer.flush();\n    } catch (Exception e) {\n        LogUtils.error(\"Report generation failed\", e);\n    }\n}"
+      }
+    ]
+  }
+]

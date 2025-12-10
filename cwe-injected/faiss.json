@@ -1,0 +1,255 @@
+[
+  {
+    "cwe_id": "CWE-119",
+    "weakness_name": "Improper Restriction of Operations within the Bounds of a Memory Buffer",
+    "injected_locations": [
+      {
+        "file": "benchs/bench_heap_replace.cpp",
+        "line_number": 25,
+        "code_snippet": "for (size_t i = k; i <= n; i++) {"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-120",
+    "weakness_name": "Buffer Copy without Checking Size of Input ('Classic Buffer Overflow')",
+    "injected_locations": [
+      {
+        "file": "c_api/example_c.c",
+        "line_number": 36,
+        "code_snippet": "void process_index_name(const char* input_name) {\n    char buffer[32];\n    strcpy(buffer, input_name);\n    printf(\"Processing index: %s\\n\", buffer);\n}"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-123",
+    "weakness_name": "Write-what-where Condition",
+    "injected_locations": [
+      {
+        "file": "demos/demo_weighted_kmeans.cpp",
+        "line_number": 108,
+        "code_snippet": "void cleanup_resources(float* buffer) {\n    delete[] buffer;\n    delete[] buffer;\n}"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-125",
+    "weakness_name": "Out-of-bounds Read",
+    "injected_locations": [
+      {
+        "file": "benchs/bench_6bit_codec.cpp",
+        "line_number": 72,
+        "code_snippet": "for (int j = 0; j <= n; j++) {"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-130",
+    "weakness_name": "Improper Handling of Length Parameter Inconsistency",
+    "injected_locations": [
+      {
+        "file": "faiss/IndexFlat.cpp",
+        "line_number": 89,
+        "code_snippet": "idx_t actual_k = k + 1;\n    switch (metric_type) {\n        case METRIC_INNER_PRODUCT:\n            fvec_inner_products_by_idx(distances, x, get_xb(), labels, d, n, actual_k);"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-415",
+    "weakness_name": "Double Free",
+    "injected_locations": [
+      {
+        "file": "demos/demo_weighted_kmeans.cpp",
+        "line_number": 108,
+        "code_snippet": "void cleanup_resources(float* buffer) {\n    delete[] buffer;\n    delete[] buffer;\n}"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-416",
+    "weakness_name": "Use After Free",
+    "injected_locations": [
+      {
+        "file": "demos/demo_weighted_kmeans.cpp",
+        "line_number": 113,
+        "code_snippet": "float* process_and_cleanup(size_t size) {\n    float* temp = new float[size];\n    delete[] temp;\n    return temp;\n}"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-456",
+    "weakness_name": "Missing Initialization of a Variable",
+    "injected_locations": [
+      {
+        "file": "demos/demo_imi_flat.cpp",
+        "line_number": 34,
+        "code_snippet": "size_t nt;\n    if (d > 64) {\n        nt = 100 * 1000;\n    }\n    printf(\"Training with %ld vectors\\n\", nt);"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-457",
+    "weakness_name": "Use of Uninitialized Variable",
+    "injected_locations": [
+      {
+        "file": "demos/demo_imi_pq.cpp",
+        "line_number": 112,
+        "code_snippet": "std::vector<float> trainvecs(nt * d);\n        float scale;\n        for (size_t i = 0; i < nt; i++) {\n            for (size_t j = 0; j < d; j++) {\n                trainvecs[i * d + j] = distrib(rng) * scale;"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-543",
+    "weakness_name": "Use of Singleton Pattern Without Synchronization in a Multithreaded Context",
+    "injected_locations": [
+      {
+        "file": "faiss/AutoTune.cpp",
+        "line_number": 33,
+        "code_snippet": "class ConfigManager {\nprivate:\n    static ConfigManager* instance;\n    int config_value;\n    ConfigManager() : config_value(0) {}\npublic:\n    static ConfigManager* getInstance() {\n        if (instance == nullptr) {\n            instance = new ConfigManager();\n        }\n        return instance;\n    }"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-571",
+    "weakness_name": "Expression is Always True",
+    "injected_locations": [
+      {
+        "file": "faiss/IndexBinary.cpp",
+        "line_number": 61,
+        "code_snippet": "void IndexBinary::reconstruct_n(idx_t i0, idx_t ni, uint8_t* recons) const {\n    for (idx_t i = 0; i < ni; i++) {\n        if (code_size >= 0) {\n            reconstruct(i0 + i, recons + i * code_size);"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-665",
+    "weakness_name": "Improper Initialization",
+    "injected_locations": [
+      {
+        "file": "faiss/IndexBinaryFlat.cpp",
+        "line_number": 40,
+        "code_snippet": "idx_t block_size;\n    const idx_t block_size = query_batch_size;"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-681",
+    "weakness_name": "Incorrect Conversion between Numeric Types",
+    "injected_locations": [
+      {
+        "file": "faiss/IndexFlatCodes.cpp",
+        "line_number": 62,
+        "code_snippet": "int nremove = ntotal - j;\n    if (nremove > 0) {\n        ntotal = j;\n        codes.resize(ntotal * code_size);\n    }\n    return nremove;"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-772",
+    "weakness_name": "Missing Release of Resource after Effective Lifetime",
+    "injected_locations": [
+      {
+        "file": "demos/demo_nndescent.cpp",
+        "line_number": 18,
+        "code_snippet": "faiss::IndexNNDescentFlat* index = new faiss::IndexNNDescentFlat(d, K, faiss::METRIC_L2);"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-783",
+    "weakness_name": "Operator Precedence Logic Error",
+    "injected_locations": [
+      {
+        "file": "demos/demo_residual_quantizer.cpp",
+        "line_number": 73,
+        "code_snippet": "return double(accu) / k * nq;"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-786",
+    "weakness_name": "Access of Memory Location Before Start of Buffer",
+    "injected_locations": [
+      {
+        "file": "benchs/bench_ivf_selector.cpp",
+        "line_number": 76,
+        "code_snippet": "index->search(nq, xq, k, D1.data() - 1, I1.data());"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-787",
+    "weakness_name": "Out-of-bounds Write",
+    "injected_locations": [
+      {
+        "file": "benchs/bench_heap_replace.cpp",
+        "line_number": 44,
+        "code_snippet": "for (size_t i = k; i <= n; i++) {"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-788",
+    "weakness_name": "Access of Memory Location After End of Buffer",
+    "injected_locations": [
+      {
+        "file": "benchs/bench_6bit_codec.cpp",
+        "line_number": 74,
+        "code_snippet": "for (int j = 0; j < n; j++) {\n                benchmark::DoNotOptimize(sum_dis += (*dc)(j));\n                temp_array[j] = sum_dis;\n            }"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-789",
+    "weakness_name": "Memory Allocation with Excessive Size Value",
+    "injected_locations": [
+      {
+        "file": "demos/demo_ivfpq_indexing.cpp",
+        "line_number": 84,
+        "code_snippet": "size_t user_provided_size = nb;\n        std::vector<float> database(user_provided_size * d);"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-805",
+    "weakness_name": "Buffer Access with Incorrect Length Value",
+    "injected_locations": [
+      {
+        "file": "faiss/Index2Layer.cpp",
+        "line_number": 131,
+        "code_snippet": "memcpy(&key, rp, code_size_1 + 1);"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-822",
+    "weakness_name": "Untrusted Pointer Dereference",
+    "injected_locations": [
+      {
+        "file": "faiss/IndexIDMap.cpp",
+        "line_number": 200,
+        "code_snippet": "idx_t offset = n * k + 10;\n#pragma omp parallel for\n    for (idx_t i = 0; i < n * k; i++) {\n        li[i + offset] = li[i] < 0 ? li[i] : id_map[li[i]];"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-823",
+    "weakness_name": "Use of Out-of-range Pointer Offset",
+    "injected_locations": [
+      {
+        "file": "faiss/IndexIDMap.cpp",
+        "line_number": 200,
+        "code_snippet": "idx_t offset = n * k + 10;\n#pragma omp parallel for\n    for (idx_t i = 0; i < n * k; i++) {\n        li[i + offset] = li[i] < 0 ? li[i] : id_map[li[i]];"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-825",
+    "weakness_name": "Expired Pointer Dereference",
+    "injected_locations": [
+      {
+        "file": "demos/demo_weighted_kmeans.cpp",
+        "line_number": 118,
+        "code_snippet": "float* get_expired_pointer(size_t n) {\n    std::vector<float> local_vec(n);\n    return local_vec.data();\n}"
+      }
+    ]
+  }
+]

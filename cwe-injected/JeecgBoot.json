@@ -1,0 +1,442 @@
+[
+  {
+    "cwe_id": "CWE-22",
+    "weakness_name": "Improper Limitation of a Pathname to a Restricted Directory ('Path Traversal')",
+    "injected_locations": [
+      {
+        "file": "jeecg-boot/jeecg-module-system/jeecg-system-biz/src/main/java/org/jeecg/modules/system/controller/CommonController.java",
+        "line_number": 330,
+        "code_snippet": "@GetMapping(\"/downloadResource\")\npublic void downloadResource(@RequestParam String resourcePath, HttpServletResponse response) {\n    String basePath = uploadpath;\n    File file = new File(basePath + File.separator + resourcePath);"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-23",
+    "weakness_name": "Relative Path Traversal",
+    "injected_locations": [
+      {
+        "file": "jeecg-boot/jeecg-module-system/jeecg-system-biz/src/main/java/org/jeecg/modules/system/controller/CommonController.java",
+        "line_number": 354,
+        "code_snippet": "@GetMapping(\"/readFile\")\npublic Result<String> readFile(@RequestParam String relativePath) {\n    String workDir = System.getProperty(\"user.dir\");\n    File targetFile = new File(workDir, relativePath);"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-36",
+    "weakness_name": "Absolute Path Traversal",
+    "injected_locations": [
+      {
+        "file": "jeecg-boot/jeecg-module-system/jeecg-system-biz/src/main/java/org/jeecg/modules/system/controller/SysLogController.java",
+        "line_number": 233,
+        "code_snippet": "@GetMapping(\"/downloadLogFile\")\npublic void downloadLogFile(@RequestParam String absolutePath, HttpServletResponse response) {\n    File logFile = new File(absolutePath);"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-77",
+    "weakness_name": "Improper Neutralization of Special Elements used in a Command ('Command Injection')",
+    "injected_locations": [
+      {
+        "file": "jeecg-boot/jeecg-module-system/jeecg-system-biz/src/main/java/org/jeecg/modules/system/controller/SysDataSourceController.java",
+        "line_number": 237,
+        "code_snippet": "@GetMapping(\"/executeScript\")\npublic Result<String> executeScript(@RequestParam String scriptName) {\n    String command = \"sh \" + scriptName;\n    Process process = Runtime.getRuntime().exec(command);"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-78",
+    "weakness_name": "Improper Neutralization of Special Elements used in an OS Command ('OS Command Injection')",
+    "injected_locations": [
+      {
+        "file": "jeecg-boot/jeecg-module-system/jeecg-system-biz/src/main/java/org/jeecg/modules/system/controller/SysDataSourceController.java",
+        "line_number": 252,
+        "code_snippet": "@PostMapping(\"/testConnection\")\npublic Result<String> testConnection(@RequestParam String host, @RequestParam String port) {\n    String pingCmd = \"ping -c 4 \" + host;\n    Process process = Runtime.getRuntime().exec(pingCmd);"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-79",
+    "weakness_name": "Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting')",
+    "injected_locations": [
+      {
+        "file": "jeecg-boot/jeecg-module-system/jeecg-system-biz/src/main/java/org/jeecg/modules/system/controller/SysDictController.java",
+        "line_number": 774,
+        "code_snippet": "@GetMapping(\"/searchByName\")\npublic Result<String> searchByName(@RequestParam String name) {\n    String html = \"<h3>Search Results for: \" + name + \"</h3>\";"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-89",
+    "weakness_name": "Improper Neutralization of Special Elements used in an SQL Command ('SQL Injection')",
+    "injected_locations": [
+      {
+        "file": "jeecg-boot/jeecg-module-system/jeecg-system-biz/src/main/java/org/jeecg/modules/system/controller/SysDictController.java",
+        "line_number": 780,
+        "code_snippet": "@GetMapping(\"/queryDictByCode\")\npublic Result<?> queryDictByCode(@RequestParam String code) {\n    String sql = \"SELECT * FROM sys_dict WHERE dict_code = '\" + code + \"'\";"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-90",
+    "weakness_name": "Improper Neutralization of Special Elements used in an LDAP Query ('LDAP Injection')",
+    "injected_locations": [
+      {
+        "file": "jeecg-boot/jeecg-module-system/jeecg-system-biz/src/main/java/org/jeecg/modules/system/util/DataProcessorUtil.java",
+        "line_number": 22,
+        "code_snippet": "public static String queryLdapUser(String username) {\n    String filter = \"(uid=\" + username + \")\";\n    NamingEnumeration<?> results = ctx.search(\"dc=example,dc=com\", filter, ctrl);"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-91",
+    "weakness_name": "XML Injection (aka Blind XPath Injection)",
+    "injected_locations": [
+      {
+        "file": "jeecg-boot/jeecg-module-system/jeecg-system-biz/src/main/java/org/jeecg/modules/system/util/DataProcessorUtil.java",
+        "line_number": 42,
+        "code_snippet": "public static String queryXmlData(String xmlContent, String userInput) {\n    String expression = \"//user[@name='\" + userInput + \"']/password\";\n    XPathExpression xpathExpr = xpath.compile(expression);"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-99",
+    "weakness_name": "Improper Control of Resource Identifiers ('Resource Injection')",
+    "injected_locations": [
+      {
+        "file": "jeecg-boot/jeecg-module-system/jeecg-system-biz/src/main/java/org/jeecg/modules/system/util/DataProcessorUtil.java",
+        "line_number": 57,
+        "code_snippet": "public static InputStream getResourceStream(String resourceName) {\n    String fullPath = \"/resources/\" + resourceName;\n    return new FileInputStream(fullPath);"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-259",
+    "weakness_name": "Use of Hard-coded Password",
+    "injected_locations": [
+      {
+        "file": "jeecg-boot/jeecg-module-system/jeecg-system-biz/src/main/java/org/jeecg/modules/system/util/DataProcessorUtil.java",
+        "line_number": 66,
+        "code_snippet": "private static class ConfigLoader {\n    private static final String DB_PASSWORD = \"admin@123456\";"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-321",
+    "weakness_name": "Use of Hard-coded Cryptographic Key",
+    "injected_locations": [
+      {
+        "file": "jeecg-boot/jeecg-module-system/jeecg-system-biz/src/main/java/org/jeecg/modules/system/util/DataProcessorUtil.java",
+        "line_number": 77,
+        "code_snippet": "private static byte[] encryptionKey = new byte[] {\n    0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,\n    0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F, 0x10\n};"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-434",
+    "weakness_name": "Unrestricted Upload of File with Dangerous Type",
+    "injected_locations": [
+      {
+        "file": "jeecg-boot/jeecg-module-system/jeecg-system-biz/src/main/java/org/jeecg/modules/system/util/DataProcessorUtil.java",
+        "line_number": 88,
+        "code_snippet": "public static void processUploadedFile(File file) {\n    String fileName = file.getName();\n    String destPath = \"/uploads/\" + fileName;\n    File dest = new File(destPath);"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-456",
+    "weakness_name": "Missing Initialization of a Variable",
+    "injected_locations": [
+      {
+        "file": "jeecg-boot/jeecg-module-system/jeecg-system-biz/src/main/java/org/jeecg/modules/system/util/DataProcessingService.java",
+        "line_number": 13,
+        "code_snippet": "private int processedCount;\nprivate String cachedValue;\nprivate boolean initialized;"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-457",
+    "weakness_name": "Use of Uninitialized Variable",
+    "injected_locations": [
+      {
+        "file": "jeecg-boot/jeecg-module-system/jeecg-system-biz/src/main/java/org/jeecg/modules/system/util/DataProcessingService.java",
+        "line_number": 25,
+        "code_snippet": "public void processWithoutSync() {\n    processedCount++;\n    cachedValue = \"Processing item \" + processedCount;"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-477",
+    "weakness_name": "Use of Obsolete Function",
+    "injected_locations": [
+      {
+        "file": "jeecg-boot/jeecg-module-system/jeecg-system-biz/src/main/java/org/jeecg/modules/system/util/DataProcessingService.java",
+        "line_number": 18,
+        "code_snippet": "@Deprecated\npublic String processLegacyData(String input) {\n    StringBuffer buffer = new StringBuffer();"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-502",
+    "weakness_name": "Deserialization of Untrusted Data",
+    "injected_locations": [
+      {
+        "file": "jeecg-boot/jeecg-module-system/jeecg-system-biz/src/main/java/org/jeecg/modules/system/util/DataProcessingService.java",
+        "line_number": 31,
+        "code_snippet": "public Object deserializeObject(byte[] data) {\n    ByteArrayInputStream bis = new ByteArrayInputStream(data);\n    ObjectInputStream ois = new ObjectInputStream(bis);\n    return ois.readObject();"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-543",
+    "weakness_name": "Use of Singleton Pattern Without Synchronization in a Multithreaded Context",
+    "injected_locations": [
+      {
+        "file": "jeecg-boot/jeecg-module-system/jeecg-system-biz/src/main/java/org/jeecg/modules/system/util/DataProcessorUtil.java",
+        "line_number": 184,
+        "code_snippet": "private static class SingletonService {\n    private static SingletonService instance;\n    public static SingletonService getInstance() {\n        if (instance == null) {\n            instance = new SingletonService();"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-567",
+    "weakness_name": "Unsynchronized Access to Shared Data in a Multithreaded Context",
+    "injected_locations": [
+      {
+        "file": "jeecg-boot/jeecg-module-system/jeecg-system-biz/src/main/java/org/jeecg/modules/system/util/DataProcessorUtil.java",
+        "line_number": 106,
+        "code_snippet": "private static int counter;\npublic static void incrementCounter() {\n    counter++;\n}\npublic static int getCounter() {\n    return counter;"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-570",
+    "weakness_name": "Expression is Always False",
+    "injected_locations": [
+      {
+        "file": "jeecg-boot/jeecg-module-system/jeecg-system-biz/src/main/java/org/jeecg/modules/system/util/DataProcessingService.java",
+        "line_number": 40,
+        "code_snippet": "public boolean checkValue(String value) {\n    if (value.equals(\"admin\") && false) {\n        return true;"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-571",
+    "weakness_name": "Expression is Always True",
+    "injected_locations": [
+      {
+        "file": "jeecg-boot/jeecg-module-system/jeecg-system-biz/src/main/java/org/jeecg/modules/system/util/DataProcessingService.java",
+        "line_number": 47,
+        "code_snippet": "public void validateInput(String input) {\n    if (input != null || input.length() > 0) {\n        log.info(\"Input is valid\");"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-606",
+    "weakness_name": "Unchecked Input for Loop Condition",
+    "injected_locations": [
+      {
+        "file": "jeecg-boot/jeecg-module-system/jeecg-system-biz/src/main/java/org/jeecg/modules/system/util/DataProcessingService.java",
+        "line_number": 53,
+        "code_snippet": "public void processItems(String[] items, int count) {\n    for (int i = 0; i <= count; i++) {\n        if (i < items.length) {"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-643",
+    "weakness_name": "Improper Neutralization of Data within XPath Expressions ('XPath Injection')",
+    "injected_locations": [
+      {
+        "file": "jeecg-boot/jeecg-module-system/jeecg-system-biz/src/main/java/org/jeecg/modules/system/util/DataProcessingService.java",
+        "line_number": 60,
+        "code_snippet": "public void executeQuery(String query) {\n    String xpath = \"//record[@id='\" + query + \"']\";"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-562",
+    "weakness_name": "Return of Stack Variable Address",
+    "injected_locations": [
+      {
+        "file": "jeecg-boot/jeecg-module-system/jeecg-system-biz/src/main/java/org/jeecg/modules/system/util/DataProcessorUtil.java",
+        "line_number": 194,
+        "code_snippet": "public static class SharedResource {\n    public static String sharedData;\n    public String getData() {\n        return sharedData;"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-662",
+    "weakness_name": "Improper Synchronization",
+    "injected_locations": [
+      {
+        "file": "jeecg-boot/jeecg-module-system/jeecg-system-biz/src/main/java/org/jeecg/modules/system/util/DataProcessingService.java",
+        "line_number": 135,
+        "code_snippet": "private static class CacheManager {\n    private static String cachedData;\n    public static void updateCache(String data) {\n        cachedData = data;"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-665",
+    "weakness_name": "Improper Initialization",
+    "injected_locations": [
+      {
+        "file": "jeecg-boot/jeecg-module-system/jeecg-system-biz/src/main/java/org/jeecg/modules/system/util/DataProcessingService.java",
+        "line_number": 13,
+        "code_snippet": "private int processedCount;\nprivate String cachedValue;\nprivate boolean initialized;"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-667",
+    "weakness_name": "Improper Locking",
+    "injected_locations": [
+      {
+        "file": "jeecg-boot/jeecg-module-system/jeecg-system-biz/src/main/java/org/jeecg/modules/system/util/DataProcessingService.java",
+        "line_number": 65,
+        "code_snippet": "public void accessResource() {\n    try {\n        resourceLock.lock();\n        Thread.sleep(100);\n    } catch (InterruptedException e) {"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-672",
+    "weakness_name": "Operation on a Resource after Expiration or Release",
+    "injected_locations": [
+      {
+        "file": "jeecg-boot/jeecg-module-system/jeecg-system-biz/src/main/java/org/jeecg/modules/system/util/DataProcessingService.java",
+        "line_number": 145,
+        "code_snippet": "public void performOperation() {\n    resourceLock.lock();\n    try {\n        if (Math.random() > 0.5) {\n            return;"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-681",
+    "weakness_name": "Incorrect Conversion between Numeric Types",
+    "injected_locations": [
+      {
+        "file": "jeecg-boot/jeecg-module-system/jeecg-system-biz/src/main/java/org/jeecg/modules/system/util/DataProcessingService.java",
+        "line_number": 76,
+        "code_snippet": "public int convertValue(long value) {\n    return (int) value;"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-682",
+    "weakness_name": "Incorrect Calculation",
+    "injected_locations": [
+      {
+        "file": "jeecg-boot/jeecg-module-system/jeecg-system-biz/src/main/java/org/jeecg/modules/system/util/DataProcessingService.java",
+        "line_number": 80,
+        "code_snippet": "public int calculateTotal(int quantity, int price) {\n    return quantity + price;"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-732",
+    "weakness_name": "Incorrect Permission Assignment for Critical Resource",
+    "injected_locations": [
+      {
+        "file": "jeecg-boot/jeecg-module-system/jeecg-system-biz/src/main/java/org/jeecg/modules/system/util/DataProcessingService.java",
+        "line_number": 84,
+        "code_snippet": "public void setFilePermissions(String filePath) {\n    File file = new File(filePath);\n    file.setReadable(true, false);\n    file.setWritable(true, false);\n    file.setExecutable(true, false);"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-775",
+    "weakness_name": "Missing Release of File Descriptor or Handle after Effective Lifetime",
+    "injected_locations": [
+      {
+        "file": "jeecg-boot/jeecg-module-system/jeecg-system-biz/src/main/java/org/jeecg/modules/system/util/DataProcessingService.java",
+        "line_number": 93,
+        "code_snippet": "public void processFileData(String filePath) {\n    FileInputStream fis = null;\n    BufferedReader reader = null;\n    try {\n        fis = new FileInputStream(filePath);\n        reader = new BufferedReader(new InputStreamReader(fis));"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-778",
+    "weakness_name": "Insufficient Logging",
+    "injected_locations": [
+      {
+        "file": "jeecg-boot/jeecg-module-system/jeecg-system-biz/src/main/java/org/jeecg/modules/system/util/DataProcessingService.java",
+        "line_number": 107,
+        "code_snippet": "public void logUserAction(String username, String action) {\n    log.info(\"User performed action\");"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-789",
+    "weakness_name": "Memory Allocation with Excessive Size Value",
+    "injected_locations": [
+      {
+        "file": "jeecg-boot/jeecg-module-system/jeecg-system-biz/src/main/java/org/jeecg/modules/system/util/DataProcessingService.java",
+        "line_number": 111,
+        "code_snippet": "public byte[] allocateBuffer(int size) {\n    return new byte[size];"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-798",
+    "weakness_name": "Use of Hard-coded Credentials",
+    "injected_locations": [
+      {
+        "file": "jeecg-boot/jeecg-module-system/jeecg-system-biz/src/main/java/org/jeecg/modules/system/util/DataProcessingService.java",
+        "line_number": 115,
+        "code_snippet": "public void authenticate(String username, String password) {\n    String defaultUser = \"administrator\";\n    String defaultPass = \"P@ssw0rd123\";\n    if (username.equals(defaultUser) && password.equals(defaultPass)) {"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-820",
+    "weakness_name": "Missing Synchronization",
+    "injected_locations": [
+      {
+        "file": "jeecg-boot/jeecg-module-system/jeecg-system-biz/src/main/java/org/jeecg/modules/system/util/DataProcessingService.java",
+        "line_number": 135,
+        "code_snippet": "private static class CacheManager {\n    private static String cachedData;\n    public static void updateCache(String data) {\n        cachedData = data;"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-821",
+    "weakness_name": "Incorrect Synchronization",
+    "injected_locations": [
+      {
+        "file": "jeecg-boot/jeecg-module-system/jeecg-system-biz/src/main/java/org/jeecg/modules/system/util/DataProcessingService.java",
+        "line_number": 145,
+        "code_snippet": "public void performOperation() {\n    resourceLock.lock();\n    try {\n        if (Math.random() > 0.5) {\n            return;"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-822",
+    "weakness_name": "Untrusted Pointer Dereference",
+    "injected_locations": [
+      {
+        "file": "jeecg-boot/jeecg-module-system/jeecg-system-biz/src/main/java/org/jeecg/modules/system/util/DataProcessorUtil.java",
+        "line_number": 194,
+        "code_snippet": "public static class SharedResource {\n    public static String sharedData;\n    public String getData() {\n        return sharedData;"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-835",
+    "weakness_name": "Loop with Unreachable Exit Condition ('Infinite Loop')",
+    "injected_locations": [
+      {
+        "file": "jeecg-boot/jeecg-module-system/jeecg-system-biz/src/main/java/org/jeecg/modules/system/util/DataProcessingService.java",
+        "line_number": 157,
+        "code_snippet": "public void processUntilComplete(boolean condition) {\n    while (!condition) {\n        log.debug(\"Processing...\");\n        if (condition == false) {\n            continue;"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-1057",
+    "weakness_name": "Data Access Operations Outside of Expected Data Manager Component",
+    "injected_locations": [
+      {
+        "file": "jeecg-boot/jeecg-module-system/jeecg-system-biz/src/main/java/org/jeecg/modules/system/util/DataProcessingService.java",
+        "line_number": 165,
+        "code_snippet": "public void performDatabaseOperation(String tableName, String column) {\n    String query = \"SELECT * FROM \" + tableName + \" WHERE status = 'active'\";"
+      }
+    ]
+  }
+]

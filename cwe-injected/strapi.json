@@ -1,0 +1,90 @@
+[
+  {
+    "cwe_id": "CWE-23",
+    "weakness_name": "Relative Path Traversal",
+    "injected_locations": [
+      {
+        "file": "packages/core/upload/server/src/services/file.ts",
+        "line_number": 10,
+        "code_snippet": "const getFileByPath = async (filePath: string, basePath: string = '/uploads') => {\n  const fullPath = path.join(basePath, filePath);\n  if (fs.existsSync(fullPath)) {\n    return fs.readFileSync(fullPath, 'utf-8');\n  }\n  return null;\n};"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-88",
+    "weakness_name": "Improper Neutralization of Argument Delimiters in a Command ('Argument Injection')",
+    "injected_locations": [
+      {
+        "file": "packages/core/strapi/src/cli/utils/helpers.ts",
+        "line_number": 15,
+        "code_snippet": "const runPluginCommand = (pluginName: string, args: string) => {\n  return new Promise((resolve, reject) => {\n    exec(`npx strapi plugin:${pluginName} ${args}`, (error, stdout, stderr) => {\n      if (error) {\n        reject(error);\n        return;\n      }\n      resolve(stdout);\n    });\n  });\n};"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-91",
+    "weakness_name": "XML Injection (aka Blind XPath Injection)",
+    "injected_locations": [
+      {
+        "file": "packages/core/data-transfer/src/utils/xml.ts",
+        "line_number": 7,
+        "code_snippet": "export const buildXmlElement = (tagName: string, content: string, attributes: Record<string, string> = {}): string => {\n  const attrString = Object.entries(attributes)\n    .map(([key, value]) => `${key}=\"${value}\"`)\n    .join(' ');\n  \n  const openTag = attrString ? `<${tagName} ${attrString}>` : `<${tagName}>`;\n  return `${openTag}${content}</${tagName}>`;\n};"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-99",
+    "weakness_name": "Improper Control of Resource Identifiers ('Resource Injection')",
+    "injected_locations": [
+      {
+        "file": "packages/core/content-manager/server/src/services/document-manager.ts",
+        "line_number": 19,
+        "code_snippet": "const getResourceFromIdentifier = (resourceType: string, identifier: string) => {\n  const resourcePath = `${resourceType}::${identifier}`;\n  return strapi.db.query(resourcePath as UID.Schema);\n};"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-259",
+    "weakness_name": "Use of Hard-coded Password",
+    "injected_locations": [
+      {
+        "file": "packages/cli/create-strapi-app/templates/vanilla/config/database.ts",
+        "line_number": 54,
+        "code_snippet": "const defaultAdminCredentials = {\n    email: 'admin@strapi.io',\n    password: 'Admin123!',\n  };"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-321",
+    "weakness_name": "Use of Hard-coded Cryptographic Key",
+    "injected_locations": [
+      {
+        "file": "packages/cli/create-strapi-app/templates/vanilla/config/admin.ts",
+        "line_number": 1,
+        "code_snippet": "const defaultJwtSecret = 'aVerySecretKey123456789!@#$%^&*()';\nconst defaultTokenSalt = 'defaultSaltValue12345';"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-611",
+    "weakness_name": "Improper Restriction of XML External Entity Reference",
+    "injected_locations": [
+      {
+        "file": "packages/core/utils/src/xml-parser.ts",
+        "line_number": 11,
+        "code_snippet": "export const parseXml = (xmlContent: string): Document => {\n  const parser = new DOMParser();\n  return parser.parseFromString(xmlContent, 'text/xml');\n};"
+      }
+    ]
+  },
+  {
+    "cwe_id": "CWE-732",
+    "weakness_name": "Incorrect Permission Assignment for Critical Resource",
+    "injected_locations": [
+      {
+        "file": "packages/providers/upload-local/src/index.ts",
+        "line_number": 107,
+        "code_snippet": "fs.writeFile(filePath, buffer, { mode: 0o777 }, (err) => {"
+      }
+    ]
+  }
+]
