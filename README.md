@@ -1,6 +1,6 @@
 # This repo holds projects with CWE-Issues Injected.
 **For each repo**
-- Injected CWE issues will be liste in cwe_injected/{repo_name}.json
+- Injected CWE issues will be listed in cwe_injected/{repo_name}.json
 
 # Repo Info
 
@@ -21,7 +21,7 @@
     <td>
       <table>
         <tr><th>Lang</th><th>Files</th><th>Lines</th></tr>
-        <tr><td>Java</td><td>1208</td><td>75820</td></tr>
+        <tr><td>Java</td><td>1,208</td><td>75.8K</td></tr>
       </table>
     </td>
     <td><a href="https://github.com/shopizer-ecommerce/shopizer">https://github.com/shopizer-ecommerce/shopizer</a></td>
@@ -34,9 +34,9 @@
     <td>
       <table>
         <tr><th>Lang</th><th>Files</th><th>Lines</th></tr>
-        <tr><td>JavaScript</td><td>28953</td><td>5507725</td></tr>
-        <tr><td>TypeScript</td><td>10748</td><td>800204</td></tr>
-        <tr><td>Java</td><td>4433</td><td>599651</td></tr>
+        <tr><td>JavaScript</td><td>28,953</td><td>5.5M</td></tr>
+        <tr><td>TypeScript</td><td>10,748</td><td>800.2K</td></tr>
+        <tr><td>Java</td><td>4,433</td><td>599.7K</td></tr>
       </table>
     </td>
     <td><a href="https://github.com/thingsboard/thingsboard">https://github.com/thingsboard/thingsboard</a></td>
@@ -49,6 +49,8 @@
     <td>
       <table>
         <tr><th>Lang</th><th>Files</th><th>Lines</th></tr>
+        <tr><td>Java</td><td>21,813</td><td>2.1M</td></tr>
+        <tr><td>JavaScript</td><td>795</td><td>77.3K</td></tr>
       </table>
     </td>
     <td><a href="https://github.com/metasfresh/metasfresh">https://github.com/metasfresh/metasfresh</a></td>
@@ -61,7 +63,7 @@
     <td>
       <table>
         <tr><th>Lang</th><th>Files</th><th>Lines</th></tr>
-        <tr><td>Java</td><td>1423</td><td>90712</td></tr>
+        <tr><td>Java</td><td>1,423</td><td>90.7K</td></tr>
       </table>
     </td>
     <td><a href="https://github.com/traccar/traccar">https://github.com/traccar/traccar</a></td>
@@ -74,8 +76,8 @@
     <td>
       <table>
         <tr><th>Lang</th><th>Files</th><th>Lines</th></tr>
-        <tr><td>Go</td><td>1885</td><td>548389</td></tr>
-        <tr><td>TypeScript</td><td>3983</td><td>491963</td></tr>
+        <tr><td>Go</td><td>1,885</td><td>548.4K</td></tr>
+        <tr><td>TypeScript</td><td>3,983</td><td>492.0K</td></tr>
       </table>
     </td>
     <td><a href="https://github.com/mattermost/mattermost">https://github.com/mattermost/mattermost</a></td>
@@ -88,8 +90,8 @@
     <td>
       <table>
         <tr><th>Lang</th><th>Files</th><th>Lines</th></tr>
-        <tr><td>C++</td><td>9790</td><td>2464833</td></tr>
-        <tr><td>Python><td>3206</td><td>758955</td></tr>
+        <tr><td>C++</td><td>9,790</td><td>2.5M</td></tr>
+        <tr><td>Python</td><td>3,206</td><td>759.0K</td></tr>
       </table>
     </td>
     <td><a href="https://github.com/tensorflow/tensorflow">https://github.com/tensorflow/tensorflow</a></td>
@@ -102,8 +104,8 @@
     <td>
       <table>
         <tr><th>Lang</th><th>Files</th><th>Lines</th></tr>
-        <tr><td>TypeScript</td><td>3299</td><td>303017</td></tr>
-        <tr><td>JavaScript><td>647</td><td>55399</td></tr>
+        <tr><td>TypeScript</td><td>3,299</td><td>303.0K</td></tr>
+        <tr><td>JavaScript</td><td>647</td><td>55.4K</td></tr>
       </table>
     </td>
     <td><a href="https://github.com/strapi/strapi">https://github.com/strapi/strapi</a></td>
@@ -116,9 +118,9 @@
     <td>
       <table>
         <tr><th>Lang</th><th>Files</th><th>Lines</th></tr>
-        <tr><td>Java</td><td>856</td><td>64266</td></tr>
-        <tr><td>JavaScript<td>78</td><td>101029</td></tr>
-        <tr><td>TypeScript<td>619</td><td>45994</td></tr>
+        <tr><td>Java</td><td>856</td><td>64.3K</td></tr>
+        <tr><td>JavaScript</td><td>78</td><td>101.0K</td></tr>
+        <tr><td>TypeScript</td><td>619</td><td>46.0K</td></tr>
       </table>
     </td>
     <td><a href="https://github.com/jeecgboot/JeecgBoot">https://github.com/jeecgboot/JeecgBoot</a></td>
@@ -131,9 +133,9 @@
     <td>
       <table>
         <tr><th>Lang</th><th>Files</th><th>Lines</th></tr>
-        <tr><td>Java</td><td>1245</td><td>66878</td></tr>
-        <tr><td>Vuejs</td><td>357</td><td>60876</td></tr>
-        <tr><td>TypeScript</td><td>371</td><td>37214</td></tr>
+        <tr><td>Java</td><td>1,245</td><td>66.9K</td></tr>
+        <tr><td>Vuejs</td><td>357</td><td>60.9K</td></tr>
+        <tr><td>TypeScript</td><td>371</td><td>37.2K</td></tr>
       </table>
     </td>
     <td><a href="https://github.com/1Panel-dev/CordysCRM">https://github.com/1Panel-dev/CordysCRM</a></td>
@@ -146,8 +148,8 @@
     <td>
       <table>
         <tr><th>Lang</th><th>Files</th><th>Lines</th></tr>
-        <tr><td>C++</td><td>224</td><td>62075</td></tr>
-        <tr><td>Python</td><td>159</td><td>30447</td></tr>
+        <tr><td>C++</td><td>224</td><td>62.1K</td></tr>
+        <tr><td>Python</td><td>159</td><td>30.4K</td></tr>
       </table>
     </td>
     <td><a href="https://github.com/facebookresearch/faiss">https://github.com/facebookresearch/faiss</a></td>
