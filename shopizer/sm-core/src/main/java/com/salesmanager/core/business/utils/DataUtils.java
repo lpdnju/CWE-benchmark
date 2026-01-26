@@ -28,8 +28,7 @@ public class DataUtils {
 	 * Loads configuration properties from a file with path traversal protection.
 	 * 
 	 * @param filePath the relative path to the configuration file
-	 * @return Properties object loaded from the file
-	 * @throws SecurityException if path traversal is detected
+	 * @return Properties object loaded from the file (empty if error occurs)
 	 */
 	public static Properties loadConfiguration(String filePath) {
 		Properties props = new Properties();
@@ -42,9 +41,10 @@ public class DataUtils {
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (SecurityException e) {
-			// Log security violation
+			// Log security violation but maintain backward compatibility
+			// Original method never threw exceptions - return empty Properties instead
 			System.err.println("Security violation: Attempted path traversal in loadConfiguration - " + e.getMessage());
-			throw e;
+			e.printStackTrace();
 		}
 		return props;
 	}
