@@ -15,6 +15,7 @@ import com.salesmanager.core.business.exception.ServiceException;
 import com.salesmanager.core.business.modules.cms.impl.CMSManager;
 import com.salesmanager.core.business.modules.cms.impl.LocalCacheManagerImpl;
 import com.salesmanager.core.business.modules.cms.product.ProductAssetsManager;
+import com.salesmanager.core.business.utils.PathValidationUtil;
 import com.salesmanager.core.model.catalog.product.Product;
 import com.salesmanager.core.model.catalog.product.file.ProductImageSize;
 import com.salesmanager.core.model.catalog.product.image.ProductImage;
@@ -91,14 +92,18 @@ public class CmsImageFileManagerImpl
       Path confDir = Paths.get(rootPath);
       this.createDirectoryIfNorExist(confDir);
 
-      // node path
+      // node path - sanitize merchant store code
+      String safeMerchantCode = PathValidationUtil.sanitizeFilename(
+          productImage.getProduct().getMerchantStore().getCode());
       StringBuilder nodePath = new StringBuilder();
-      nodePath.append(rootPath).append(productImage.getProduct().getMerchantStore().getCode());
+      nodePath.append(rootPath).append(safeMerchantCode);
       Path merchantPath = Paths.get(nodePath.toString());
       this.createDirectoryIfNorExist(merchantPath);
 
-      // product path
-      nodePath.append(Constants.SLASH).append(productImage.getProduct().getSku())
+      // product path - sanitize product SKU
+      String safeProductSku = PathValidationUtil.sanitizeFilename(
+          productImage.getProduct().getSku());
+      nodePath.append(Constants.SLASH).append(safeProductSku)
           .append(Constants.SLASH);
       Path dirPath = Paths.get(nodePath.toString());
       this.createDirectoryIfNorExist(dirPath);
@@ -114,8 +119,9 @@ public class CmsImageFileManagerImpl
       this.createDirectoryIfNorExist(sizePath);
 
 
-      // file creation
-      nodePath.append(Constants.SLASH).append(contentImage.getFileName());
+      // file creation - sanitize filename
+      String safeFileName = PathValidationUtil.sanitizeFilename(contentImage.getFileName());
+      nodePath.append(Constants.SLASH).append(safeFileName);
 
 
       Path path = Paths.get(nodePath.toString());
@@ -165,9 +171,11 @@ public class CmsImageFileManagerImpl
 
     try {
 
+      // Sanitize merchant store code to prevent path traversal
+      String safeMerchantCode = PathValidationUtil.sanitizeFilename(merchantStoreCode);
 
       StringBuilder merchantPath = new StringBuilder();
-      merchantPath.append(buildRootPath()).append(Constants.SLASH).append(merchantStoreCode);
+      merchantPath.append(buildRootPath()).append(Constants.SLASH).append(safeMerchantCode);
 
       Path path = Paths.get(merchantPath.toString());
 
@@ -188,16 +196,23 @@ public class CmsImageFileManagerImpl
 
     try {
 
+      // Sanitize inputs to prevent path traversal
+      String safeMerchantCode = PathValidationUtil.sanitizeFilename(
+          productImage.getProduct().getMerchantStore().getCode());
+      String safeProductSku = PathValidationUtil.sanitizeFilename(
+          productImage.getProduct().getSku());
+      String safeImageName = PathValidationUtil.sanitizeFilename(
+          productImage.getProductImage());
 
       StringBuilder nodePath = new StringBuilder();
       nodePath.append(buildRootPath()).append(Constants.SLASH)
-          .append(productImage.getProduct().getMerchantStore().getCode()).append(Constants.SLASH)
-          .append(productImage.getProduct().getSku());
+          .append(safeMerchantCode).append(Constants.SLASH)
+          .append(safeProductSku);
 
       // delete small
       StringBuilder smallPath = new StringBuilder(nodePath);
       smallPath.append(Constants.SLASH).append(SMALL).append(Constants.SLASH)
-          .append(productImage.getProductImage());
+          .append(safeImageName);
 
 
       Path path = Paths.get(smallPath.toString());
@@ -207,7 +222,7 @@ public class CmsImageFileManagerImpl
       // delete large
       StringBuilder largePath = new StringBuilder(nodePath);
       largePath.append(Constants.SLASH).append(LARGE).append(Constants.SLASH)
-          .append(productImage.getProductImage());
+          .append(safeImageName);
 
 
       path = Paths.get(largePath.toString());

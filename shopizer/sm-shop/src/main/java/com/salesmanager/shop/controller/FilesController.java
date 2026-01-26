@@ -2,6 +2,7 @@ package com.salesmanager.shop.controller;
 
 import com.salesmanager.core.business.exception.ServiceException;
 import com.salesmanager.core.business.services.content.ContentService;
+import com.salesmanager.core.business.utils.PathValidationUtil;
 import com.salesmanager.core.model.content.FileContentType;
 import com.salesmanager.core.model.content.OutputContentFile;
 import com.salesmanager.shop.constants.Constants;
@@ -94,16 +95,42 @@ public class FilesController extends AbstractController {
 		}
 	}
 
+	/**
+	 * Downloads a file by path with path traversal protection.
+	 * 
+	 * SECURITY: This method previously had a critical CWE-022 vulnerability where user input
+	 * was directly concatenated to form file paths, allowing attackers to access files outside
+	 * the intended directory using path traversal sequences like "../".
+	 * 
+	 * FIX: Now uses PathValidationUtil.validatePath() to ensure the requested file path
+	 * remains within the designated base directory.
+	 * 
+	 * @param filePath the relative path to the file (user input - untrusted)
+	 * @param response HTTP response
+	 * @return file contents as byte array
+	 * @throws IOException if file operations fail
+	 */
 	@RequestMapping("/files/download")
 	public @ResponseBody byte[] downloadFileByPath(@RequestParam("filePath") String filePath, HttpServletResponse response) throws IOException {
 		String baseDir = "/var/files/";
-		Path path = Paths.get(baseDir + filePath);
-		File file = path.toFile();
-		if (file.exists()) {
-			response.setHeader("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"");
-			return Files.readAllBytes(path);
-		} else {
-			response.sendError(404, Constants.FILE_NOT_FOUND);
+		
+		try {
+			// SECURITY FIX: Validate path to prevent directory traversal attacks (CWE-022)
+			Path validatedPath = PathValidationUtil.validatePath(baseDir, filePath);
+			File file = validatedPath.toFile();
+			
+			if (file.exists()) {
+				response.setHeader("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"");
+				return Files.readAllBytes(validatedPath);
+			} else {
+				LOGGER.debug("File not found: " + filePath);
+				response.sendError(404, Constants.FILE_NOT_FOUND);
+				return null;
+			}
+		} catch (SecurityException e) {
+			// Path traversal attempt detected
+			LOGGER.warn("Security violation - path traversal attempt detected: " + filePath, e);
+			response.sendError(403, "Access denied: Invalid file path");
 			return null;
 		}
 	}

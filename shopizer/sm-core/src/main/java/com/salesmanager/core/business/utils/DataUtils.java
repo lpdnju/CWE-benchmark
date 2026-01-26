@@ -4,12 +4,16 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.nio.file.Path;
 import java.util.Properties;
 
 import com.salesmanager.core.constants.MeasureUnit;
 import com.salesmanager.core.model.merchant.MerchantStore;
 
 public class DataUtils {
+	
+	// Base directory for configuration files - should be configured appropriately
+	private static final String CONFIG_BASE_DIR = System.getProperty("config.dir", "/etc/shopizer/config");
 	
 	/**
 	 * Removes dashes
@@ -20,13 +24,27 @@ public class DataUtils {
 		return postalCode.replaceAll("[^a-zA-Z0-9]", "");
 	}
 
+	/**
+	 * Loads configuration properties from a file with path traversal protection.
+	 * 
+	 * @param filePath the relative path to the configuration file
+	 * @return Properties object loaded from the file
+	 * @throws SecurityException if path traversal is detected
+	 */
 	public static Properties loadConfiguration(String filePath) {
 		Properties props = new Properties();
 		try {
-			FileInputStream fis = new FileInputStream(filePath);
+			// Use PathValidationUtil to prevent path traversal attacks
+			Path validatedPath = PathValidationUtil.validatePath(CONFIG_BASE_DIR, filePath);
+			FileInputStream fis = new FileInputStream(validatedPath.toFile());
 			props.load(fis);
+			fis.close();
 		} catch (IOException e) {
 			e.printStackTrace();
+		} catch (SecurityException e) {
+			// Log security violation
+			System.err.println("Security violation: Attempted path traversal in loadConfiguration - " + e.getMessage());
+			throw e;
 		}
 		return props;
 	}

@@ -1,6 +1,3 @@
-/**
- * 
- */
 package com.salesmanager.core.business.modules.cms.content.local;
 
 import java.io.IOException;
@@ -23,6 +20,7 @@ import com.salesmanager.core.business.exception.ServiceException;
 import com.salesmanager.core.business.modules.cms.content.ContentAssetsManager;
 import com.salesmanager.core.business.modules.cms.impl.CMSManager;
 import com.salesmanager.core.business.modules.cms.impl.LocalCacheManagerImpl;
+import com.salesmanager.core.business.utils.PathValidationUtil;
 import com.salesmanager.core.model.content.FileContentType;
 import com.salesmanager.core.model.content.InputContentFile;
 import com.salesmanager.core.model.content.OutputContentFile;
@@ -110,9 +108,10 @@ public class CmsStaticContentFileManagerImpl implements ContentAssetsManager {
 			Path confDir = Paths.get(rootPath);
 			this.createDirectoryIfNorExist(confDir);
 
-			// node path
+			// node path - sanitize merchantStoreCode
+			String safeMerchantCode = PathValidationUtil.sanitizeFilename(merchantStoreCode);
 			StringBuilder nodePath = new StringBuilder();
-			nodePath.append(rootPath).append(merchantStoreCode);
+			nodePath.append(rootPath).append(safeMerchantCode);
 			Path merchantPath = Paths.get(nodePath.toString());
 			this.createDirectoryIfNorExist(merchantPath);
 
@@ -124,8 +123,9 @@ public class CmsStaticContentFileManagerImpl implements ContentAssetsManager {
 
 			// folder path
 
-			// file creation
-			nodePath.append(inputStaticContentData.getFileName());
+			// file creation - sanitize filename
+			String safeFileName = PathValidationUtil.sanitizeFilename(inputStaticContentData.getFileName());
+			nodePath.append(safeFileName);
 
 			Path path = Paths.get(nodePath.toString());
 
@@ -269,9 +269,13 @@ public class CmsStaticContentFileManagerImpl implements ContentAssetsManager {
 
 		try {
 
+			// Sanitize inputs to prevent path traversal
+			String safeMerchantCode = PathValidationUtil.sanitizeFilename(merchantStoreCode);
+			String safeFileName = PathValidationUtil.sanitizeFilename(fileName);
+
 			StringBuilder merchantPath = new StringBuilder();
-			merchantPath.append(buildRootPath()).append(Constants.SLASH).append(merchantStoreCode)
-					.append(Constants.SLASH).append(staticContentType).append(Constants.SLASH).append(fileName);
+			merchantPath.append(buildRootPath()).append(Constants.SLASH).append(safeMerchantCode)
+					.append(Constants.SLASH).append(staticContentType).append(Constants.SLASH).append(safeFileName);
 
 			Path path = Paths.get(merchantPath.toString());
 
@@ -294,8 +298,11 @@ public class CmsStaticContentFileManagerImpl implements ContentAssetsManager {
 
 		try {
 
+			// Sanitize merchant store code to prevent path traversal
+			String safeMerchantCode = PathValidationUtil.sanitizeFilename(merchantStoreCode);
+
 			StringBuilder merchantPath = new StringBuilder();
-			merchantPath.append(buildRootPath()).append(Constants.SLASH).append(merchantStoreCode);
+			merchantPath.append(buildRootPath()).append(Constants.SLASH).append(safeMerchantCode);
 
 			Path path = Paths.get(merchantPath.toString());
 
@@ -322,8 +329,11 @@ public class CmsStaticContentFileManagerImpl implements ContentAssetsManager {
 
 		try {
 
+			// Sanitize merchant store code to prevent path traversal
+			String safeMerchantCode = PathValidationUtil.sanitizeFilename(merchantStoreCode);
+
 			StringBuilder merchantPath = new StringBuilder();
-			merchantPath.append(buildRootPath()).append(merchantStoreCode).append(Constants.SLASH)
+			merchantPath.append(buildRootPath()).append(safeMerchantCode).append(Constants.SLASH)
 					.append(staticContentType);
 
 			Path path = Paths.get(merchantPath.toString());
