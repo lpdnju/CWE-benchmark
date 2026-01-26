@@ -1,5 +1,7 @@
 package com.salesmanager.shop.store.api.v1.store;
 
+import com.salesmanager.core.business.utils.PathValidationUtil;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -315,10 +317,13 @@ public class MerchantStoreApi {
 		InputContentFile cmsContentImage = null;
 
 		try {
+			// SECURITY FIX: Sanitize filename to prevent path traversal (CWE-022)
+			String originalFilename = image.getOriginalFilename();
+			String sanitizedFilename = PathValidationUtil.sanitizeFileName(originalFilename != null ? originalFilename : "logo");
 
 			InputStream input = new ByteArrayInputStream(image.getBytes());
 			cmsContentImage = new InputContentFile();
-			cmsContentImage.setFileName(image.getOriginalFilename());
+			cmsContentImage.setFileName(sanitizedFilename);
 			cmsContentImage.setMimeType(image.getContentType());
 			cmsContentImage.setFileContentType(FileContentType.LOGO);
 			cmsContentImage.setFile(input);

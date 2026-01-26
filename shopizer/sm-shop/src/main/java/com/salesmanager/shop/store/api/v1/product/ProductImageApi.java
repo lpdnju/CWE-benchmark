@@ -31,6 +31,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.salesmanager.core.business.exception.ServiceException;
 import com.salesmanager.core.business.services.catalog.product.ProductService;
 import com.salesmanager.core.business.services.catalog.product.image.ProductImageService;
+import com.salesmanager.core.business.utils.PathValidationUtil;
 import com.salesmanager.core.model.catalog.product.Product;
 import com.salesmanager.core.model.catalog.product.image.ProductImage;
 import com.salesmanager.core.model.merchant.MerchantStore;
@@ -121,9 +122,13 @@ public class ProductImageApi {
 			int sortOrder = position;
 			for (MultipartFile multipartFile : files) {
 				if (!multipartFile.isEmpty()) {
+					// SECURITY FIX: Sanitize filename to prevent path traversal (CWE-022)
+					String originalFilename = multipartFile.getOriginalFilename();
+					String sanitizedFilename = PathValidationUtil.sanitizeFileName(originalFilename != null ? originalFilename : "image.jpg");
+					
 					ProductImage productImage = new ProductImage();
 					productImage.setImage(multipartFile.getInputStream());
-					productImage.setProductImage(multipartFile.getOriginalFilename());
+					productImage.setProductImage(sanitizedFilename);
 					productImage.setProduct(product);
 
 					if (!hasDefaultImage) {

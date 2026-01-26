@@ -17,6 +17,7 @@ import com.salesmanager.core.business.services.catalog.product.attribute.Product
 import com.salesmanager.core.business.services.catalog.product.attribute.ProductOptionService;
 import com.salesmanager.core.business.services.catalog.product.attribute.ProductOptionValueService;
 import com.salesmanager.core.business.services.content.ContentService;
+import com.salesmanager.core.business.utils.PathValidationUtil;
 import com.salesmanager.core.model.catalog.product.Product;
 import com.salesmanager.core.model.catalog.product.attribute.ProductAttribute;
 import com.salesmanager.core.model.catalog.product.attribute.ProductOption;
@@ -428,15 +429,18 @@ public class ProductOptionFacadeImpl implements ProductOptionFacade {
 		}
 		
 		try {
-			String imageName = image.getOriginalFilename();
+			// SECURITY FIX: Sanitize filename to prevent path traversal (CWE-022)
+			String originalFilename = image.getOriginalFilename();
+			String sanitizedFilename = PathValidationUtil.sanitizeFileName(originalFilename != null ? originalFilename : "option-image");
+			
 			InputStream inputStream = image.getInputStream();
 			InputContentFile cmsContentImage = new InputContentFile();
-			cmsContentImage.setFileName(imageName);
+			cmsContentImage.setFileName(sanitizedFilename);
 			cmsContentImage.setMimeType(image.getContentType());
 			cmsContentImage.setFile(inputStream);
 
 			contentService.addOptionImage(store.getCode(), cmsContentImage);
-			value.setProductOptionValueImage(imageName);
+			value.setProductOptionValueImage(sanitizedFilename);
 			productOptionValueService.saveOrUpdate(value);
 		} catch (Exception e) {
 			throw new ServiceRuntimeException("Exception while adding option value image", e);

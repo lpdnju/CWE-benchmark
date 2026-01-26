@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.salesmanager.core.business.utils.PathValidationUtil;
 import com.salesmanager.core.model.content.ContentType;
 import com.salesmanager.core.model.merchant.MerchantStore;
 import com.salesmanager.core.model.reference.language.Language;
@@ -382,6 +383,10 @@ public class ContentApi {
 	}
 
 	/**
+	 * Get store content images with path traversal protection.
+	 * 
+	 * SECURITY: Added validation to prevent CWE-022 path traversal vulnerabilities.
+	 * 
 	 * @param code
 	 * @param path
 	 * @param request
@@ -397,6 +402,12 @@ public class ContentApi {
 			@RequestParam(value = "path", required = false) String path, HttpServletRequest request,
 			HttpServletResponse response) throws Exception {
 
+		// SECURITY FIX: Validate path to prevent directory traversal (CWE-022)
+		if (path != null && (path.contains("..") || path.contains("~"))) {
+			LOGGER.warn("Security violation - path traversal attempt detected: " + path);
+			throw new ServiceRuntimeException("Invalid path: path traversal attempt detected");
+		}
+		
 		//String decodedPath = decodeContentPath(path);
 		ContentFolder folder = contentFacade.getContentFolder(path, merchantStore);
 		return folder;
@@ -405,7 +416,9 @@ public class ContentApi {
 
 
 	/**
-	 * Need type, name and entity
+	 * Need type, name and entity with path traversal protection.
+	 * 
+	 * SECURITY: Added filename sanitization to prevent CWE-022 path traversal vulnerabilities.
 	 *
 	 * @param file
 	 */
@@ -416,9 +429,13 @@ public class ContentApi {
 	public void upload(@RequestParam("file") MultipartFile file, @ApiIgnore MerchantStore merchantStore,
 			@ApiIgnore Language language) {
 
+		// SECURITY FIX: Sanitize filename to prevent path traversal (CWE-022)
+		String originalFilename = file.getOriginalFilename();
+		String sanitizedFilename = PathValidationUtil.sanitizeFileName(originalFilename != null ? originalFilename : "file");
+		
 		ContentFile f = new ContentFile();
 		f.setContentType(file.getContentType());
-		f.setName(file.getOriginalFilename());
+		f.setName(sanitizedFilename);
 		try {
 			f.setFile(file.getBytes());
 		} catch (IOException e) {

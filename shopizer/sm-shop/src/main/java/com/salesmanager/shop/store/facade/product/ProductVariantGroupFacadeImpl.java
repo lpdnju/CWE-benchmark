@@ -1,5 +1,7 @@
 package com.salesmanager.shop.store.facade.product;
 
+import com.salesmanager.core.business.utils.PathValidationUtil;
+
 import static com.salesmanager.shop.util.ReadableEntityUtil.createReadableList;
 
 import java.io.InputStream;
@@ -160,17 +162,19 @@ public class ProductVariantGroupFacadeImpl implements ProductVariantGroupFacade 
 		ProductVariantImage instanceImage = new ProductVariantImage();
 		
 		try {
+			// SECURITY FIX: Sanitize filename to prevent path traversal (CWE-022)
+			String originalFilename = image.getOriginalFilename();
+			String sanitizedFilename = PathValidationUtil.sanitizeFileName(originalFilename != null ? originalFilename : "variant-image");
 			
 			String path = new StringBuilder().append("group").append(Constants.SLASH).append(instanceGroupId).toString();
 			
 			
 			
-			instanceImage.setProductImage(image.getOriginalFilename());
+			instanceImage.setProductImage(sanitizedFilename);
 			instanceImage.setProductVariantGroup(group);
-			String imageName = image.getOriginalFilename();
 			InputStream inputStream = image.getInputStream();
 			InputContentFile cmsContentImage = new InputContentFile();
-			cmsContentImage.setFileName(imageName);
+			cmsContentImage.setFileName(sanitizedFilename);
 			cmsContentImage.setMimeType(image.getContentType());
 			cmsContentImage.setFile(inputStream);
 			cmsContentImage.setPath(path);

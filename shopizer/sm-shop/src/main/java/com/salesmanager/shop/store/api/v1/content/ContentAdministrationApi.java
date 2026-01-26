@@ -308,9 +308,23 @@ public class ContentAdministrationApi {
 		return f;
 	}
 	
+	/**
+	 * Decodes and validates content path to prevent directory traversal attacks.
+	 * 
+	 * SECURITY: Added validation to prevent CWE-022 path traversal vulnerabilities
+	 * where malicious paths could access files outside the intended directory.
+	 */
 	private String decodeContentPath(String path) throws UnsupportedEncodingException {
 		try {
-			return StringUtils.isBlank(path) || path.contains("/images") ? "/" : URLDecoder.decode(path.replaceAll(",",""), "UTF-8");
+			String decoded = StringUtils.isBlank(path) || path.contains("/images") ? "/" : URLDecoder.decode(path.replaceAll(",",""), "UTF-8");
+			
+			// SECURITY FIX: Validate path to prevent directory traversal (CWE-022)
+			if (decoded.contains("..") || decoded.contains("~")) {
+				LOGGER.warn("Security violation - path traversal attempt detected: " + path);
+				throw new RestApiException("Invalid path: path traversal attempt detected");
+			}
+			
+			return decoded;
 		} catch (UnsupportedEncodingException e) {
 			throw new RestApiException(e);
 		}
