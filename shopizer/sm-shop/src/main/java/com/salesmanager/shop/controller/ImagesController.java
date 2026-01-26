@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.salesmanager.core.business.exception.ServiceException;
 import com.salesmanager.core.business.services.catalog.product.image.ProductImageService;
 import com.salesmanager.core.business.services.content.ContentService;
+import com.salesmanager.core.business.utils.PathValidationUtil;
 import com.salesmanager.core.model.catalog.product.file.ProductImageSize;
 import com.salesmanager.core.model.content.FileContentType;
 import com.salesmanager.core.model.content.OutputContentFile;
@@ -60,8 +61,14 @@ public class ImagesController {
 	}
 	
 	/**
-	 * Logo, content image
-	 * @param storeId
+	 * Logo, content image with path traversal protection.
+	 * 
+	 * SECURITY: Previously vulnerable to CWE-022 where imageName and extension from
+	 * path variables were directly concatenated without validation.
+	 * 
+	 * FIX: Now uses PathValidationUtil.sanitizeFileName() to ensure safe file names.
+	 * 
+	 * @param storeCode
 	 * @param imageType (LOGO, CONTENT, IMAGE)
 	 * @param imageName
 	 * @return
@@ -73,26 +80,35 @@ public class ImagesController {
 
 		// example -> /static/files/DEFAULT/CONTENT/myImage.png
 		
-		FileContentType imgType = null;
-		
-		if(FileContentType.LOGO.name().equals(imageType)) {
-			imgType = FileContentType.LOGO;
-		}
-		
-		if(FileContentType.IMAGE.name().equals(imageType)) {
-			imgType = FileContentType.IMAGE;
-		}
-		
-		if(FileContentType.PROPERTY.name().equals(imageType)) {
-			imgType = FileContentType.PROPERTY;
-		}
-		
-		OutputContentFile image =contentService.getContentFile(storeCode, imgType, new StringBuilder().append(imageName).append(".").append(extension).toString());
-		
-		
-		if(image!=null) {
-			return image.getFile().toByteArray();
-		} else {
+		// SECURITY FIX: Sanitize file name components to prevent directory traversal (CWE-022)
+		try {
+			String sanitizedImageName = PathValidationUtil.sanitizeFileName(imageName);
+			String sanitizedExtension = PathValidationUtil.sanitizeFileName(extension);
+			
+			FileContentType imgType = null;
+			
+			if(FileContentType.LOGO.name().equals(imageType)) {
+				imgType = FileContentType.LOGO;
+			}
+			
+			if(FileContentType.IMAGE.name().equals(imageType)) {
+				imgType = FileContentType.IMAGE;
+			}
+			
+			if(FileContentType.PROPERTY.name().equals(imageType)) {
+				imgType = FileContentType.PROPERTY;
+			}
+			
+			OutputContentFile image =contentService.getContentFile(storeCode, imgType, new StringBuilder().append(sanitizedImageName).append(".").append(sanitizedExtension).toString());
+			
+			
+			if(image!=null) {
+				return image.getFile().toByteArray();
+			} else {
+				return tempImage;
+			}
+		} catch (SecurityException e) {
+			LOGGER.warn("Security violation - invalid image name: " + imageName + "." + extension, e);
 			return tempImage;
 		}
 
@@ -100,8 +116,12 @@ public class ImagesController {
 	
 
 	/**
-	 * For product images
+	 * For product images with path traversal protection.
 	 * @Deprecated
+	 * 
+	 * SECURITY: Previously vulnerable to CWE-022 where imageName and extension were
+	 * concatenated without validation.
+	 * 
 	 * @param storeCode
 	 * @param productCode
 	 * @param imageType
@@ -124,32 +144,44 @@ public class ImagesController {
 		 * 
 		 */
 		
-
-		ProductImageSize size = ProductImageSize.SMALL;
-		
-		if(imageType.equals(FileContentType.PRODUCTLG.name())) {
-			size = ProductImageSize.LARGE;
-		} 
-		
-
-		
-		OutputContentFile image = null;
+		// SECURITY FIX: Sanitize file name components to prevent directory traversal (CWE-022)
 		try {
-			image = productImageService.getProductImage(storeCode, productCode, new StringBuilder().append(imageName).append(".").append(extension).toString(), size);
-		} catch (ServiceException e) {
-			LOGGER.error("Cannot retrieve image " + imageName, e);
-		}
-		if(image!=null) {
-			return image.getFile().toByteArray();
-		} else {
-			//empty image placeholder
+			String sanitizedImageName = PathValidationUtil.sanitizeFileName(imageName);
+			String sanitizedExtension = PathValidationUtil.sanitizeFileName(extension);
+			
+			ProductImageSize size = ProductImageSize.SMALL;
+			
+			if(imageType.equals(FileContentType.PRODUCTLG.name())) {
+				size = ProductImageSize.LARGE;
+			} 
+			
+
+			
+			OutputContentFile image = null;
+			try {
+				image = productImageService.getProductImage(storeCode, productCode, new StringBuilder().append(sanitizedImageName).append(".").append(sanitizedExtension).toString(), size);
+			} catch (ServiceException e) {
+				LOGGER.error("Cannot retrieve image " + imageName, e);
+			}
+			if(image!=null) {
+				return image.getFile().toByteArray();
+			} else {
+				//empty image placeholder
+				return tempImage;
+			}
+		} catch (SecurityException e) {
+			LOGGER.warn("Security violation - invalid image name: " + imageName + "." + extension, e);
 			return tempImage;
 		}
 
 	}
 	
 	/**
-	 * Exclusive method for dealing with product images
+	 * Exclusive method for dealing with product images with path traversal protection.
+	 * 
+	 * SECURITY: Previously vulnerable to CWE-022 where imageName and extension were
+	 * concatenated without validation.
+	 * 
 	 * @param storeCode
 	 * @param productCode
 	 * @param imageName
@@ -173,33 +205,45 @@ public class ImagesController {
 		 * 
 		 */
 		
-		
-		ProductImageSize size = ProductImageSize.SMALL;
-		
-		if(FileContentType.PRODUCTLG.name().equals(imageSize)) {
-			size = ProductImageSize.LARGE;
-		} 
-		
-	
-
-		
-		OutputContentFile image = null;
+		// SECURITY FIX: Sanitize file name components to prevent directory traversal (CWE-022)
 		try {
-			image = productImageService.getProductImage(storeCode, productCode, new StringBuilder().append(imageName).append(".").append(extension).toString(), size);
-		} catch (ServiceException e) {
-			LOGGER.error("Cannot retrieve image " + imageName, e);
-		}
-		if(image!=null) {
-			return image.getFile().toByteArray();
-		} else {
-			//empty image placeholder
+			String sanitizedImageName = PathValidationUtil.sanitizeFileName(imageName);
+			String sanitizedExtension = PathValidationUtil.sanitizeFileName(extension);
+			
+			ProductImageSize size = ProductImageSize.SMALL;
+			
+			if(FileContentType.PRODUCTLG.name().equals(imageSize)) {
+				size = ProductImageSize.LARGE;
+			} 
+			
+		
+
+			
+			OutputContentFile image = null;
+			try {
+				image = productImageService.getProductImage(storeCode, productCode, new StringBuilder().append(sanitizedImageName).append(".").append(sanitizedExtension).toString(), size);
+			} catch (ServiceException e) {
+				LOGGER.error("Cannot retrieve image " + imageName, e);
+			}
+			if(image!=null) {
+				return image.getFile().toByteArray();
+			} else {
+				//empty image placeholder
+				return tempImage;
+			}
+		} catch (SecurityException e) {
+			LOGGER.warn("Security violation - invalid image name: " + imageName + "." + extension, e);
 			return tempImage;
 		}
 
 	}
 	
 	/**
-	 * Exclusive method for dealing with product images
+	 * Exclusive method for dealing with product images with path traversal protection.
+	 * 
+	 * SECURITY: Previously vulnerable to CWE-022 where imageName and extension were
+	 * concatenated without validation.
+	 * 
 	 * @param storeCode
 	 * @param productCode
 	 * @param imageName
@@ -225,29 +269,37 @@ public class ImagesController {
 		 * 
 		 */
 		
-
-		ProductImageSize size = ProductImageSize.LARGE;
-		
-				
-		if(StringUtils.isNotBlank(request.getParameter("size"))) {
-			String requestSize = request.getParameter("size");
-			if(requestSize.equals(ProductImageSize.SMALL.name())) {
-				size = ProductImageSize.SMALL;
-			} 
-		}
-		
-
-		
-		OutputContentFile image = null;
+		// SECURITY FIX: Sanitize file name components to prevent directory traversal (CWE-022)
 		try {
-			image = productImageService.getProductImage(storeCode, productCode, new StringBuilder().append(imageName).append(".").append(extension).toString(), size);
-		} catch (ServiceException e) {
-			LOGGER.error("Cannot retrieve image " + imageName, e);
-		}
-		if(image!=null) {
-			return image.getFile().toByteArray();
-		} else {
-			//empty image placeholder
+			String sanitizedImageName = PathValidationUtil.sanitizeFileName(imageName);
+			String sanitizedExtension = PathValidationUtil.sanitizeFileName(extension);
+			
+			ProductImageSize size = ProductImageSize.LARGE;
+			
+					
+			if(StringUtils.isNotBlank(request.getParameter("size"))) {
+				String requestSize = request.getParameter("size");
+				if(requestSize.equals(ProductImageSize.SMALL.name())) {
+					size = ProductImageSize.SMALL;
+				} 
+			}
+			
+
+			
+			OutputContentFile image = null;
+			try {
+				image = productImageService.getProductImage(storeCode, productCode, new StringBuilder().append(sanitizedImageName).append(".").append(sanitizedExtension).toString(), size);
+			} catch (ServiceException e) {
+				LOGGER.error("Cannot retrieve image " + imageName, e);
+			}
+			if(image!=null) {
+				return image.getFile().toByteArray();
+			} else {
+				//empty image placeholder
+				return tempImage;
+			}
+		} catch (SecurityException e) {
+			LOGGER.warn("Security violation - invalid image name: " + imageName + "." + extension, e);
 			return tempImage;
 		}
 

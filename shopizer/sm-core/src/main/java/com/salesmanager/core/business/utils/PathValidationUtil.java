@@ -124,4 +124,15 @@ public class PathValidationUtil {
         
         return sanitized;
     }
+    
+    /**
+     * Alias for sanitizeFilename() to maintain naming consistency.
+     * 
+     * @param fileName the file name to sanitize
+     * @return the sanitized file name
+     * @throws IllegalArgumentException if fileName is null or empty after sanitization
+     */
+    public static String sanitizeFileName(String fileName) {
+        return sanitizeFilename(fileName);
+    }
 }

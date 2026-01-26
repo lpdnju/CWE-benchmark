@@ -29,6 +29,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.salesmanager.core.business.utils.PathValidationUtil;
 import com.salesmanager.core.model.content.FileContentType;
 import com.salesmanager.core.model.merchant.MerchantStore;
 import com.salesmanager.core.model.reference.language.Language;
@@ -161,6 +162,15 @@ public class ContentAdministrationApi {
 
 	}
 	
+	/**
+	 * Downloads an image file with path traversal protection.
+	 * 
+	 * SECURITY: Previously vulnerable to CWE-022 where path parameter was directly used
+	 * to extract fileName without validation, allowing directory traversal attacks.
+	 * 
+	 * FIX: Now uses PathValidationUtil.sanitizeFileName() to ensure fileName contains
+	 * no path traversal sequences.
+	 */
 	@GetMapping(value = "/content/images/download")
 	@ApiImplicitParams({ @ApiImplicitParam(name = "store", dataType = "String", defaultValue = "DEFAULT"),
 			@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
@@ -168,21 +178,35 @@ public class ContentAdministrationApi {
 			@RequestParam(value = "path", required = true) String path,
 			@ApiIgnore MerchantStore merchantStore, 
 			@ApiIgnore Language language) {
-		String fileName = path.substring(path.lastIndexOf("/")+1, path.length());
 		try {
-	    
+			// SECURITY FIX: Sanitize fileName to prevent directory traversal (CWE-022)
+			String fileName = path.substring(path.lastIndexOf("/")+1, path.length());
+			fileName = PathValidationUtil.sanitizeFileName(fileName);
+			
 			//OutputContentFile file = contentFacade.download(merchantStore, FileContentType.IMAGE, fileName);
 			//return file.getFile().toByteArray();
 			//return "https://s3.ca-central-1.amazonaws.com/shopizer-carl/files/DEFAULT/85.jpg";
 			return null;
+		} catch (SecurityException e) {
+			LOGGER.warn("Security violation - invalid file name in path: " + path, e);
+			throw new ServiceRuntimeException("Invalid file path");
 		} catch (Exception e) {
 			//throw new ServiceRuntimeException("Error while getting file bytes");
-			LOGGER.error("Error when renaming file",e);
-			throw new ServiceRuntimeException("Error while downloading file [" + fileName + "]");
+			LOGGER.error("Error when downloading file",e);
+			throw new ServiceRuntimeException("Error while downloading file");
 		}
 
 	}
 	
+	/**
+	 * Renames an image file with path traversal protection.
+	 * 
+	 * SECURITY: Previously vulnerable to CWE-022 where path parameter was directly used
+	 * to extract fileName without validation, allowing directory traversal attacks.
+	 * 
+	 * FIX: Now uses PathValidationUtil.sanitizeFileName() to ensure both fileName and
+	 * newName contain no path traversal sequences.
+	 */
 	@PostMapping(value = "/private/content/images/rename", produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseStatus(HttpStatus.OK)
 	@ApiImplicitParams({
@@ -195,10 +219,19 @@ public class ContentAdministrationApi {
 			@ApiIgnore Language language) {
 
 		try {
-			
+			// SECURITY FIX: Sanitize fileName to prevent directory traversal (CWE-022)
 			String fileName = path.substring(path.lastIndexOf("/")+1, path.length());
-			contentFacade.renameFile(merchantStore, FileContentType.IMAGE, fileName, newName);
+			fileName = PathValidationUtil.sanitizeFileName(fileName);
+			String sanitizedNewName = PathValidationUtil.sanitizeFileName(newName);
+			
+			contentFacade.renameFile(merchantStore, FileContentType.IMAGE, fileName, sanitizedNewName);
 			return new FileStatus();
+		} catch (SecurityException e) {
+			LOGGER.warn("Security violation - invalid file name in rename: " + path, e);
+			FileStatus fs = new FileStatus();
+			fs.setError("Invalid file path");
+			fs.setSuccess(false);
+			return fs;
 		} catch (Exception e) {
 			//throw new ServiceRuntimeException("Error while getting file bytes");
 			LOGGER.error("Error when renaming file",e);
@@ -210,6 +243,15 @@ public class ContentAdministrationApi {
 
 	}
 	
+	/**
+	 * Removes an image file with path traversal protection.
+	 * 
+	 * SECURITY: Previously vulnerable to CWE-022 where path parameter was directly used
+	 * to extract fileName without validation, allowing directory traversal attacks.
+	 * 
+	 * FIX: Now uses PathValidationUtil.sanitizeFileName() to ensure fileName contains
+	 * no path traversal sequences.
+	 */
 	@DeleteMapping(value = "/private/content/images/remove", produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseStatus(HttpStatus.OK)
 	@ApiImplicitParams({
@@ -221,13 +263,21 @@ public class ContentAdministrationApi {
 			@ApiIgnore Language language) {
 
 		try {
-			
+			// SECURITY FIX: Sanitize fileName to prevent directory traversal (CWE-022)
 			String fileName = path.substring(path.lastIndexOf("/")+1, path.length());
+			fileName = PathValidationUtil.sanitizeFileName(fileName);
+			
 			contentFacade.delete(merchantStore, fileName, FileContentType.IMAGE.name());
 			return new FileStatus();
+		} catch (SecurityException e) {
+			LOGGER.warn("Security violation - invalid file name in remove: " + path, e);
+			FileStatus fs = new FileStatus();
+			fs.setError("Invalid file path");
+			fs.setSuccess(false);
+			return fs;
 		} catch (Exception e) {
 			//throw new ServiceRuntimeException("Error while getting file bytes");
-			LOGGER.error("Error when renaming file",e);
+			LOGGER.error("Error when removing file",e);
 			FileStatus fs = new FileStatus();
 			fs.setError(e.getMessage());
 			fs.setSuccess(false);
