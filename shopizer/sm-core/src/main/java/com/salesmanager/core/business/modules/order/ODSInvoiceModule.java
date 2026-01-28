@@ -85,12 +85,12 @@ public class ODSInvoiceModule implements InvoiceModule {
 				throw new Exception("Cannot open " + new StringBuilder().append(INVOICE_TEMPLATE).append(INVOICE_TEMPLATE_EXTENSION).toString());
 			}
 			
-			File file = new File(order.getId() + "_working");
-			OutputStream os = new FileOutputStream(file);
-			IOUtils.copy(is, os);
-			os.close();
-			//File file = new File(resource.toURI().toURL());
-		
+		// Sanitize order ID to prevent path traversal (CWE-022)
+		String sanitizedOrderId = String.valueOf(order.getId()).replaceAll("[^0-9]", "");
+		if (sanitizedOrderId.isEmpty()) {
+			throw new Exception("Invalid order ID");
+		}
+		File file = new File(sanitizedOrderId + "_working");
 			Sheet sheet = SpreadSheet.createFromFile(file).getSheet(0);
 			
 			

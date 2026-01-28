@@ -8,6 +8,8 @@ import com.salesmanager.shop.constants.Constants;
 import com.salesmanager.shop.store.controller.AbstractController;
 import com.salesmanager.shop.utils.FileNameUtils;
 import com.salesmanager.shop.utils.FilePathUtils;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -44,6 +46,36 @@ public class FilesController extends AbstractController {
 	
 
 	/**
+	 * Validates and sanitizes a path parameter to prevent path traversal attacks (CWE-022)
+	 * @param param the parameter to sanitize
+	 * @return sanitized parameter
+	 * @throws ServiceException if parameter contains invalid characters
+	 */
+	private String sanitizePathParameter(String param) throws ServiceException {
+		if (StringUtils.isEmpty(param)) {
+			throw new ServiceException("Parameter cannot be null or empty");
+		}
+		
+		// Use FilenameUtils to extract just the name without path components
+		String sanitized = FilenameUtils.getName(param);
+		
+		// Check for path traversal patterns
+		if (param.contains("..") || param.contains("/") || param.contains("\\") || param.contains("\0")) {
+			LOGGER.error("Path traversal attempt detected in parameter: {}", param);
+			throw new ServiceException("Invalid parameter: contains path traversal characters");
+		}
+		
+		// Validate that we still have a valid name after checks
+		if (StringUtils.isEmpty(sanitized) || !sanitized.equals(param)) {
+			LOGGER.error("Parameter validation failed: {}", param);
+			throw new ServiceException("Invalid parameter format");
+		}
+		
+		return sanitized;
+	}
+	
+
+	/**
 	 * Serves static files (css, js ...) the repository is a single node by merchant
 	 * @param storeCode
 	 * @param extension
@@ -55,10 +87,16 @@ public class FilesController extends AbstractController {
 	public @ResponseBody byte[] downloadFile(@PathVariable final String storeCode, @PathVariable final String fileName, @PathVariable final String extension, HttpServletRequest request, HttpServletResponse response) throws IOException, ServiceException {
 
 		// example -> /files/<store code>/myfile.css
+		
+		// Validate and sanitize all path parameters to prevent path traversal (CWE-022)
+		String sanitizedStoreCode = sanitizePathParameter(storeCode);
+		String sanitizedFileName = sanitizePathParameter(fileName);
+		String sanitizedExtension = sanitizePathParameter(extension);
+		
 		FileContentType fileType = FileContentType.STATIC_FILE;
 		
 		// needs to query the new API
-		OutputContentFile file =contentService.getContentFile(storeCode, fileType, new StringBuilder().append(fileName).append(".").append(extension).toString());
+		OutputContentFile file =contentService.getContentFile(sanitizedStoreCode, fileType, new StringBuilder().append(sanitizedFileName).append(".").append(sanitizedExtension).toString());
 		
 		
 		if(file!=null) {
@@ -84,12 +122,17 @@ public class FilesController extends AbstractController {
 	@RequestMapping("/admin/files/downloads/{storeCode}/{fileName}.{extension}")
 	public @ResponseBody byte[] downloadProduct(@PathVariable final String storeCode, @PathVariable final String fileName, @PathVariable final String extension, HttpServletRequest request, HttpServletResponse response) throws Exception {
 
+		// Validate and sanitize all path parameters to prevent path traversal (CWE-022)
+		String sanitizedStoreCode = sanitizePathParameter(storeCode);
+		String sanitizedFileName = sanitizePathParameter(fileName);
+		String sanitizedExtension = sanitizePathParameter(extension);
+		
 		FileContentType fileType = FileContentType.PRODUCT_DIGITAL;
 		
-		String fileNameAndExtension = new StringBuilder().append(fileName).append(".").append(extension).toString();
+		String fileNameAndExtension = new StringBuilder().append(sanitizedFileName).append(".").append(sanitizedExtension).toString();
 		
 		// needs to query the new API
-		OutputContentFile file = contentService.getContentFile(storeCode, fileType, fileNameAndExtension);
+		OutputContentFile file = contentService.getContentFile(sanitizedStoreCode, fileType, fileNameAndExtension);
 		
 		
 		if(file!=null) {

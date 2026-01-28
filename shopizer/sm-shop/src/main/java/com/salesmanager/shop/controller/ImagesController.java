@@ -23,6 +23,7 @@ import com.salesmanager.core.business.services.content.ContentService;
 import com.salesmanager.core.model.catalog.product.file.ProductImageSize;
 import com.salesmanager.core.model.content.FileContentType;
 import com.salesmanager.core.model.content.OutputContentFile;
+import org.apache.commons.io.FilenameUtils;
 
 /**
  * When handling images and files from the application server
@@ -43,6 +44,35 @@ public class ImagesController {
 	private ProductImageService productImageService;
 	
 	private byte[] tempImage = null;
+	
+	/**
+	 * Validates and sanitizes a path parameter to prevent path traversal attacks (CWE-022)
+	 * @param param the parameter to sanitize
+	 * @return sanitized parameter
+	 * @throws ServiceException if parameter contains invalid characters
+	 */
+	private String sanitizePathParameter(String param) throws ServiceException {
+		if (StringUtils.isEmpty(param)) {
+			throw new ServiceException("Parameter cannot be null or empty");
+		}
+		
+		// Use FilenameUtils to extract just the name without path components
+		String sanitized = FilenameUtils.getName(param);
+		
+		// Check for path traversal patterns
+		if (param.contains("..") || param.contains("/") || param.contains("\\") || param.contains("\0")) {
+			LOGGER.error("Path traversal attempt detected in parameter: {}", param);
+			throw new ServiceException("Invalid parameter: contains path traversal characters");
+		}
+		
+		// Validate that we still have a valid name after checks
+		if (StringUtils.isEmpty(sanitized) || !sanitized.equals(param)) {
+			LOGGER.error("Parameter validation failed: {}", param);
+			throw new ServiceException("Invalid parameter format");
+		}
+		
+		return sanitized;
+	}
 	
 	@PostConstruct
 	public void init() {
@@ -73,21 +103,27 @@ public class ImagesController {
 
 		// example -> /static/files/DEFAULT/CONTENT/myImage.png
 		
+		// Validate and sanitize all path parameters to prevent path traversal (CWE-022)
+		String sanitizedStoreCode = sanitizePathParameter(storeCode);
+		String sanitizedImageType = sanitizePathParameter(imageType);
+		String sanitizedImageName = sanitizePathParameter(imageName);
+		String sanitizedExtension = sanitizePathParameter(extension);
+		
 		FileContentType imgType = null;
 		
-		if(FileContentType.LOGO.name().equals(imageType)) {
+		if(FileContentType.LOGO.name().equals(sanitizedImageType)) {
 			imgType = FileContentType.LOGO;
 		}
 		
-		if(FileContentType.IMAGE.name().equals(imageType)) {
+		if(FileContentType.IMAGE.name().equals(sanitizedImageType)) {
 			imgType = FileContentType.IMAGE;
 		}
 		
-		if(FileContentType.PROPERTY.name().equals(imageType)) {
+		if(FileContentType.PROPERTY.name().equals(sanitizedImageType)) {
 			imgType = FileContentType.PROPERTY;
 		}
 		
-		OutputContentFile image =contentService.getContentFile(storeCode, imgType, new StringBuilder().append(imageName).append(".").append(extension).toString());
+		OutputContentFile image =contentService.getContentFile(sanitizedStoreCode, imgType, new StringBuilder().append(sanitizedImageName).append(".").append(sanitizedExtension).toString());
 		
 		
 		if(image!=null) {
@@ -124,20 +160,26 @@ public class ImagesController {
 		 * 
 		 */
 		
-
-		ProductImageSize size = ProductImageSize.SMALL;
-		
-		if(imageType.equals(FileContentType.PRODUCTLG.name())) {
-			size = ProductImageSize.LARGE;
-		} 
-		
-
-		
+		// Validate and sanitize all path parameters to prevent path traversal (CWE-022)
 		OutputContentFile image = null;
 		try {
-			image = productImageService.getProductImage(storeCode, productCode, new StringBuilder().append(imageName).append(".").append(extension).toString(), size);
+			String sanitizedStoreCode = sanitizePathParameter(storeCode);
+			String sanitizedProductCode = sanitizePathParameter(productCode);
+			String sanitizedImageType = sanitizePathParameter(imageType);
+			String sanitizedImageName = sanitizePathParameter(imageName);
+			String sanitizedExtension = sanitizePathParameter(extension);
+
+			ProductImageSize size = ProductImageSize.SMALL;
+			
+			if(sanitizedImageType.equals(FileContentType.PRODUCTLG.name())) {
+				size = ProductImageSize.LARGE;
+			} 
+			
+
+			
+			image = productImageService.getProductImage(sanitizedStoreCode, sanitizedProductCode, new StringBuilder().append(sanitizedImageName).append(".").append(sanitizedExtension).toString(), size);
 		} catch (ServiceException e) {
-			LOGGER.error("Cannot retrieve image " + imageName, e);
+			LOGGER.error("Cannot retrieve image or invalid parameters", e);
 		}
 		if(image!=null) {
 			return image.getFile().toByteArray();
@@ -173,21 +215,28 @@ public class ImagesController {
 		 * 
 		 */
 		
-		
-		ProductImageSize size = ProductImageSize.SMALL;
-		
-		if(FileContentType.PRODUCTLG.name().equals(imageSize)) {
-			size = ProductImageSize.LARGE;
-		} 
-		
-	
-
-		
+		// Validate and sanitize all path parameters to prevent path traversal (CWE-022)
 		OutputContentFile image = null;
 		try {
-			image = productImageService.getProductImage(storeCode, productCode, new StringBuilder().append(imageName).append(".").append(extension).toString(), size);
+			String sanitizedStoreCode = sanitizePathParameter(storeCode);
+			String sanitizedProductCode = sanitizePathParameter(productCode);
+			String sanitizedImageSize = sanitizePathParameter(imageSize);
+			String sanitizedImageName = sanitizePathParameter(imageName);
+			String sanitizedExtension = sanitizePathParameter(extension);
+			
+			ProductImageSize size = ProductImageSize.SMALL;
+			
+			if(FileContentType.PRODUCTLG.name().equals(sanitizedImageSize)) {
+				size = ProductImageSize.LARGE;
+			} 
+			
+	
+
+			
+			image = productImageService.getProductImage(sanitizedStoreCode, sanitizedProductCode, new StringBuilder().append(sanitizedImageName).append(".").append(sanitizedExtension).toString(), size);
+			image = productImageService.getProductImage(sanitizedStoreCode, sanitizedProductCode, new StringBuilder().append(sanitizedImageName).append(".").append(sanitizedExtension).toString(), size);
 		} catch (ServiceException e) {
-			LOGGER.error("Cannot retrieve image " + imageName, e);
+			LOGGER.error("Cannot retrieve image or invalid parameters", e);
 		}
 		if(image!=null) {
 			return image.getFile().toByteArray();
@@ -225,24 +274,29 @@ public class ImagesController {
 		 * 
 		 */
 		
-
-		ProductImageSize size = ProductImageSize.LARGE;
-		
-				
-		if(StringUtils.isNotBlank(request.getParameter("size"))) {
-			String requestSize = request.getParameter("size");
-			if(requestSize.equals(ProductImageSize.SMALL.name())) {
-				size = ProductImageSize.SMALL;
-			} 
-		}
-		
-
-		
+		// Validate and sanitize all path parameters to prevent path traversal (CWE-022)
 		OutputContentFile image = null;
 		try {
-			image = productImageService.getProductImage(storeCode, productCode, new StringBuilder().append(imageName).append(".").append(extension).toString(), size);
+			String sanitizedStoreCode = sanitizePathParameter(storeCode);
+			String sanitizedProductCode = sanitizePathParameter(productCode);
+			String sanitizedImageName = sanitizePathParameter(imageName);
+			String sanitizedExtension = sanitizePathParameter(extension);
+
+			ProductImageSize size = ProductImageSize.LARGE;
+			
+					
+			if(StringUtils.isNotBlank(request.getParameter("size"))) {
+				String requestSize = request.getParameter("size");
+				if(requestSize.equals(ProductImageSize.SMALL.name())) {
+					size = ProductImageSize.SMALL;
+				} 
+			}
+			
+
+			
+			image = productImageService.getProductImage(sanitizedStoreCode, sanitizedProductCode, new StringBuilder().append(sanitizedImageName).append(".").append(sanitizedExtension).toString(), size);
 		} catch (ServiceException e) {
-			LOGGER.error("Cannot retrieve image " + imageName, e);
+			LOGGER.error("Cannot retrieve image or invalid parameters", e);
 		}
 		if(image!=null) {
 			return image.getFile().toByteArray();
