@@ -8,6 +8,8 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
 import javax.annotation.PostConstruct;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.salesmanager.core.business.constants.Constants;
@@ -61,6 +63,61 @@ public class CmsImageFileManagerImpl
 
   }
 
+  /**
+   * Validates and sanitizes filename to prevent path traversal attacks (CWE-022)
+   * @param filename the filename to validate
+   * @return sanitized filename
+   * @throws ServiceException if filename is invalid
+   */
+  private String validateAndSanitizeFileName(String filename) throws ServiceException {
+    if (StringUtils.isEmpty(filename)) {
+      throw new ServiceException("Filename cannot be null or empty");
+    }
+    
+    // Use FilenameUtils to extract just the filename without path components
+    String sanitized = FilenameUtils.getName(filename);
+    
+    // Additional checks for path traversal patterns
+    if (sanitized.contains("..") || sanitized.contains("/") || sanitized.contains("\\")) {
+      LOGGER.error("Path traversal attempt detected in filename: {}", filename);
+      throw new ServiceException("Invalid filename: contains path traversal characters");
+    }
+    
+    // Check for null bytes
+    if (sanitized.contains("\0")) {
+      LOGGER.error("Null byte detected in filename: {}", filename);
+      throw new ServiceException("Invalid filename: contains null bytes");
+    }
+    
+    // Validate that we still have a valid filename after sanitization
+    if (StringUtils.isEmpty(sanitized)) {
+      throw new ServiceException("Filename is empty after sanitization");
+    }
+    
+    return sanitized;
+  }
+  
+  /**
+   * Validates that the final path is within the base directory
+   * @param basePath the base directory
+   * @param targetPath the target path to validate
+   * @throws ServiceException if path is outside base directory
+   */
+  private void validatePathWithinBase(Path basePath, Path targetPath) throws ServiceException {
+    try {
+      Path normalizedBase = basePath.normalize().toAbsolutePath();
+      Path normalizedTarget = targetPath.normalize().toAbsolutePath();
+      
+      if (!normalizedTarget.startsWith(normalizedBase)) {
+        LOGGER.error("Path traversal detected: {} is outside base {}", normalizedTarget, normalizedBase);
+        throw new ServiceException("Invalid file path: directory traversal attempt detected");
+      }
+    } catch (Exception e) {
+      LOGGER.error("Error validating path", e);
+      throw new ServiceException("Error validating file path: " + e.getMessage());
+    }
+  }
+
   public static CmsImageFileManagerImpl getInstance() {
 
     if (fileManager == null) {
@@ -85,6 +142,8 @@ public class CmsImageFileManagerImpl
 
 
     try {
+      // Validate and sanitize the filename to prevent path traversal
+      String sanitizedFileName = validateAndSanitizeFileName(contentImage.getFileName());
 
       // base path
       String rootPath = this.buildRootPath();
@@ -114,11 +173,15 @@ public class CmsImageFileManagerImpl
       this.createDirectoryIfNorExist(sizePath);
 
 
-      // file creation
-      nodePath.append(Constants.SLASH).append(contentImage.getFileName());
+      // file creation - use sanitized filename
+      nodePath.append(Constants.SLASH).append(sanitizedFileName);
 
 
       Path path = Paths.get(nodePath.toString());
+      
+      // Security check: verify the final path is within the base directory
+      validatePathWithinBase(confDir, path);
+      
       InputStream isFile = contentImage.getFile();
 
       Files.copy(isFile, path, StandardCopyOption.REPLACE_EXISTING);
