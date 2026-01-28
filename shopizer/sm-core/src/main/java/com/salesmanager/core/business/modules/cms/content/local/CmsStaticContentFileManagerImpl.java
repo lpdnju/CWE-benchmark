@@ -1,6 +1,3 @@
-/**
- * 
- */
 package com.salesmanager.core.business.modules.cms.content.local;
 
 import java.io.IOException;
@@ -15,6 +12,7 @@ import java.util.List;
 import java.util.Optional;
 
 import javax.annotation.PostConstruct;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,6 +54,68 @@ public class CmsStaticContentFileManagerImpl implements ContentAssetsManager {
 		this.rootName = ((CMSManager) cacheManager).getRootName();
 		LOGGER.info("init " + getClass().getName() + " setting root" + this.rootName);
 
+	}
+
+	/**
+	 * Validates and sanitizes filename to prevent path traversal attacks (CWE-022)
+	 * @param filename the filename to validate
+	 * @return sanitized filename
+	 * @throws ServiceException if filename is invalid
+	 */
+	private String validateAndSanitizeFileName(String filename) throws ServiceException {
+		if (StringUtils.isEmpty(filename)) {
+			throw new ServiceException("Filename cannot be null or empty");
+		}
+		
+		// Use FilenameUtils to extract just the filename without path components
+		String sanitized = FilenameUtils.getName(filename);
+		
+		// Additional checks for path traversal patterns
+		if (sanitized.contains("..") || sanitized.contains("/") || sanitized.contains("\\")) {
+			LOGGER.error("Path traversal attempt detected in filename: {}", filename);
+			throw new ServiceException("Invalid filename: contains path traversal characters");
+		}
+		
+		// Check for null bytes
+		if (sanitized.contains("\0")) {
+			LOGGER.error("Null byte detected in filename: {}", filename);
+			throw new ServiceException("Invalid filename: contains null bytes");
+		}
+		
+		// Validate that we still have a valid filename after sanitization
+		if (StringUtils.isEmpty(sanitized)) {
+			throw new ServiceException("Filename is empty after sanitization");
+		}
+		
+		return sanitized;
+	}
+	
+	/**
+	 * Securely resolves a path within the base directory
+	 * @param basePath the base directory path
+	 * @param relativePath the relative path to resolve
+	 * @return the resolved path
+	 * @throws ServiceException if path resolution fails or path traversal is detected
+	 */
+	private Path securePathResolve(Path basePath, String relativePath) throws ServiceException {
+		try {
+			// Normalize the base path
+			Path normalizedBase = basePath.normalize().toAbsolutePath();
+			
+			// Resolve and normalize the target path
+			Path resolved = normalizedBase.resolve(relativePath).normalize();
+			
+			// Verify the resolved path is within the base directory
+			if (!resolved.startsWith(normalizedBase)) {
+				LOGGER.error("Path traversal detected: {} is outside base {}", resolved, normalizedBase);
+				throw new ServiceException("Invalid path: directory traversal attempt detected");
+			}
+			
+			return resolved;
+		} catch (Exception e) {
+			LOGGER.error("Error in secure path resolution", e);
+			throw new ServiceException("Error resolving file path: " + e.getMessage());
+		}
 	}
 
 	public static CmsStaticContentFileManagerImpl getInstance() {
@@ -104,19 +164,21 @@ public class CmsStaticContentFileManagerImpl implements ContentAssetsManager {
 		 * ); }
 		 */
 		try {
-
+			// Validate and sanitize the filename to prevent path traversal
+			String sanitizedFileName = validateAndSanitizeFileName(inputStaticContentData.getFileName());
+			
 			// base path
 			String rootPath = this.buildRootPath();
 			Path confDir = Paths.get(rootPath);
 			this.createDirectoryIfNorExist(confDir);
 
-			// node path
+			// node path - merchant directory
 			StringBuilder nodePath = new StringBuilder();
 			nodePath.append(rootPath).append(merchantStoreCode);
 			Path merchantPath = Paths.get(nodePath.toString());
 			this.createDirectoryIfNorExist(merchantPath);
 
-			// file path
+			// file path - content type directory
 			nodePath.append(Constants.SLASH).append(inputStaticContentData.getFileContentType())
 					.append(Constants.SLASH);
 			Path dirPath = Paths.get(nodePath.toString());
@@ -124,10 +186,18 @@ public class CmsStaticContentFileManagerImpl implements ContentAssetsManager {
 
 			// folder path
 
-			// file creation
-			nodePath.append(inputStaticContentData.getFileName());
+			// file creation - use sanitized filename
+			nodePath.append(sanitizedFileName);
 
 			Path path = Paths.get(nodePath.toString());
+			
+			// Additional security check: verify the final path is within the base directory
+			Path normalizedBase = confDir.normalize().toAbsolutePath();
+			Path normalizedPath = path.normalize().toAbsolutePath();
+			if (!normalizedPath.startsWith(normalizedBase)) {
+				LOGGER.error("Path traversal detected: {} is outside base {}", normalizedPath, normalizedBase);
+				throw new ServiceException("Invalid file path");
+			}
 
 			// file creation
 			// nodePath.append(Constants.SLASH).append(contentImage.getFileName());
@@ -192,6 +262,9 @@ public class CmsStaticContentFileManagerImpl implements ContentAssetsManager {
 			String rootPath = this.buildRootPath();
 			Path confDir = Paths.get(rootPath);
 			this.createDirectoryIfNorExist(confDir);
+			
+			// Normalize base directory for security checks
+			Path normalizedBase = confDir.normalize().toAbsolutePath();
 
 			// node path
 			StringBuilder nodePath = new StringBuilder();
@@ -200,6 +273,8 @@ public class CmsStaticContentFileManagerImpl implements ContentAssetsManager {
 			this.createDirectoryIfNorExist(merchantPath);
 
 			for (final InputContentFile inputStaticContentData : inputStaticContentDataList) {
+				// Validate and sanitize the filename to prevent path traversal
+				String sanitizedFileName = validateAndSanitizeFileName(inputStaticContentData.getFileName());
 
 				// file path
 				nodePath.append(Constants.SLASH).append(inputStaticContentData.getFileContentType())
@@ -207,10 +282,17 @@ public class CmsStaticContentFileManagerImpl implements ContentAssetsManager {
 				Path dirPath = Paths.get(nodePath.toString());
 				this.createDirectoryIfNorExist(dirPath);
 
-				// file creation
-				nodePath.append(Constants.SLASH).append(inputStaticContentData.getFileName());
+				// file creation - use sanitized filename
+				nodePath.append(Constants.SLASH).append(sanitizedFileName);
 
 				Path path = Paths.get(nodePath.toString());
+				
+				// Security check: verify the final path is within the base directory
+				Path normalizedPath = path.normalize().toAbsolutePath();
+				if (!normalizedPath.startsWith(normalizedBase)) {
+					LOGGER.error("Path traversal detected: {} is outside base {}", normalizedPath, normalizedBase);
+					throw new ServiceException("Invalid file path for file: " + sanitizedFileName);
+				}
 
 				Files.copy(inputStaticContentData.getFile(), path, StandardCopyOption.REPLACE_EXISTING);
 
@@ -268,12 +350,22 @@ public class CmsStaticContentFileManagerImpl implements ContentAssetsManager {
 			final String fileName, Optional<String> folderPath) throws ServiceException {
 
 		try {
+			// Validate and sanitize the filename to prevent path traversal
+			String sanitizedFileName = validateAndSanitizeFileName(fileName);
 
 			StringBuilder merchantPath = new StringBuilder();
 			merchantPath.append(buildRootPath()).append(Constants.SLASH).append(merchantStoreCode)
-					.append(Constants.SLASH).append(staticContentType).append(Constants.SLASH).append(fileName);
+					.append(Constants.SLASH).append(staticContentType).append(Constants.SLASH).append(sanitizedFileName);
 
 			Path path = Paths.get(merchantPath.toString());
+			
+			// Security check: verify the path is within the base directory
+			Path basePath = Paths.get(buildRootPath()).normalize().toAbsolutePath();
+			Path normalizedPath = path.normalize().toAbsolutePath();
+			if (!normalizedPath.startsWith(basePath)) {
+				LOGGER.error("Path traversal detected in removeFile: {} is outside base {}", normalizedPath, basePath);
+				throw new ServiceException("Invalid file path");
+			}
 
 			Files.deleteIfExists(path);
 

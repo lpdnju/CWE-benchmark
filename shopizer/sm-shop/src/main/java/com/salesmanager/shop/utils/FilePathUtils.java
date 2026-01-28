@@ -13,6 +13,8 @@ import static com.salesmanager.shop.constants.Constants.STATIC_URI;
 import static com.salesmanager.shop.constants.Constants.URL_EXTENSION;
 
 import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Properties;
 
 import javax.annotation.Resource;
@@ -20,6 +22,8 @@ import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
@@ -33,6 +37,7 @@ import com.salesmanager.shop.model.order.ReadableOrderProductDownload;
 @Component
 public class FilePathUtils {
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(FilePathUtils.class);
 	private static final String DOWNLOADS = "/downloads/";
 	private static final String DOUBLE_SLASH = "://";
 	private static final String CONTEXT_PATH = "CONTEXT_PATH";
@@ -222,5 +227,63 @@ public class FilePathUtils {
 	    {
 	        return false;
 	    }
+	}
+	
+	/**
+	 * Validates that a file path is within a specified base directory (CWE-022 prevention)
+	 * @param basePath the allowed base directory
+	 * @param userPath the user-provided path
+	 * @return true if the path is safe, false otherwise
+	 */
+	public boolean isPathWithinBase(String basePath, String userPath) {
+		if (StringUtils.isEmpty(basePath) || StringUtils.isEmpty(userPath)) {
+			LOGGER.warn("Base path or user path is null or empty");
+			return false;
+		}
+		
+		try {
+			Path base = Paths.get(basePath).toRealPath().normalize();
+			Path user = Paths.get(basePath, userPath).toRealPath().normalize();
+			
+			// Check if the resolved path starts with the base path
+			boolean isWithinBase = user.startsWith(base);
+			if (!isWithinBase) {
+				LOGGER.warn("Path traversal attempt detected: {} is not within base {}", userPath, basePath);
+			}
+			return isWithinBase;
+		} catch (Exception e) {
+			LOGGER.error("Error validating path: {}", e.getMessage());
+			return false;
+		}
+	}
+	
+	/**
+	 * Securely resolves a file path within a base directory
+	 * @param basePath the allowed base directory
+	 * @param userPath the user-provided path
+	 * @return the resolved path or null if invalid
+	 */
+	public Path secureResolvePath(String basePath, String userPath) {
+		if (StringUtils.isEmpty(basePath) || StringUtils.isEmpty(userPath)) {
+			LOGGER.warn("Base path or user path is null or empty");
+			return null;
+		}
+		
+		try {
+			// Normalize and resolve the path
+			Path base = Paths.get(basePath).normalize().toAbsolutePath();
+			Path resolved = base.resolve(userPath).normalize();
+			
+			// Verify the resolved path is within the base directory
+			if (!resolved.startsWith(base)) {
+				LOGGER.warn("Path traversal attempt: resolved path {} is outside base {}", resolved, base);
+				return null;
+			}
+			
+			return resolved;
+		} catch (Exception e) {
+			LOGGER.error("Error resolving secure path: {}", e.getMessage());
+			return null;
+		}
 	}
 }
